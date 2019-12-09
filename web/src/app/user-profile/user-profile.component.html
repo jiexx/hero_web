@@ -1,0 +1,30 @@
+<div class="main-content">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-8">
+        <div class="card">
+          <div class="card-header card-header-danger">
+            <h4 class="card-title">{{auth.state == '_TEMP'? '注册': '保存'}}</h4>
+            <p class="card-category">个人资料</p>
+          </div>
+          <div class="card-body">
+            <profile></profile>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card card-profile">
+          <div style="margin-top: -2rem">
+              <images #image [size]={w:100,h:100} [imageClass]="'rounded-circle img-thumbnail'" [max]=1 [(images)]="avatar" (onUploaded)="onUploaded($event)"></images>
+          </div>
+          <div class="card-body">
+            <h4 class="card-title">{{auth.profile.name}}</h4>
+            <p class="card-description">
+              {{auth.profile.about}}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

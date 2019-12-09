@@ -1,0 +1,59 @@
+<div class="main-content">
+    <div class="container-fluid">
+        <!-- <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header card-header-danger">
+                        <h4 class="card-title ">上海出境国际航班机票</h4>
+                        <p class="card-category">1个月内上海出发——加书签<i class="material-icons">bookmark_border</i>,第一时间获取低价机票通知信息</p>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead class=" text-primary">
+                                    <th>价格</th>
+                                    <th>目的地</th>
+                                    <th>出发时间</th>
+                                    <th>到达时间</th>
+                                    <th>中转</th>
+                                    <th>航班详情</th>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let airline of airlines">
+                                        <td class="text-primary">{{airline.price}}</td>
+                                        <td class="text-primary"><i class="material-icons text-danger" >bookmark_border</i>{{airline.end}}</td>
+                                        <td>{{airline.depart}}</td>
+                                        <td>{{airline.arrive}}</td>
+                                        <td>{{airline.stops}}</td>
+                                        <td>
+                                            <table class="table">
+                                                <tr *ngFor="let flight of flights(airline.flight); let i = index">
+                                                    <td>{{airline.flight.split(',')[i]}}</td>
+                                                    <td><img style="width:20px" src={{company(flight)}}>{{cname(flight)}}<a href={{link(flight)}} target="_blank"></a></td>
+                                                    <td><a href={{link(flight)}} target="_blank"><i class="material-icons text-danger">chevron_right</i></a></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header card-header-danger">
+                        <h4 class="card-title ">上海出发国际航班机票</h4>
+                        <p class="card-category">1个月内上海出发——点关注,如有低价机票可以第一时间获得低价通知信息</p>
+                    </div>
+                    <div class="card-body">
+                        <tickets></tickets>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
