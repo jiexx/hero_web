@@ -4,8 +4,19 @@
     "build": "tsc -p app.ts"
   },
   "dependencies": {
-    "pngquant-bin": "^5.0.2",
-    "request": "^2.88.0",
-    "request-promise-native": "^1.0.7"
+    "@type/node":"11.13.0",
+    "body-parser": "1.18.3",
+    "crontab": "1.2.0",
+    "cron": "1.7.0",
+    "request-promise-native": "1.0.7",
+    "express": "4.16.4",
+    "passport": "0.4.0",
+    "ts-node": "8.3.0",
+    "passport-jwt": "4.0.0",
+    "typeorm": "0.2.18",
+    "shortid": "2.2.14",
+    "jsonwebtoken": "8.5.1",
+    "urlencode": "1.1.0",
+    "uuid": "3.3.2"
   }
 }
