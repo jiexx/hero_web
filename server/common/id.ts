@@ -1,7 +1,6 @@
 import shortid = require('shortid');
 import uuidv4 = require('uuid/v4');
 import crypto = require('crypto');
-import lzma = require('lzma'); 
 import fs = require('fs'); 
 import { MEDIADIR, COUNTERFILE } from '../config';
 
@@ -53,38 +52,38 @@ class Id {
         result.setDate(new Date(date).getDate() + days);
         return result;
     }
-    compress(str:string){
-        return new Promise<string>((resolve,reject)=>{
-            lzma./*LZMA().*/compress(str, 9, (result, error)=>{
-                if(!error){
-                    let utf8 = Buffer.from(result).toString('utf8');
-                    let ucs2 = Buffer.from(result).toString('ucs2');
-                    let utf16le = Buffer.from(result).toString('utf16le');
-                    let binary = Buffer.from(result).toString('binary');
-                    let hex = Buffer.from(result).toString('hex');
-                    let base64 = Buffer.from(result).toString('base64');
-                    let a1 = Buffer.from(utf8,'utf8');
-                    let a2 = Buffer.from(ucs2,'ucs2');
-                    let a3 = Buffer.from(hex,'hex');
-                    let a4 = Buffer.from(base64,'base64');
-                    return resolve(Buffer.from(result).toString('ucs2'));
-                }else{
-                    return reject(error);
-                }
-            });
-        })
-    }
-    decompress(ucs2:string){
-        return new Promise<string>((resolve,reject)=>{
-            lzma./*LZMA().*/decompress(Buffer.from(ucs2,'ucs2'), (result, error)=>{
-                if(!error){
-                    return resolve(result);
-                }else{
-                    return reject(error);
-                }
-            });
-        })
-    }
+    // compress(str:string){
+    //     return new Promise<string>((resolve,reject)=>{
+    //         lzma./*LZMA().*/compress(str, 9, (result, error)=>{
+    //             if(!error){
+    //                 let utf8 = Buffer.from(result).toString('utf8');
+    //                 let ucs2 = Buffer.from(result).toString('ucs2');
+    //                 let utf16le = Buffer.from(result).toString('utf16le');
+    //                 let binary = Buffer.from(result).toString('binary');
+    //                 let hex = Buffer.from(result).toString('hex');
+    //                 let base64 = Buffer.from(result).toString('base64');
+    //                 let a1 = Buffer.from(utf8,'utf8');
+    //                 let a2 = Buffer.from(ucs2,'ucs2');
+    //                 let a3 = Buffer.from(hex,'hex');
+    //                 let a4 = Buffer.from(base64,'base64');
+    //                 return resolve(Buffer.from(result).toString('ucs2'));
+    //             }else{
+    //                 return reject(error);
+    //             }
+    //         });
+    //     })
+    // }
+    // decompress(ucs2:string){
+    //     return new Promise<string>((resolve,reject)=>{
+    //         lzma./*LZMA().*/decompress(Buffer.from(ucs2,'ucs2'), (result, error)=>{
+    //             if(!error){
+    //                 return resolve(result);
+    //             }else{
+    //                 return reject(error);
+    //             }
+    //         });
+    //     })
+    // }
     debase64(data:string){
         let matches = data.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
         if (!matches || matches.length !== 3) {
