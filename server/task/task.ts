@@ -8,7 +8,7 @@ export class Task {
         this.setup();
     }
     setup(){
-        this.dispatcher.send(parentPort, new StringMessage(workerData.name+' task....'));
+        this.dispatcher.send(parentPort, new StringMessage(workerData.name+' task ......'));
         this.dispatcher.send(parentPort, new IdleMessage());
         this.dispatcher.dispath(parentPort);
     }

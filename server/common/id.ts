@@ -104,7 +104,8 @@ class Id {
             fs.writeFileSync(COUNTERFILE, JSON.stringify({counter:2,begin:ID.now,end:''}));
             return 2;
         }else {
-            return JSON.parse(fs.readFileSync(COUNTERFILE).toString()).counter;
+            let batch = JSON.parse(fs.readFileSync(COUNTERFILE).toString());
+            return batch.end.length > 1 ? batch.counter : -100;
         }
         
     }

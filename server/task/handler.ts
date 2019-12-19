@@ -104,7 +104,7 @@ export class Exit extends Handler {
         return 'EXIT';
     }
     async handle(port: MessagePort, message: Message){
-        port.postMessage({command:'DEBUG', str:`exit: ${process.pid}  ${this.name}`});
+        //port.postMessage({command:'DEBUG', str:`exit: ${process.pid}  ${this.name}`});
         port.postMessage({command:'END', name:this.name});
         process.exit();
     }
@@ -118,7 +118,8 @@ export class End extends Handler {
         return 'END';
     }
     async handle(port: Worker, message: Message){
-        Log.info('END '+port.threadId+' '+(message as any).name );
+        //Log.info('END '+port.threadId+' '+(message as any).name );
+        Log.info('...... '+(message as any).name+' END' );
         if(this.callback){
             this.callback((message as any).name);
         }

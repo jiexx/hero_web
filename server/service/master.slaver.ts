@@ -15,6 +15,7 @@ import { Tickets } from "./tickets";
 import { TaskManager } from "../task/task.manager";
 import { Favors, FavorNotify } from "./favor";
 import { resolve } from "path";
+import { Log } from "../common/log";
 
 
 class Pump {
@@ -98,7 +99,7 @@ class Streams {
                 if(!a.every(s => s.readableEnded)) {
                     pt.write(`${this.sequence[i+1]}\n`);
                 }else{
-                    console.log('send total :'+counter);
+                    Log.info('send total :'+counter);
                     pt.end();
                 }
             });
@@ -148,7 +149,7 @@ class Streams {
                 pump.end();
             }).on('response', (response)=> {
                 response.on('data', function(data) {
-                    console.log('received ' + data.length + ' bytes of compressed data')
+                    Log.info('received ' + data.length + ' bytes of compressed data')
                 })
             }).on('error',()=>{
                 reject();
@@ -262,7 +263,10 @@ export class SlaverStartTasks extends SHandler {
     }
     async start(onFinish = null){
         let counter = ID.beginBatchCounter();
-        console.log('batch start ', counter)
+        Log.info('batch start '+ counter);
+        if(counter < 0){
+            return;
+        }
         if(!this.tm) {
             this.tm = new TaskManager();
             await this.tm.setup(counter);

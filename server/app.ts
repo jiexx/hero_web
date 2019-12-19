@@ -58,11 +58,11 @@ async function setup(app){
 
 // run app
 var server = app.listen(HOSTPORT, async () => {
-    console.log('Listening at http://localhost:'+HOSTPORT);
+    Log.info((MS.MASTER.ONLINE && 'MASTER ')+(MS.MASTER.ONLINE && 'SLAVER ')+'Listening at http://localhost:'+HOSTPORT);
     await setup(app);
 });
 server.on('connection', function(socket) {
-    console.log("A new connection was made by a client.");
+    Log.info("A new connection was made by a client.");
     socket.setTimeout(120 * 1000); 
     // 30 second timeout. Change this as you see fit.
     socket.on('data',function(data){
@@ -72,8 +72,14 @@ server.on('connection', function(socket) {
 });
 
 if(MS.SLAVER.ONLINE){
-    const job = new CronJob('00 00 */8 * * 0-6', async function() {
-        await SlaverStartTasks.instance.handle('tickets',null);
+    const job = new CronJob({
+        cronTime: '00 00 */8 * * 0-6',
+        onTick: async () => {  setTimeout(async ()=> {await SlaverStartTasks.instance.handle('tickets',null);},5000); },
+        runOnInit: true
     });
     job.start();
 }
+//yum install -y gcc-c++ make
+//curl -sL https://rpm.nodesource.com/setup_12.x | sudo -E bash -
+//yum install nodejs
+//npm install

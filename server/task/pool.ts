@@ -3,6 +3,7 @@ import { config } from "./config";
 import { ID } from "../common/id";
 import { G, V } from "../gorm/gorm";
 import { Vertex } from "../gorm/vertex";
+import { Log } from "../common/log";
 
 
 export interface Query {
@@ -60,7 +61,7 @@ class JSelector implements Selector{
         try {
             return this.jKeys.reduce((p, c) => {let ex = this.extract(this.j[c], data); if(ex){ex.forEach((e,i) => { p[i] = p[i] || {'createtime':ID.now,'batch':batchNo}; p[i][c] = e+'';});}; return p}, []);
         }catch(e){
-            console.log(e.toString());
+            Log.error(e.toString());
             return null;
         }
     }
@@ -144,7 +145,7 @@ export class Pool {
             }
             return curr;
         }catch(e){
-            console.log(e.toString());
+            Log.error(e.toString());
         }
     }
     info(){
