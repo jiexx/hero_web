@@ -40,15 +40,15 @@ export class Vertex extends Model {
         let inst = new Vertex(this.label);
         return inst.extendProperties(o);
     }
-    async addBulk(props:Array<Object>){
+    async addBulk(props:Object[]){
         let os = await this.addVBulk(props);
         return os.reduce((p,c)=>{let inst = new Vertex(this.label); inst.extendProperties(c);p.push(inst); return p}, [])
     }
-    async remove(props:Object){
-        let o = await this.repo.remove(props);
-        return Vertex.instance(o);
+    async remove(){
+        await this.repo.remove({id:this.id});
+        return this;
     }
-    async removeAll(props:Object){
+    async removeBulk(props:Object[]){
         let o = await this.repo.remove(props);
         return Vertex.instance(o);
     }
@@ -82,23 +82,23 @@ export class Vertex extends Model {
         let o = await this.repo.find(where);
         return Vertex.instance(o);
     }
-    async out(target:Edge) {
-        let o = await super.out(target);
+    async out(target:Edge, opts:Object = null) {
+        let o = await super.out(target, opts);
         return Edge.instance(o);
     }
     
-    async in(target:Edge) {
-        let o = await super.in(target);
+    async in(target:Edge, opts:Object = null) {
+        let o = await super.in(target, opts);
         return Edge.instance(o);
     }
 
-    async outV(target:Vertex) {
-        let o = await super.outV(target);
+    async outV(target:Vertex, opts:Object = null) {
+        let o = await super.outV(target, opts);
         return Vertex.instance(o);
     }
     
-    async inV(target:Vertex) {
-        let o = await super.inV(target);
+    async inV(target:Vertex, opts:Object = null) {
+        let o = await super.inV(target, opts);
         return Vertex.instance(o);
     }
     async exOut(target:Model[], opts:Object = null) {

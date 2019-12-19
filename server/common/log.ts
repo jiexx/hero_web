@@ -2,7 +2,9 @@ import { ID } from "./id";
 
 export class Log {
     static error(str: string) {
-        console.log(ID.now, str);
+        const err = {};
+        Error.captureStackTrace(err);
+        console.log(ID.now, str, err['stack'].split("\n"));
     }
     static warning(str: string) {
         console.log(ID.now,str);

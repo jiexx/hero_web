@@ -4,7 +4,7 @@ import { CronJob } from 'cron';
 import { Handler } from './route/handler';
 import { Authentication } from './route/authentication';
 import { Router } from './route/router';
-import { HOSTPORT } from './config';
+import { HOSTPORT, MS } from './config';
 import { Tickets } from './service/tickets';
 import { TaskManager } from './task/task.manager';
 import { Log } from './common/log';
@@ -12,6 +12,8 @@ import { G } from './gorm/gorm';
 import { Articles } from './service/articles';
 import { ID } from './common/id';
 import { Messages } from './service/messages';
+import { Favors } from './service/favor';
+import { MasterSlaver, SlaverStartTasks } from './service/master.slaver';
 
 const app = express();
 app.use('/', express.static('./assets', {
@@ -33,19 +35,18 @@ app.use(function(req, res, next) {
 });
 
 
-var tm = null;
+// var tm = null;
 const HandlerFactory : Handler[] = [
     Authentication.instance,
+    MasterSlaver.instance,
     Tickets.instance,
     Articles.instance,
-    Messages.instance
+    Messages.instance,
+    Favors.instance
 ];
 // register all application routes
 async function setup(app){
     await G.connect();
-    let counter = ID.batchCounter;
-    console.log('batch', counter)
-    //await start();
     for(let i = 0 ; i < HandlerFactory.length ; i ++ ){
         var h = <Handler>HandlerFactory[i];
         var routers = await h.routers();
@@ -54,25 +55,25 @@ async function setup(app){
         })
     }
 }
-setup(app);
+
 // run app
-var server = app.listen(HOSTPORT, () => {
+var server = app.listen(HOSTPORT, async () => {
     console.log('Listening at http://localhost:'+HOSTPORT);
+    await setup(app);
+});
+server.on('connection', function(socket) {
+    console.log("A new connection was made by a client.");
+    socket.setTimeout(120 * 1000); 
+    // 30 second timeout. Change this as you see fit.
+    socket.on('data',function(data){
+    });
+    socket.on('end',function(data){
+    });
 });
 
-async function start(){
-    let counter = ID.batchCounter;
-    console.log('batch', counter)
-    if(!tm) {
-        tm = new TaskManager();
-        await tm.setup(counter);
-    }
-    await tm.start();
-    ID.addBatchCounter();
+if(MS.SLAVER.ONLINE){
+    const job = new CronJob('00 00 */8 * * 0-6', async function() {
+        await SlaverStartTasks.instance.handle('tickets',null);
+    });
+    job.start();
 }
-// const job = new CronJob('00 */120 * * * 1-5', async function() {
-
-//        start();
-//     Log.info('>>CronJob<<')
-// });
-// job.start();

@@ -18,3 +18,7 @@ export const DIRECT = function (data:Object = null,type:string = null){
 export const FILE = function (type:string, dir:string = null){
     return { code: 'FILE', msg: type, data: dir  };
 }
+
+export const STREAM = function (data:Object = null,msg:any = ''){
+    return { code: 'STREAM', msg: msg, data: data  };
+}

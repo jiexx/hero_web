@@ -1,6 +1,7 @@
 
 
 import { Request, Response, Express } from "express";
+import { createGzip } from "zlib";
 import { Log } from "../common/log";
 import { Handler } from "./handler";
 import { Authentication } from "./authentication";
@@ -8,8 +9,22 @@ const cwd = process.cwd();
 
 abstract class Process {
     auth: any = null;
-    constructor(auth:boolean = false){
-        this.auth = auth? Authentication.instance.authenticate : null;
+    constructor(auth:number = 0){
+        switch(auth){
+            case 0: 
+                this.auth = null;
+                break;
+            case 1: 
+                this.auth = Authentication.instance.authenticate;
+                break;
+            case 2: 
+                this.auth = Authentication.instance.masterAuthenticate;
+                break;
+            case 3: 
+                this.auth = Authentication.instance.slaverAuthenticate;
+                break;
+        }
+        //this.auth = auth ? Authentication.instance.authenticate : null;
     }
     abstract process(h:Handler, path:string, app:Express);
     protected abstract prepare(h:Handler, path:string, req:Request, res: Response): Object;
@@ -28,6 +43,12 @@ abstract class Process {
             res.send(result['data']);
         }else if(result['code']=='OK'){
             res.send(result);
+        }else if(result['code']=='STREAM'){
+            res.header('Content-Encoding', 'gzip');
+            result['data'].pipe(createGzip()).pipe(res);
+            // res.on('finish', function() {
+            //     console.log(res);
+            // });
         }else {
             res.send({code:'OK', msg:'', data:result});
         }
@@ -97,7 +118,7 @@ export class Router {
     path: string = '';
     handler: Handler = null;
     processor: Process[] = [];
-    constructor(path:string, h:Handler, auth: boolean = true,  post:boolean = true, get:boolean = false, pattern:boolean = false){
+    constructor(path:string, h:Handler, auth: number = 1,  post:boolean = true, get:boolean = false, pattern:boolean = false){
         this.path = path.toLowerCase();
         this.handler = h;
 
@@ -105,7 +126,7 @@ export class Router {
         this.processor[1] =  ( post ? new Post(auth) : null ); 
 
 
-        Log.info('POST:'+(!!post)+' GET:'+(!!get)+(auth?' authorized | ':' unauthorized | ')+this.path);
+        Log.info('POST:'+(!!post)+' GET:'+(!!get)+((auth == 1 && ' authorized | ')||(auth == 0 && ' unauthorized | ')||(auth == 2 && ' master | ')||(auth == 3 && ' slaver |  '))+this.path);
     }
 
     process(app:Express) {

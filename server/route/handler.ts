@@ -34,7 +34,7 @@ export abstract class AHandler extends Handler {
     abstract async handle(path:string, q:any);
 
     protected createRouter(path: string) : Router{
-        return new Router(path, this, true);
+        return new Router(path, this, 1);
     }
 };
 
@@ -43,7 +43,7 @@ export abstract class UHandler extends Handler {
     abstract async handle(path:string, q:any);
 
     protected createRouter(path: string): Router{
-        return new Router(path, this, false, true, true);
+        return new Router(path, this, 1, true, true);
     }
 };
 
@@ -51,14 +51,14 @@ export abstract class PatternAHandler extends Handler {
     abstract async handle(path:string, q:any);
 
     protected createRouter(path: string){
-        return new Router(path, this, true, true, true, true);
+        return new Router(path, this, 1, true, true, true);
     }
 };
 export abstract class PatternUHandler extends Handler {
     abstract async handle(path:string, q:any);
 
     protected createRouter(path: string){
-        return new Router(path, this, false, true, true, true);
+        return new Router(path, this, 0, true, true, true);
     }
 };
 
@@ -70,8 +70,22 @@ export abstract class FileHandler extends Handler {
     abstract async handle(path:string, q:any);
 
     protected createRouter(path: string){
-        return new Router(path, this, false, true, true, true);
+        return new Router(path, this, 0, true, true, true);
     }
 };
 
+export abstract class MHandler extends Handler {
+    abstract async handle(path:string, q:any);
+
+    protected createRouter(path: string){
+        return new Router(path, this, 2, true, false, true);
+    }
+};
+export abstract class SHandler extends Handler {
+    abstract async handle(path:string, q:any);
+
+    protected createRouter(path: string){
+        return new Router(path, this, 3, true, false, true);
+    }
+};
 

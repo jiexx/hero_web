@@ -8,10 +8,10 @@ import { NUMPERSUBPAGE, NUMPERPAGE } from "../config";
 class TicketCount extends AHandler {
     async handle(path:string, q:any){
         
-        const tikets = await Tickets.instance.tikets.repo.repository.createQueryBuilder(Tickets.instance.tikets.label)
+        const tickets = await Tickets.instance.tickets.repo.repository.createQueryBuilder(Tickets.instance.tickets.label)
             .select("count(distinct E)", "count")
             .where("DATEDIFF(NOW(), date(createtime)) > 0 AND DATEDIFF(NOW(), date(createtime)) <= 30 AND E <> '"+q.note+"'");
-        const result = await Tickets.instance.filter(tikets, q)
+        const result = await Tickets.instance.filter(tickets, q)
             .getRawOne();
         return OK(result.count);
     }
@@ -19,10 +19,10 @@ class TicketCount extends AHandler {
 
 class TicketSubcount extends AHandler {
     async handle(path:string, q:any){
-        const tikets = await Tickets.instance.tikets.repo.repository.createQueryBuilder(Tickets.instance.tikets.label)
+        const tickets = await Tickets.instance.tickets.repo.repository.createQueryBuilder(Tickets.instance.tickets.label)
             .select("count(*)", "count")
             .where("DATEDIFF(NOW(), date(createtime)) > 0 AND DATEDIFF(NOW(), date(createtime)) <= 30 AND E <> '"+q.note+"' AND E = '"+q.end+"'");
-        const result = await Tickets.instance.filter(tikets, q)
+        const result = await Tickets.instance.filter(tickets, q)
             .getRawOne();
         return OK(result.count);
     }
@@ -31,9 +31,9 @@ class TicketSubcount extends AHandler {
 
 class TicketSublist extends AHandler {
     async handle(path:string, q:any){
-        const tikets = await Tickets.instance.tikets.repo.repository.createQueryBuilder(Tickets.instance.tikets.label)
+        const tickets = await Tickets.instance.tickets.repo.repository.createQueryBuilder(Tickets.instance.tickets.label)
             .where("DATEDIFF(NOW(), date(createtime)) > 0 AND DATEDIFF(NOW(), date(createtime)) <= 30 AND E <> '"+q.note+"' AND E = '"+q.end+"'");
-        const result = await Tickets.instance.filter(tikets, q)
+        const result = await Tickets.instance.filter(tickets, q)
             .orderBy("CAST(SUBSTRING(price,4) AS SIGNED)", "ASC")
             .limit(NUMPERSUBPAGE)
             .offset( q.page*NUMPERSUBPAGE)
@@ -44,14 +44,14 @@ class TicketSublist extends AHandler {
 
 class TicketList extends AHandler {
     fileds(){
-        return  Object.keys(Tickets.instance.tikets.repo.schema)
+        return  Object.keys(Tickets.instance.tickets.repo.schema)
                     .map(e => {if(e=='price') {return'MIN(CAST(SUBSTRING(price,4) AS SIGNED)) as price';} return e  }).join(',');
     }
     async handle(path:string, q:any){
-        const tikets = await Tickets.instance.tikets.repo.repository.createQueryBuilder(Tickets.instance.tikets.label)
+        const tickets = await Tickets.instance.tickets.repo.repository.createQueryBuilder(Tickets.instance.tickets.label)
             .select(this.fileds())
             .where("DATEDIFF(NOW(), date(createtime)) > 0 AND DATEDIFF(NOW(), date(createtime)) <= 30 AND E<>'"+q.note+"'");
-        const result = await Tickets.instance.filter(tikets, q)
+        const result = await Tickets.instance.filter(tickets, q)
             .groupBy("E")
             .orderBy("price", "ASC")
             .limit(NUMPERPAGE)
@@ -63,12 +63,8 @@ class TicketList extends AHandler {
     }
 }
 export class Tickets extends HandlersContainer {
-    tikets: Vertex;
+    tickets: Vertex;
     define(){
-        this.addHandler(new TicketSublist());
-        this.addHandler(new TicketSubcount());
-        this.addHandler(new TicketList());
-        this.addHandler(new TicketCount());
         const j = {
             price: '.result .38 .2 .1 .1', 
             airline: '.result .38 .2 .2 .3 .2',
@@ -100,7 +96,14 @@ export class Tickets extends HandlersContainer {
         return tickets;
     }
     public async routers(){
-        this.tikets = await V.define('matrix_itasoftware_com', this.define());
+        this.addHandler(new TicketSublist());
+        this.addHandler(new TicketSubcount());
+        this.addHandler(new TicketList());
+        this.addHandler(new TicketCount());
+        this.tickets = await V.define('matrix_itasoftware_com', this.define());
         return super.routers();
+    }
+    public async backup(name:string){
+        return await V.define(name, this.define());
     }
 }

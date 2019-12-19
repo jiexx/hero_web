@@ -42,7 +42,7 @@ export abstract class Handler {
     abstract async handle(port: Worker | MessagePort, message: Message);
     dispath(worker: Worker | MessagePort, message: Message){
         if(this.command == message.command){
-            this.handle(worker, message);
+            return this.handle(worker, message);
         }
     }
 }
@@ -71,7 +71,7 @@ export class Debug extends Handler {
     get command(): string{
         return 'DEBUG';
     }
-    async handle(port: MessagePort, message: Message){
+    async handle(port: Worker, message: Message){
         let msg = message as StringMessage;
         Log.info(msg.str)
     }
@@ -97,19 +97,30 @@ export class Start extends Handler {
 }
 
 export class Exit extends Handler {
+    constructor(private name: string = null){
+        super();
+    }
     get command(): string{
         return 'EXIT';
     }
     async handle(port: MessagePort, message: Message){
+        port.postMessage({command:'DEBUG', str:`exit: ${process.pid}  ${this.name}`});
+        port.postMessage({command:'END', name:this.name});
         process.exit();
     }
 }
 
 export class End extends Handler {
-    get command(): string{
-        return 'exit';
+    constructor(private callback: Function = null){
+        super();
     }
-    async handle(port: MessagePort, message: Message){
-        Log.info('END '+JSON.stringify(message));
+    get command(): string{
+        return 'END';
+    }
+    async handle(port: Worker, message: Message){
+        Log.info('END '+port.threadId+' '+(message as any).name );
+        if(this.callback){
+            this.callback((message as any).name);
+        }
     }
 }

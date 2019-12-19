@@ -34,13 +34,13 @@ class MessageReaded extends AHandler {
             return ERR(path);
         }
         let m = msg[0].properties()
-        m.readed = true;
+        m.readed = msg[0].readed ? false : true;
         m.updatetime = ID.now;
         let message = await Messages.instance.messages.add(m);
         if (!message.id) {
             return ERR(path);
         }
-        return OK(path);
+        return OK(m.readed);
     }
 }
 

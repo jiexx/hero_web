@@ -15,6 +15,7 @@ import { ID } from "../common/id";
 import { OK, ERR } from "../common/result";
 import { UHandler, AHandler, Handler, HandlersContainer } from "./handler";
 import { Router } from "./router";
+import { MS } from "../config";
 
 class Sms {
     apikey: string = '9c8ac43e28bf7233bb814740bf9158c5';
@@ -96,7 +97,7 @@ class AuthCheckin extends AHandler {
         const userWithTelExisted = await Authentication.instance.users.find({mobile: q.tel});
         if(userWithTelExisted.length > 0){
             let removed = userWithTelExisted.map(e=>{return {id:e['id']};});
-            let userWithCodeRemoved = await Authentication.instance.users.removeAll(removed);
+            let userWithCodeRemoved = await Authentication.instance.users.removeBulk(removed);
             if(userWithCodeRemoved.length<1){
                 return ERR(path);
             }
@@ -183,6 +184,40 @@ export class Authentication  extends HandlersContainer  {
                 Log.error(err);
                 next(null, false);
             }
+        }));
+        passport.use('master', new Strategy(this.options, async (jwt_payload, next) => {
+            Log.info('master signature received '+jwt_payload.id);
+            if(!jwt_payload.id){
+                next(null, false);
+                return;
+            }
+			try{
+                if(MS.MASTER.SIGNATURE == jwt_payload.id) {
+                    next(null, true);
+                }else{
+                    next(null, false);
+                }
+            }catch(err){
+                Log.error(err);
+                next(null, false);
+            }
+        }));
+        passport.use('slaver', new Strategy(this.options, async (jwt_payload, next) => {
+            Log.info('slaver signature received '+jwt_payload.id);
+            if(!jwt_payload.id){
+                next(null, false);
+                return;
+            }
+			try{
+                if(MS.SLAVER.SIGNATURE == jwt_payload.id) {
+                    next(null, true);
+                }else{
+                    next(null, false);
+                }
+            }catch(err){
+                Log.error(err);
+                next(null, false);
+            }
 		}));
     }
     _sign(id: String) {
@@ -191,6 +226,12 @@ export class Authentication  extends HandlersContainer  {
     }
     get authenticate(){
         return passport.authenticate('logined', { session: false }) ;
+    }
+    get masterAuthenticate(){
+        return passport.authenticate('master', { session: false }) ;
+    }
+    get slaverAuthenticate(){
+        return passport.authenticate('slaver', { session: false }) ;
     }
     allowed = ['name', 'mobile', 'avatar', 'about', 'state', 'cars'];
     profile(user: any){

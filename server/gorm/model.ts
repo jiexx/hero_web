@@ -59,24 +59,24 @@ export abstract class Model {
         return Object.keys(this.repo.schema).reduce((p,c)=>{p[c]=this[c];return p},{});
     }
     
-    async outV(out: Vertex){
+    async outV(out: Vertex, opts:Object = null){
         let jsql = new JoinSQL('from');
-        let result = await jsql.query(out, this);
+        let result = await jsql.query(out, this, opts);
         return result;
     }
-    async inV(In: Vertex){
+    async inV(In: Vertex, opts:Object = null){
         let jsql = new JoinSQL('to');
-        let result = await jsql.query(In, this);
+        let result = await jsql.query(In, this, opts);
         return result;
     }
-    async out(out: Edge){
+    async out(out: Edge, opts:Object = null){
         let jsql = new JoinSQL('from');
-        let result = await jsql.query(out, this);
+        let result = await jsql.query(out, this, opts);
         return result;
     }
-    async in(In: Edge){
+    async in(In: Edge, opts:Object = null){
         let jsql = new JoinSQL('to');
-        let result = await jsql.query(In, this);
+        let result = await jsql.query(In, this, opts);
         return result;
     }
 

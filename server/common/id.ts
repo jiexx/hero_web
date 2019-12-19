@@ -99,21 +99,19 @@ class Id {
         }
         return matches[1];
     }
-    get batchCounter(){
+    beginBatchCounter(){
         if(!fs.existsSync(COUNTERFILE)){
-            fs.writeFileSync(COUNTERFILE, JSON.stringify({counter:2}));
+            fs.writeFileSync(COUNTERFILE, JSON.stringify({counter:2,begin:ID.now,end:''}));
             return 2;
         }else {
             return JSON.parse(fs.readFileSync(COUNTERFILE).toString()).counter;
         }
         
     }
-    addBatchCounter(){
-        if(!fs.existsSync(COUNTERFILE)){
-            fs.writeFileSync(COUNTERFILE, JSON.stringify({counter:2}));
-        }else {
-            let counter = JSON.parse(fs.readFileSync(COUNTERFILE).toString()).counter;
-            fs.writeFileSync(COUNTERFILE, JSON.stringify({counter:counter+1}));
+    endBatchCounter(){
+        if(fs.existsSync(COUNTERFILE)){
+            let batch = JSON.parse(fs.readFileSync(COUNTERFILE).toString());
+            fs.writeFileSync(COUNTERFILE, JSON.stringify({counter:batch.counter+1,begin:batch.begin,end:ID.now}));
         }
     }
     savebase64image(data:string){

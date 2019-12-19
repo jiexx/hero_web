@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, OneToOne, Repository, Connection,createConnection } from "typeorm";
+import { getConnectionManager, Connection,createConnection } from "typeorm";
 import { DBUSER, DBPWD, DBNAME } from "./config";
 import { Vertex } from "./vertex";
 import { Edge } from "./edge";
@@ -53,6 +53,17 @@ export class Gorm {
     jstype(dbtype:string){
         return this.dbtype2jstype[dbtype];
     }
+    async useDatabase(connection: Connection){
+        const queryRunner = connection.createQueryRunner();
+        await queryRunner.connect();
+        let hasDatabase = await queryRunner.hasDatabase(DBNAME);
+        if(!hasDatabase){
+            await queryRunner.query(`create database ${DBNAME}`);
+            hasDatabase = await queryRunner.hasDatabase(DBNAME);
+        }
+        await queryRunner.executeMemoryDownSql();
+        await queryRunner.release();
+    }
     async create() {
         let connection = await createConnection({
             type: "mysql",
@@ -62,14 +73,7 @@ export class Gorm {
             password: DBPWD,
             //database: DBNAME
         });
-        const queryRunner = connection.createQueryRunner();
-        await queryRunner.connect();
-        let hasDatabase = await queryRunner.hasDatabase(DBNAME);
-        if(!hasDatabase){
-            await queryRunner.query(`create database ${DBNAME}`);
-            hasDatabase = await queryRunner.hasDatabase(DBNAME);
-        }
-        await queryRunner.release();
+        await this.useDatabase(connection);
         await connection.close();
         this.connection = await createConnection({
             type: "mysql",
@@ -88,13 +92,18 @@ export class Gorm {
                     await callback(this);
                 }
                 return;
-            }
-            await this.create();
-            if(callback){
-                await callback(this);
+            }else {
+                await this.create();
+                if(callback){
+                    await callback(this);
+                }
             }
         }catch(e){
-            Log.info(JSON.stringify(e));
+            Log.error(JSON.stringify(e));
+            if (e.name === "AlreadyHasActiveConnectionError") {
+                this.connection = getConnectionManager().get("default");
+                await this.useDatabase(this.connection);
+            }
         }
     }
 

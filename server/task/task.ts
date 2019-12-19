@@ -4,11 +4,11 @@ import { Handler, Exit, Start, Dispatcher, StringMessage, IdleMessage } from './
 export class Task {
     dispatcher: Dispatcher;
     constructor(){
-        this.dispatcher = new Dispatcher(new Start(), new Exit());
+        this.dispatcher = new Dispatcher(new Start(), new Exit(workerData.name));
         this.setup();
     }
     setup(){
-        this.dispatcher.send(parentPort, new StringMessage('task....'));
+        this.dispatcher.send(parentPort, new StringMessage(workerData.name+' task....'));
         this.dispatcher.send(parentPort, new IdleMessage());
         this.dispatcher.dispath(parentPort);
     }
