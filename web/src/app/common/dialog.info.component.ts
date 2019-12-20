@@ -11,10 +11,9 @@ import { IDialogComponent } from './dialog.component';
     }
   `],
     template:
-    `
-    <h6 mat-dialog-header *ngIf="msg && msg.info"><b>{{msg.info.title}}</b></h6>
+    `<h6 mat-dialog-header *ngIf="msg && msg.info"><b>{{msg.info.title}}</b></h6>
     <mat-dialog-content>
-        <img [src]="msg.img" *ngIf="msg && msg.img">
+        <img [src]="msg.info.img" *ngIf="msg && msg.info && msg.info. img">
         <p style="width:10rem" *ngIf="msg && msg.info">
             <small>{{msg.info.content}}</small>
         </p>

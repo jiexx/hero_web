@@ -10,20 +10,15 @@ import {
   MatInputModule,
   MatRippleModule,
   MatFormFieldModule,
-  MatTooltipModule,
   MatSelectModule,
   MatPaginatorModule,
   MatDialogModule,
   MatDialogRef,
   MatCardModule,
-  MatDividerModule,
   MatExpansionModule,
   MatIconModule,
   MatListModule,
   MatGridListModule,
-  MatBadgeModule,
-  MatMenuModule,
-  MatToolbarModule,
 } from '@angular/material';
 import { LoginComponent } from 'app/common/login.component';
 import { TicketGroupComponent } from 'app/ticket-group/ticket-group.component';
@@ -34,6 +29,8 @@ import { TicketComponent } from 'app/common/tikets.component';
 import { ProfileComponent } from 'app/common/profile.component';
 import { MessagesComponent } from 'app/common/messages.component';
 import { MessageGroupComponent } from 'app/notifications/message-group.component';
+import { FavorsComponent } from 'app/common/favors.component';
+import { FavorGroupComponent } from 'app/notifications/favor-group.component';
 
 @NgModule({
   imports: [
@@ -46,11 +43,9 @@ import { MessageGroupComponent } from 'app/notifications/message-group.component
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-    MatTooltipModule,
     MatPaginatorModule,
     MatDialogModule,
     MatCardModule,
-    MatDividerModule,
     MatExpansionModule,
     MatIconModule,
     MatListModule,
@@ -61,13 +56,14 @@ import { MessageGroupComponent } from 'app/notifications/message-group.component
     TicketGroupComponent,
     PostGroupComponent,
     MessageGroupComponent,
+    FavorGroupComponent,
     LoginComponent,
     ProfileComponent,
     ImageComponent,
     TicketComponent,
     PostComponent,
-    MessagesComponent
-
+    MessagesComponent,
+    FavorsComponent
   ],
   exports:[
   ],

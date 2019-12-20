@@ -39,7 +39,7 @@ import { InfoDialogComponent } from "./dialog.info.component";
         </mat-expansion-panel>
     </mat-accordion>
 </mat-list>
-`
+`,
 })
 export class PostComponent implements OnInit {
     @Input() articles = {};

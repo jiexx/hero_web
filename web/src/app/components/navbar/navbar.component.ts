@@ -26,6 +26,7 @@ export class NavbarComponent implements OnInit {
         { path: '/post', title: '接机交流',  icon:'local_taxi', class: '' },
         { path: '/user-profile', title: '用户资料',  icon:'person', class: '' },
         { path: '/message', title: '消息',  icon:'notifications', class: '' },
+        { path: '/favor', title: '机票关注',  icon:'notifications', class: '' },
     ];//ROUTES.filter(listTitle => listTitle);
       const navbar: HTMLElement = this.element.nativeElement;
       this.toggleButton = navbar.getElementsByClassName('navbar-toggler')[0];

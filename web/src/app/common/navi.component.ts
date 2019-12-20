@@ -21,7 +21,7 @@ import { InfoDialogComponent } from './dialog.info.component';
             <mat-icon *ngIf="favorited+unread == 0" matBadgeColor="warn" class="text-muted">notifications</mat-icon>
         </button>
         <mat-menu #menu="matMenu">
-            <button mat-menu-item [routerLink]="['/message']">
+            <button mat-menu-item [routerLink]="['/favor']">
                 <span  matBadge="{{favorited}}" matBadgeColor="warn" *ngIf="favorited>0">关注的机票</span>
                 <span  *ngIf="favorited==0">关注的机票</span>
             </button>
@@ -49,6 +49,9 @@ export class NaviComponent implements OnInit {
     ngOnInit() {
         this.hr.post('message/count',{unread: 1}, result => {
             this.unread = parseInt(result.data);
+        });
+        this.hr.post('favor/count',{unread: 1}, result => {
+            this.favorited = parseInt(result.data);
         });
     }
 

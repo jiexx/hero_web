@@ -12,8 +12,8 @@ export class IDialogComponent {
         if (this.msg && this.msg.pass) this.msg.pass(result);
         this.dialogRef.close();
     }
-    decline() {
-        if (this.msg && this.msg.fail) this.msg.fail();
+    decline(result: any = null) {
+        if (this.msg && this.msg.fail) this.msg.fail(result);
         this.dialogRef.close();
     }
 }

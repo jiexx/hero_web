@@ -276,15 +276,26 @@ export class TicketComponent implements OnInit {
     airport(B:string){
         return Places[B];
     }
+    favor(price, method, ticketid){
+        this.hr.post('favor/post', { price: parseInt(price), method: method, to: ticketid }, result => {
+            console.log('success')
+        });
+    }
     favorite(airline, panel){
         if(!airline.favorited || airline.favorited == 'favorite_border') {
             panel.disabled = true;
             this.busService.send(new DialogMessage(this, FavorDialogComponent, {},
-                ()=>{
+                (form)=>{
                     airline['favorited'] = airline.favorited == 'favorite' ? 'favorite_border' : 'favorite';
+                    if(airline.favorited == 'favorite') {
+                        this.favor(form.price, 1, airline.id);
+                    }
                 }, 
-                ()=>{
+                (form)=>{
                     airline['favorited'] = airline.favorited == 'favorite' ? 'favorite_border' : 'favorite';
+                    if(airline.favorited == 'favorite') {
+                        this.favor(form.price, 1, airline.id);
+                    }
                 }, 
                 ()=>{panel.disabled = false;panel.hideToggle = false}
             ));

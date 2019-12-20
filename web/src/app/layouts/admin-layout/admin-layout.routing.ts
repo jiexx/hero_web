@@ -6,6 +6,7 @@ import { AuthGuard } from 'app/common/auth.guard';
 import { LoginComponent } from 'app/common/login.component';
 import { TicketGroupComponent } from 'app/ticket-group/ticket-group.component';
 import { PostGroupComponent } from 'app/post-group/post-group.component';
+import { FavorGroupComponent } from 'app/notifications/favor-group.component';
 
 export const AdminLayoutRoutes: Routes = [
     // {
@@ -56,4 +57,5 @@ export const AdminLayoutRoutes: Routes = [
     //{ path: 'notifications',  component: NotificationsComponent, canActivate: [AuthGuard] },
     { path: 'login',   component: LoginComponent, canActivate: [AuthGuard] },
     { path: 'message',   component: MessageGroupComponent, canActivate: [AuthGuard] },
+    { path: 'favor',   component: FavorGroupComponent, canActivate: [AuthGuard] },
 ];

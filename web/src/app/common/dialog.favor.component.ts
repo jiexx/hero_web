@@ -51,9 +51,9 @@ export class FavorDialogComponent extends IDialogComponent {
         price: this.price.input,
     });
     confirm() {
-        super.confirm()
+        super.confirm(this.form.value)
     }
     decline() {
-        super.decline();
+        super.decline(this.form.value);
     }
 }
