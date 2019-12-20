@@ -79,12 +79,13 @@ if(MS.SLAVER.ONLINE){
     });
     job.start();
 }
-//yum install -y gcc-c++ make
-//curl -sL https://rpm.nodesource.com/setup_12.x | sudo -E bash -
-//yum install nodejs
-//npm install
-
-//npm install -g typescript && npm link typescript
+//
+//wget https://nodejs.org/dist/v12.14.0/node-v12.14.0-linux-x64.tar.xz
+//tar -xvf node-v12.14.0-linux-x64.tar.xz
+//ln -s ~/node-v12.14.0-linux-x64/bin/node /usr/local/bin/node
+//ln -s ~/node-v12.14.0-linux-x64/bin/npm /usr/local/bin/npm
+//ln -s ~/node-v12.14.0-linux-x64/bin/tsc /usr/local/bin/tsc
+//ln -s ~/node-v12.14.0-linux-x64/bin/tsserver /usr/local/bin/tsserver
 //npm install -g pm2
 
 //https://dev.mysql.com/downloads/repo/yum/
@@ -94,4 +95,8 @@ if(MS.SLAVER.ONLINE){
 //systemctl start mysqld
 //grep 'temporary password' /var/log/mysqld.log
 //mysql_secure_installation
-//
+
+//npm clean-install
+//npm install request
+//npm install mysql
+//npm install typescript
