@@ -9,13 +9,6 @@ import { HttpRequest } from 'app/common/net.request';
     styleUrls: ['./ticket-group.component.css']
 })
 
-export class TicketGroupComponent implements OnInit {
-
-  constructor(public hr: HttpRequest) {
-
-  }
-  ngOnInit() {
-
-  }
+export class TicketGroupComponent {
 
 }

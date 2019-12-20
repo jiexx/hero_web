@@ -4,11 +4,7 @@ declare var $: any;
     templateUrl: './favor-group.component.html',
     styleUrls: ['./favor-group.component.css']
 })
-export class FavorGroupComponent implements OnInit {
+export class FavorGroupComponent {
 
-    constructor() { }
-
-    ngOnInit() {
-    }
 
 }

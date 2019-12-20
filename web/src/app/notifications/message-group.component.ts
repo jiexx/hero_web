@@ -4,11 +4,6 @@ declare var $: any;
     templateUrl: './message-group.component.html',
     styleUrls: ['./message-group.component.css']
 })
-export class MessageGroupComponent implements OnInit {
-
-    constructor() { }
-
-    ngOnInit() {
-    }
+export class MessageGroupComponent {
 
 }

@@ -10,16 +10,12 @@ import { PostComponent } from 'app/common/posts.component';
   templateUrl: './post-group.component.html',
   styleUrls: ['./post-group.component.css']
 })
-export class PostGroupComponent implements OnInit {
+export class PostGroupComponent {
 
   @ViewChild('postRef', { static:false }) postRef:PostComponent;
 
   article = {title: '', content: ''}
   constructor(private auth: AuthGuard) {
-  }
-
-  ngOnInit() {
-  
   }
   toggle(panel1){
     if(!this.auth.logined()) {
