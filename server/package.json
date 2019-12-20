@@ -6,6 +6,7 @@
     "server": "app.js"
   },
   "dependencies": {
+    "typescript":"^3.7.3",
     "@types/node":"^11.13.0",
     "express": "^4.16.4",
     "cron": "^1.7.0",
@@ -14,8 +15,10 @@
     "jsonwebtoken": "^8.5.1",
     "passport": "^0.4.0",
     "passport-jwt": "^4.0.0",
+    "request":"^2.88.0",
     "request-promise-native": "^1.0.7",
     "shortid": "^2.2.14",
+    "mysql": "^2.17.1",
     "typeorm": "^0.2.18",
     "ts-node": "^8.3.0",
     "urlencode": "^1.1.0",

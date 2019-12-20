@@ -111,7 +111,14 @@ class Id {
     endBatchCounter(){
         if(fs.existsSync(COUNTERFILE)){
             let batch = JSON.parse(fs.readFileSync(COUNTERFILE).toString());
-            fs.writeFileSync(COUNTERFILE, JSON.stringify({counter:batch.counter+1,begin:batch.begin,end:ID.now}));
+            fs.writeFileSync(COUNTERFILE, JSON.stringify({counter:batch.counter,begin:batch.begin,end:ID.now}));
+        }
+    }
+    passBatchCounter(){
+        if(fs.existsSync(COUNTERFILE)){
+            let batch = JSON.parse(fs.readFileSync(COUNTERFILE).toString());
+            fs.writeFileSync(COUNTERFILE, JSON.stringify({counter:batch.counter+1,begin:batch.begin,end:batch.end,pass:ID.now}));
+            return batch.counter;
         }
     }
     savebase64image(data:string){

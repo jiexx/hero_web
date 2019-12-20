@@ -258,6 +258,9 @@ export class SlaverStartTasks extends SHandler {
 
         await this.start(async ()=>{
             await this.notify();
+            let counter = ID.passBatchCounter();
+            Log.info('batch end '+ counter);
+
         })
         return OK(path);
     }
