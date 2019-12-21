@@ -4,7 +4,7 @@
             <mat-grid-list cols="5" rowHeight="5rem">
                 <mat-grid-tile [colspan]="2"></mat-grid-tile>
                 <mat-grid-tile [colspan]="1">
-                    <button mat-mini-fab color="warn" style="margin:0 auto;" (click)="toggle(panel1)"><mat-icon>add</mat-icon></button>
+                    <button mat-icon-button   (click)="toggle(panel1)" class="large" color="warn"><mat-icon >not_listed_location</mat-icon></button>
                 </mat-grid-tile>
             </mat-grid-list>
             <mat-expansion-panel class="mat-elevation-z0" #panel1> 
@@ -12,8 +12,8 @@
                     <input matInput placeholder="标题" [(ngModel)]="article.title" type="text">
                 </mat-form-field>
                 <mat-form-field>
-                    <textarea matInput placeholder="内容" [(ngModel)]="article.content"></textarea>
-                    <button mat-mini-fab matSuffix color="warn" (click)="post(panel1)"><mat-icon>done</mat-icon></button>
+                    <textarea matInput placeholder="内容" class="h6" [(ngModel)]="article.content"></textarea>
+                    <button mat-icon-button matSuffix color="warn" class="small" (click)="post(panel1)"><mat-icon>where_to_vote</mat-icon></button>
                 </mat-form-field>
             </mat-expansion-panel>
         </mat-card>

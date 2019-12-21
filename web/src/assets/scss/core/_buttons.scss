@@ -1,3 +1,47 @@
+.mat-icon-button.large {
+
+  width: 3rem;
+  height: 3rem;
+  line-height: 3rem;
+
+  .mat-icon {
+    font-size: 3rem;
+    width: 3rem;
+    height: 3rem;
+    line-height: 3rem;
+    color: tomato;
+  }
+}
+.mat-icon-button.small {
+
+  width: 1.5rem;
+  height: 1.5rem;
+  line-height: 1.5rem;
+
+  .mat-icon {
+    font-size: 1.5rem !important;
+    width: 1.5rem !important;
+    height: 1.5rem;
+    line-height: 1.5rem;
+    color: limegreen;
+  }
+}
+
+.mat-icon-button.xlarge {
+
+  width: 4rem;
+  height: 4rem;
+  line-height: 4rem;
+
+  .mat-icon {
+    font-size: 4rem;
+    width: 4rem;
+    height: 4rem;
+    line-height: 4rem;
+    color: orangered;
+  }
+}
+
 .mat-button.btn,.mat-raised-button.btn,.mat-raised-button.btn:not([class*=mat-elevation-z]),
 .btn{
   position: relative;

@@ -87,7 +87,8 @@ export class Gorm {
     }
     async connect(callback:Function = null){
         try{
-            if(this.connection) {
+            Log.info('connect database...')
+            if(this.connection /* || getConnectionManager().get("default") */ ) {
                 if(callback){
                     await callback(this);
                 }
@@ -100,10 +101,6 @@ export class Gorm {
             }
         }catch(e){
             Log.error(JSON.stringify(e));
-            if (e.name === "AlreadyHasActiveConnectionError") {
-                this.connection = getConnectionManager().get("default");
-                await this.useDatabase(this.connection);
-            }
         }
     }
 

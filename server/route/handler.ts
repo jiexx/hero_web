@@ -43,7 +43,7 @@ export abstract class UHandler extends Handler {
     abstract async handle(path:string, q:any);
 
     protected createRouter(path: string): Router{
-        return new Router(path, this, 1, true, true);
+        return new Router(path, this, 0, true, true);
     }
 };
 

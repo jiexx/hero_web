@@ -15,13 +15,9 @@ import { InfoDialogComponent } from "./dialog.info.component";
 `<mat-list>
     <mat-list-item *ngFor="let message of messages.list; let i = index" [ngClass]="(message.messages_0.readed==1)?'readed':'unread'" >
         <img mat-list-icon  src="{{ message && message.users_1 && message.users_1.avatar ? hr.assetsPath(message.users_1.avatar) : hr.assetsPath('media/img/marc.jpg')}}" (click)="sendMessage(message.users_1, panel)">
-        <h4 mat-line>{{message.messages_0.title}}</h4>
-        <p mat-line><small>{{message.messages_0.content}}|{{message.messages_0.createtime.replace(' ','日')}}</small></p>
-        <span>{{message.users_1.name}}</span>
-        <button mat-icon-button (click)="selected(message.messages_0)">
-            <mat-icon *ngIf="message.messages_0.readed==0">clear</mat-icon>
-            <mat-icon *ngIf="message.messages_0.readed==1">check</mat-icon>
-        </button>
+        <h5 mat-line><button mat-icon-button color="warn" (click)="selected(message.messages_0)" ><mat-icon [style.color]="message.messages_0.readed==0? 'tomato' : 'lightgray'">{{message.messages_0.readed==0? 'where_to_vote' : 'location_on'}}</mat-icon></button>{{message.messages_0.title}}</h5>
+        <h6 mat-line>{{message.messages_0.content}}</h6>
+        <h6 mat-line>{{message.users_1.name}}发送于:{{message.messages_0.createtime.replace(' ','日')}}</h6>
     </mat-list-item>
     <mat-paginator  [length]="messages.pgNumber" [pageSize]="10" (page)="page($event, messages)"> </mat-paginator>
 </mat-list>
@@ -38,12 +34,7 @@ import { InfoDialogComponent } from "./dialog.info.component";
     color: darkgray;
     border: 0;
     border-radius: 3px;
-}
-.mat-icon {
-    width:1rem;
-    font-size:1rem;
-}
-`
+}`
     ]
 })
 export class MessagesComponent implements OnInit {

@@ -11,7 +11,7 @@ export const MS = {
         SIGNATURE: '!QAZ@WSX'
     },
     SLAVER: {
-        ONLINE: true,
+        ONLINE: false,
         ADDR: 'http://127.0.0.1:8999',
         SIGNATURE: 'XSW@ZAQ!'
     }

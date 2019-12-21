@@ -15,10 +15,10 @@ import { TicketComponent } from "./tikets.component";
     template:
 `<mat-list>
     <mat-list-item *ngFor="let favor of favors.list; let i = index" [ngClass]="(favor.favors_0.state==0)?'readed':'unread'" >
-        <h4 mat-list-icon style="width:auto;height:auto"><img style="width:4rem" src={{ticket.dest(favor.tickets_1.E)}}></h4>
-        <h4 mat-line><button mat-icon-button ><mat-icon color="warn" (click)="active(favor.favors_0, favor.tickets_1, i)">favorite</mat-icon></button>{{ticket.destname(favor.tickets_1.E)}}({{favor.tickets_1.end}})</h4>
-        <p mat-line><small>{{favor.favors_0.createtime.replace(' ','日')}}关注</small></p>
-        <span>{{favor.favors_0.price}}</span><mat-icon (click)="notify(favor.favors_0, i)">close</mat-icon>
+        <span mat-list-icon style="width:auto;height:auto"><img style="width:4rem;border-radius:4px" src={{ticket.dest(favor.tickets_1.E)}}></span>
+        <h5 mat-line><button mat-icon-button color="warn" (click)="active(favor.favors_0, favor.tickets_1, i)" ><mat-icon >where_to_vote</mat-icon></button>{{ticket.destname(favor.tickets_1.E)}}({{favor.tickets_1.end}})</h5>
+        <h6 mat-line>{{favor.favors_0.createtime.replace(' ','日')}}关注</h6>
+        <span>{{favor.favors_0.price}}</span>
         <button mat-icon-button >
             <mat-icon (click)="toggle(favor.tickets_1, i)">{{closed?'expand_more':'expand_less'}}</mat-icon>
         </button>

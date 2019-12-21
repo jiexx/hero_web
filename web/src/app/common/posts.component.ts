@@ -18,15 +18,16 @@ import { InfoDialogComponent } from "./dialog.info.component";
             <mat-expansion-panel-header [collapsedHeight]="'auto'" [expandedHeight]="'auto'">
                 <mat-list-item>
                     <img mat-list-icon  src="{{ article && article.users_1 && article.users_1.avatar ? hr.assetsPath(article.users_1.avatar) : hr.assetsPath('media/img/marc.jpg')}}" (click)="sendMessage(article.users_1, panel)">
-                    <h4 mat-line *ngIf="level==0"><mat-icon color="warn">bookmark_border</mat-icon>{{article.articles_0.title}}</h4>
-                    <p mat-line *ngIf="level!=0">{{article.articles_0.content}}</p>
-                    <p mat-line><small>{{article && article.users_1 && article.users_1.name ? article.users_1.name : ''}}发表于{{article.articles_0.createtime}}</small></p>
+                    <mat-icon mat-list-icon color="warn" [style.visibility]="article.users_1.cars.length>3? 'show': 'hidden'">person_pin</mat-icon>
+                    <h5 mat-line *ngIf="level==0">{{article.articles_0.title}}</h5>
+                    <h6 mat-line *ngIf="level!=0">{{article.articles_0.content}}</h6>
+                    <h6 mat-line>{{article && article.users_1 && article.users_1.name ? article.users_1.name : ''}}发表于{{article.articles_0.createtime}}</h6>
                 </mat-list-item>
             </mat-expansion-panel-header>
-            <p *ngIf="level==0">{{article.articles_0.content}}</p>
+            <h6 *ngIf="level==0">{{article.articles_0.content}}</h6>
             <mat-form-field>
-                <textarea matInput placeholder="回复内容" [(ngModel)]="content"></textarea>
-                <button mat-mini-fab matSuffix color="warn" (click)="comment(article)"><mat-icon>done</mat-icon></button>
+                <textarea matInput class="h6" placeholder="回复内容" [(ngModel)]="content"></textarea>
+                <button mat-icon-button class="small" matSuffix color="warn" (click)="comment(article)"><mat-icon>where_to_vote</mat-icon></button>
             </mat-form-field>
             <posts [articles]="article.articles" [level]="level+1"  ></posts>
         </mat-expansion-panel>
@@ -39,7 +40,14 @@ import { InfoDialogComponent } from "./dialog.info.component";
         </mat-expansion-panel>
     </mat-accordion>
 </mat-list>
-`,
+`,    styles: [
+`.mat-icon.mat-list-icon {
+    padding:0;
+    margin: 0 0 1rem -1rem;
+    font-size:1rem !important;
+    color:tomato;
+}`
+        ]
 })
 export class PostComponent implements OnInit {
     @Input() articles = {};
@@ -131,6 +139,9 @@ export class PostComponent implements OnInit {
     sendMessage(user, panel){
         panel.disabled = true;
         user.avatar = user.avatar ? user.avatar : 'media/img/marc.jpg';
+        if(user.mobile == this.auth.profile.mobile) {
+            return;
+        }
         this.busService.send(new DialogMessage(this, MsgDialogComponent, { avatar: this.hr.assetsPath(user.avatar), name: user.name, about: user.about},
             (form)=>{
                 form['to'] = user.id;

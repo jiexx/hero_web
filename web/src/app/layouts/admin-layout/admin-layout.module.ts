@@ -19,6 +19,7 @@ import {
   MatIconModule,
   MatListModule,
   MatGridListModule,
+  MatPaginatorIntl,
 } from '@angular/material';
 import { LoginComponent } from 'app/common/login.component';
 import { TicketGroupComponent } from 'app/ticket-group/ticket-group.component';
@@ -31,6 +32,7 @@ import { MessagesComponent } from 'app/common/messages.component';
 import { MessageGroupComponent } from 'app/notifications/message-group.component';
 import { FavorsComponent } from 'app/common/favors.component';
 import { FavorGroupComponent } from 'app/notifications/favor-group.component';
+import { ConfPaginator } from 'app/common/conf.paginator';
 
 @NgModule({
   imports: [
@@ -69,6 +71,7 @@ import { FavorGroupComponent } from 'app/notifications/favor-group.component';
   ],
   providers: [
     {provide: MatDialogRef, useValue: {}},
+    {provide: MatPaginatorIntl, useValue: ConfPaginator()}
   ],
 })
 

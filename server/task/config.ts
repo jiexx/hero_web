@@ -148,7 +148,7 @@ const template = [
 ];
 
 const depart = ["SHA", "PVG"];
-const arrive = [ "SYD",/*"CDG","REP","AKL" ,"MUC","SIN","FRA","MEL","CMB","AMS","BUD","DPS","SVO","CEB","HND","LGW","KUL","MNL","MXP","VVO","HKT","DMK","ICN","KIX","DXB","KLO","CJU", "HKG","MFM","CNX","NRT","TSA","TAE","BKK","CTS","TPE","IBR","GMP","PUS","SGN","TAK","PNH","KHH","MYJ","KMQ","NGO","HSG","NGS","ZRH","OKA","HEL","FUK","LHR","FSZ","DTW","JFK","ORD","ATL","YYZ","MLE","SEA","FCO","LAX","YVR","SFO","CPH","DEL","HAN","BWN","EWR","CGK","HNL","OKJ","HIJ","DFW","YUL","RGN","BNE","BKI","IST","ADD","DOH","AUH","IKA","VTE","BCN","MRU","VIE","MAD","BOS","MEX","SPN","FNJ","CRK","DAD","PRG","ARN","SSN","MWX","TOY","KIJ","KOJ","HNA","AKJ","SDJ","LPQ","POM","TIJ" */];
+const arrive = [ "SYD","CDG","REP","AKL" ,"MUC","SIN","FRA","MEL","CMB","AMS","BUD","DPS","SVO","CEB","HND","LGW","KUL","MNL","MXP","VVO","HKT","DMK","ICN","KIX","DXB","KLO","CJU", "HKG","MFM","CNX","NRT","TSA","TAE","BKK","CTS","TPE","IBR","GMP","PUS","SGN","TAK","PNH","KHH","MYJ","KMQ","NGO","HSG","NGS","ZRH","OKA","HEL","FUK","LHR","FSZ","DTW","JFK","ORD","ATL","YYZ","MLE","SEA","FCO","LAX","YVR","SFO","CPH","DEL","HAN","BWN","EWR","CGK","HNL","OKJ","HIJ","DFW","YUL","RGN","BNE","BKI","IST","ADD","DOH","AUH","IKA","VTE","BCN","MRU","VIE","MAD","BOS","MEX","SPN","FNJ","CRK","DAD","PRG","ARN","SSN","MWX","TOY","KIJ","KOJ","HNA","AKJ","SDJ","LPQ","POM","TIJ" ];
 
 const params = [
     [
@@ -157,10 +157,21 @@ const params = [
 ]
 
 function translate(){
+	let _depart = depart;
+	let _arrive = arrive;
     let result = [];
-    depart.forEach(d =>{
-        arrive.forEach(a => {
-            for(let k = 0 ; k < 1/* 30 */ ; k ++ ) {
+    _depart.forEach(d =>{
+        _arrive.forEach(a => {
+            for(let k = 0 ; k < 30 ; k ++ ) {
+                result.push({depart:d, arrive:a, date: ID.timeFormat(ID.dayAdd(ID.now, k))});
+            }
+        })
+	})
+	_depart = arrive;
+	_arrive = depart;
+	_depart.forEach(d =>{
+        _arrive.forEach(a => {
+            for(let k = 0 ; k < 30 ; k ++ ) {
                 result.push({depart:d, arrive:a, date: ID.timeFormat(ID.dayAdd(ID.now, k))});
             }
         })

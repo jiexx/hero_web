@@ -44,25 +44,24 @@ const HandlerFactory : Handler[] = [
     Messages.instance,
     Favors.instance
 ];
-// register all application routes
-async function setup(app){
-    await G.connect();
-    for(let i = 0 ; i < HandlerFactory.length ; i ++ ){
-        var h = <Handler>HandlerFactory[i];
-        var routers = await h.routers();
-        routers.forEach(router => {
-            router.process(app);
-        })
-    }
-}
-
 // run app
-var server = app.listen(HOSTPORT, async () => {
-    Log.info((MS.MASTER.ONLINE && 'MASTER ')+(MS.MASTER.ONLINE && 'SLAVER ')+'Listening at http://localhost:'+HOSTPORT);
-    await setup(app);
+const server = app.listen(HOSTPORT, async () => {
+    try{
+        await G.connect();
+        for(let i = 0 ; i < HandlerFactory.length ; i ++ ){
+            var h = <Handler>HandlerFactory[i];
+            var routers = await h.routers();
+            routers.forEach(router => {
+                router.process(app);
+            })
+        }
+        Log.info(`${(MS.MASTER.ONLINE? 'MASTER ':'')} ${(MS.MASTER.ONLINE? 'SLAVER ': '')} Listening at http://${server.address().address}:${server.address().port}`);
+    }catch(e){
+        Log.error(JSON.stringify(e));
+    }    
 });
 server.on('connection', function(socket) {
-    Log.info("A new connection was made by a client.");
+    Log.info(`master connection was made by a client(${socket.remoteAddress}:${socket.remotePort}).`);
     socket.setTimeout(120 * 1000); 
     // 30 second timeout. Change this as you see fit.
     socket.on('data',function(data){
@@ -71,9 +70,17 @@ server.on('connection', function(socket) {
     });
 });
 
-if(MS.SLAVER.ONLINE){
+if(MS.SLAVER.ONLINE || true){
+    const slaver_web = express();
+    slaver_web.use('/', express.static('../web/dist', {index: "index.html"}) );
+    const slaver_server = slaver_web.listen(80, async () => {
+        Log.info(`SLAVER WEB Listening at http://${slaver_server.address().address}:${slaver_server.address().port}`);
+    });
+    slaver_server.on('connection', function(socket) {
+        Log.info(`slaver connection was made by a client(${socket.remoteAddress}:${socket.remotePort}).`);
+    });
     const job = new CronJob({
-        cronTime: '00 00 */8 * * 0-6',
+        cronTime: '00 00 */12 * * 0-6',
         onTick: async () => {  setTimeout(async ()=> {await SlaverStartTasks.instance.handle('tickets',null);},5000); },
         runOnInit: true
     });
@@ -86,6 +93,7 @@ if(MS.SLAVER.ONLINE){
 //ln -s ~/node-v12.14.0-linux-x64/bin/npm /usr/local/bin/npm
 //ln -s ~/node-v12.14.0-linux-x64/bin/tsc /usr/local/bin/tsc
 //ln -s ~/node-v12.14.0-linux-x64/bin/tsserver /usr/local/bin/tsserver
+//ln -s ~/node-v12.14.0-linux-x64/bin/pm2 /usr/local/bin/pm2
 //npm install -g pm2
 
 //https://dev.mysql.com/downloads/repo/yum/
@@ -100,3 +108,5 @@ if(MS.SLAVER.ONLINE){
 //npm install request
 //npm install mysql
 //npm install typescript
+
+//pm2 start bin/app.js --node-args="--experimental-worker"

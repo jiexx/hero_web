@@ -5,7 +5,7 @@ import { RouterModule } from '@angular/router';
 import { FooterComponent } from './footer/footer.component';
 import { NavbarComponent } from './navbar/navbar.component';
 import { SidebarComponent } from './sidebar/sidebar.component';
-import { MatDialog, MatDialogRef, MatDialogModule, MatButtonModule, MatRippleModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatTooltipModule, MatPaginatorModule, MatCardModule, MatDividerModule, MatExpansionModule, MatIconModule, MatListModule, MatGridListModule, MAT_DIALOG_DATA, MatAutocompleteModule, MatMenuModule, MatBadgeModule, MatToolbarModule } from '@angular/material';
+import { MatDialog, MatDialogRef, MatDialogModule, MatButtonModule, MatRippleModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatTooltipModule, MatPaginatorModule, MatCardModule, MatDividerModule, MatExpansionModule, MatIconModule, MatListModule, MatGridListModule, MAT_DIALOG_DATA, MatAutocompleteModule, MatMenuModule, MatBadgeModule, MatToolbarModule, MatPaginatorIntl } from '@angular/material';
 import { HttpRequest } from 'app/common/net.request';
 import { DialogComponent } from 'app/common/dialog.component';
 import { PostComponent } from 'app/common/posts.component';
@@ -16,6 +16,7 @@ import { MsgDialogComponent } from 'app/common/dialog.msg.component';
 import { InfoDialogComponent } from 'app/common/dialog.info.component';
 import { NaviComponent } from 'app/common/navi.component';
 import { FavorDialogComponent } from 'app/common/dialog.favor.component';
+import { ConfPaginator } from 'app/common/conf.paginator';
 
 @NgModule({
   imports: [
@@ -68,6 +69,6 @@ import { FavorDialogComponent } from 'app/common/dialog.favor.component';
     MsgDialogComponent,
     FavorDialogComponent
   ],
-  providers: [HttpRequest]
+  providers: [HttpRequest,{ provide: MatPaginatorIntl, useValue: ConfPaginator() }]
 })
 export class ComponentsModule { }

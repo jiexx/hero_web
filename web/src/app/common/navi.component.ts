@@ -47,8 +47,9 @@ export class NaviComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.hr.post('message/count',{unread: 1}, result => {
+        this.hr.post('message/count',{unread: '1'}, result => {
             this.unread = parseInt(result.data);
+            console.log(this.unread);
         });
         this.hr.post('favor/count',{unread: 1}, result => {
             this.favorited = parseInt(result.data);

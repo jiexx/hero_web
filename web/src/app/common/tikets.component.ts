@@ -226,25 +226,28 @@ const PlaceOptions = [{"key":"AUH","value":"阿布扎比"},{"key":"AMS","value":
     <mat-expansion-panel *ngFor="let airline of airlines" (afterExpand)="open(airline)" #panel>
         <mat-expansion-panel-header [collapsedHeight]="'auto'" [expandedHeight]="'auto'">
             <mat-list-item>
-                <h4 mat-list-icon style="width:auto;height:auto"><img style="width:4rem" src={{dest(airline.E)}}></h4>
-                <h4 mat-line><mat-icon color="warn" (click)="favorite(airline, panel)">{{airline.favorited ? airline.favorited : 'favorite_border'}}</mat-icon>{{destname(airline.E)}}({{airline.end}})</h4>
-                <p mat-line><small>出发{{airport(airline.B)}}|{{airline.depart.replace('T',' ')}}—到达{{airline.arrive.replace('T',' ')}}</small></p>
-                <p mat-line >
-                    航班<small *ngFor="let flight of flights(airline.flight); let i = index"><a href={{link(flight)}} target="_blank"><img style="width:15px" src={{company(flight)}}>{{cname(flight)}}{{airline.flight.split(',')[i]}}</a></small>
-                    <small *ngIf="airline.stops && airline.stops!='null'">经停{{airline.stops}}</small>
-                </p>
+                <span mat-list-icon style="width:auto;height:auto"><img style="width:4rem;border-radius:4px"  src={{dest(airline.E)}}></span>
+                <h5 mat-line><button  mat-icon-button  color="warn"><mat-icon (click)="favorite(airline, panel)">{{airline.favorited ? airline.favorited : 'location_on'}}</mat-icon></button>{{destname(airline.E)}}({{airline.end}})</h5>
+                <h6 mat-line>出发:{{airport(airline.B)}}|{{airline.depart.replace('T',' ')}}</h6>
+                <h6 mat-line *ngIf="airline.stops && airline.stops!='null'" > 经停:{{airline.stops}} </h6>
+                <h6 mat-line >
+                    航班:<span *ngFor="let flight of flights(airline.flight); let i = index"><button mat-icon-button class="small" (click)="link(flight)" color="warn"><img style="width:15px" src={{company(flight)}}></button>
+                    {{cname(flight)}}|{{airline.flight.split(',')[i]}}</span>
+                </h6>
+                <h6 mat-line>到达:{{airport(airline.E)}}({{airline.E}})|{{airline.arrive.replace('T',' ')}}</h6>
                 <h4>{{airline.price}}</h4>
             </mat-list-item>
         </mat-expansion-panel-header>
         <mat-list style="margin-left:30px;">
             <mat-list-item  *ngFor="let airline of airline.sublist">
-                <!-- <h4 mat-list-icon style="width:auto;height:auto"><img style="width:4rem" src={{dest(airline.E)}}></h4> -->
-                <h4 mat-line><!--mat-icon class="text-danger">bookmark_border</mat-icon-->{{destname(airline.E)}}({{airline.end}})</h4>
-                <p mat-line><small>出发{{airport(airline.B)}}|{{airline.depart.replace('T',' ')}}—到达{{airline.arrive.replace('T',' ')}}</small></p>
-                <p mat-line >
-                    航班<small *ngFor="let flight of flights(airline.flight); let i = index"><a href={{link(flight)}} target="_blank"><img style="width:15px" src={{company(flight)}}>{{cname(flight)}}{{airline.flight.split(',')[i]}}</a></small>
-                    <small *ngIf="airline.stops && airline.stops!='null'">经停{{airline.stops}}</small>
-                </p>
+                <h5 mat-line>{{destname(airline.E)}}({{airline.end}})</h5>
+                <h6 mat-line>出发:{{airport(airline.B)}}|{{airline.depart.replace('T',' ')}}</h6>
+                <h6 mat-line *ngIf="airline.stops && airline.stops!='null'" > 经停:{{airline.stops}} </h6>
+                <h6 mat-line >
+                    航班:<span *ngFor="let flight of flights(airline.flight); let i = index"><button mat-icon-button class="small" (click)="link(flight)" color="warn"><img style="width:15px" src={{company(flight)}}></button>
+                    {{cname(flight)}}|{{airline.flight.split(',')[i]}}</span>
+                </h6>
+                <h6 mat-line>到达:{{airport(airline.E)}}({{airline.E}})|{{airline.arrive.replace('T',' ')}}</h6>
                 <h4>{{airline.price}}</h4>
             </mat-list-item>
             <mat-list-item>
@@ -256,7 +259,7 @@ const PlaceOptions = [{"key":"AUH","value":"阿布扎比"},{"key":"AMS","value":
         <mat-expansion-panel-header>
             <mat-panel-title></mat-panel-title>
             <div fxFlex></div>
-            <mat-paginator [length]="pgNumber" [pageSize]="10" (page)="page($event)"> </mat-paginator>
+            <mat-paginator [length]="pgNumber" itemsPerPageLabel="每页" [pageSize]="10" (page)="page($event)"> </mat-paginator>
         </mat-expansion-panel-header>
     </mat-expansion-panel>
 </mat-accordion>
@@ -276,31 +279,26 @@ export class TicketComponent implements OnInit {
     airport(B:string){
         return Places[B];
     }
-    favor(price, method, ticketid){
+    favor(price, method, ticketid, airline){
+        console.log( parseInt(price))
         this.hr.post('favor/post', { price: parseInt(price), method: method, to: ticketid }, result => {
-            console.log('success')
+            airline.favorited = 'where_to_vote';
         });
     }
     favorite(airline, panel){
-        if(!airline.favorited || airline.favorited == 'favorite_border') {
+        if(!airline.favorited || airline.favorited == 'location_on') {
             panel.disabled = true;
             this.busService.send(new DialogMessage(this, FavorDialogComponent, {},
                 (form)=>{
-                    airline['favorited'] = airline.favorited == 'favorite' ? 'favorite_border' : 'favorite';
-                    if(airline.favorited == 'favorite') {
-                        this.favor(form.price, 1, airline.id);
-                    }
+                    this.favor(form.price, 1, airline.id, airline);
                 }, 
                 (form)=>{
-                    airline['favorited'] = airline.favorited == 'favorite' ? 'favorite_border' : 'favorite';
-                    if(airline.favorited == 'favorite') {
-                        this.favor(form.price, 1, airline.id);
-                    }
+                    this.favor(form.price, 1, airline.id, airline);
                 }, 
                 ()=>{panel.disabled = false;panel.hideToggle = false}
             ));
-        }else if(airline.favorited == 'favorite'){
-            airline.favorited = 'favorite_border'
+        }else if(airline.favorited == 'where_to_vote'){
+            airline.favorited = 'location_on'
         }
     }
     getTicketList(pg: number, opened: boolean = false){
@@ -341,7 +339,7 @@ export class TicketComponent implements OnInit {
         return flight ? this.hr.assetsPath('img/com/' + flight.replace('/', '-') + '.png') : '';
     }
     link(flight: string) {
-        return Airlines[flight] ? Airlines[flight][2] : '';
+         Airlines[flight] ? window.open(Airlines[flight][2],'_blank')  : '';
     }
     cname(flight: string) {
         return Airlines[flight] ? Airlines[flight][0] : '';
