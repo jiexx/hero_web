@@ -70,7 +70,7 @@ server.on('connection', function(socket) {
     });
 });
 
-if(MS.SLAVER.ONLINE || true){
+if(MS.SLAVER.ONLINE){
     const slaver_web = express();
     slaver_web.use('/', express.static('../web/dist', {index: "index.html"}) );
     const slaver_server = slaver_web.listen(80, async () => {
