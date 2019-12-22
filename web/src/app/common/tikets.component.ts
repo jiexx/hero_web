@@ -304,7 +304,7 @@ export class TicketComponent implements OnInit {
     getTicketList(pg: number, opened: boolean = false){
         if(!opened) {
             this.hr.post('ticket/list', { page: pg, note: 'SHA', eqe: this.filter1.input, stops:this.filter2.input }, result => {
-                console.log('ticket list', result)
+                //console.log('ticket list', result)
                 this.airlines = result.data;
             });
         } 
