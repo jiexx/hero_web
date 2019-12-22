@@ -9,7 +9,6 @@ import { join } from "path";
 
 export class V {
     static async define(label:string, schema:Object){
-        await G.connect();
         let vertex = new Vertex(label, schema); 
         await vertex.repo.sync();
         return vertex;
@@ -17,7 +16,6 @@ export class V {
 }
 export class E {
     static async define(label:string, schema:Object){
-        await G.connect();
         let edge = new Edge(label, schema); 
         await edge.repo.sync();
         return edge;

@@ -15,6 +15,20 @@ import { Messages } from './service/messages';
 import { Favors } from './service/favor';
 import { MasterSlaver, SlaverStartTasks } from './service/master.slaver';
 
+
+// const a = require('request-promise-native')(
+//     {
+//         method: 'POST', 
+//         url: `${MS.MASTER.ADDR}/master/restore/tickets`,
+//         headers: {
+//             'Accept-Encoding': 'gzip',
+//             'Authorization': `Bearer ${Authentication.instance._sign(MS.MASTER.SIGNATURE)}`,
+//         }
+//     },(a,b,c)=>{
+//         console.log(a,b,c);
+//     }
+// )
+
 const app = express();
 app.use('/', express.static('./assets', {
     setHeaders: function(res, path) {
@@ -36,25 +50,31 @@ app.use(function(req, res, next) {
 
 
 // var tm = null;
-const HandlerFactory : Handler[] = [
-    Authentication.instance,
-    MasterSlaver.instance,
-    Tickets.instance,
-    Articles.instance,
-    Messages.instance,
-    Favors.instance
-];
+
+
+const setup = async () =>{
+    await G.connect();
+    const HandlerFactory : Handler[] = [
+        Authentication.instance,
+        MasterSlaver.instance,
+        Tickets.instance,
+        Articles.instance,
+        Messages.instance,
+        Favors.instance
+    ];
+    for(let i = 0 ; i < HandlerFactory.length ; i ++ ){
+        var h = <Handler>HandlerFactory[i];
+        var routers = await h.routers();
+        routers.forEach(router => {
+            router.process(app);
+        })
+    }
+}
+
 // run app
 const server = app.listen(HOSTPORT, async () => {
     try{
-        await G.connect();
-        for(let i = 0 ; i < HandlerFactory.length ; i ++ ){
-            var h = <Handler>HandlerFactory[i];
-            var routers = await h.routers();
-            routers.forEach(router => {
-                router.process(app);
-            })
-        }
+        await setup();
         Log.info(`${(MS.MASTER.ONLINE? 'MASTER ':'')} ${(MS.MASTER.ONLINE? 'SLAVER ': '')} Listening at http://${server.address().address}:${server.address().port}`);
     }catch(e){
         Log.error(JSON.stringify(e));
