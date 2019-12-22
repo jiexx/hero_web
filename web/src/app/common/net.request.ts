@@ -6,7 +6,7 @@ import { AuthGuard } from "./auth.guard";
 @Injectable()
 export class HttpRequest {
     loaded: boolean = false;
-    constructor(private http: HttpClient, private config: ConfigService){
+    constructor(protected http: HttpClient, protected config: ConfigService){
     }
     assetsPath(path:any){
         if(path && path.changingThisBreaksApplicationSecurity){

@@ -7,8 +7,10 @@ import { Component } from '@angular/compiler/src/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { BusService } from './dcl.bus.service';
 import { isDataSource } from '@angular/cdk/collections';
+import { HttpClient } from "@angular/common/http";
+import { ConfigService } from './net.config';
 
-class User {
+class User extends HttpRequest {
     set token(t:string){
         localStorage.setItem('token',t);
     }
@@ -24,19 +26,19 @@ class User {
     get profile(): any{
         try {
             let u = JSON.parse(localStorage.getItem('profile'));
-            u['avatar'] = this.sanitizer.bypassSecurityTrustResourceUrl(u['avatar'] ? this.hr.assetsPath(u['avatar']) : this.hr.assetsPath('media/img/marc.jpg'));
+            u['avatar'] = this.sanitizer.bypassSecurityTrustResourceUrl(u['avatar'] ? this.assetsPath(u['avatar']) : this.assetsPath('media/img/marc.jpg'));
             return u;
         }catch(e){
-            return {avatar:this.sanitizer.bypassSecurityTrustResourceUrl(this.hr.assetsPath('media/img/marc.jpg'))};
+            return {avatar:this.sanitizer.bypassSecurityTrustResourceUrl(this.assetsPath('media/img/marc.jpg'))};
         }
     }
-    constructor(protected hr: HttpRequest, protected sanitizer:DomSanitizer){
-        
+    constructor( protected http: HttpClient, protected config: ConfigService, protected sanitizer:DomSanitizer){
+        super(http, config);
     }
     updateProfile(data, callback: Function = null){       
         if(data && typeof data == 'object'){
             
-            this.hr.post('auth/profile',data, result => {
+            this.post('auth/profile',data, result => {
                 console.log(result.data)
                 this.profile = result.data;
                 if(callback)callback(); 
@@ -47,7 +49,7 @@ class User {
     sign(callback: Function = null){
         if(!this.token && !User.signing){
             User.signing = true;
-            this.hr.post('auth/sign',{}, result => {
+            this.post('auth/sign',{}, result => {
                 this.token = result.data.token;
                 if(callback)callback();
                 User.signing = false;
@@ -60,8 +62,8 @@ class User {
 @Injectable()
 export class AuthGuard extends User implements CanActivate  {
     
-    constructor(private activatedRoute: ActivatedRoute, private router: Router, protected hr: HttpRequest, protected busService: BusService, protected sanitizer: DomSanitizer) { 
-        super(hr,sanitizer);
+    constructor(private activatedRoute: ActivatedRoute, private router: Router,protected http: HttpClient, protected config: ConfigService, protected busService: BusService, protected sanitizer: DomSanitizer) { 
+        super(http, config,sanitizer);
     }
 
     canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
@@ -94,7 +96,7 @@ export class AuthGuard extends User implements CanActivate  {
     }
     
     checkin(tel: string, code: string){
-        this.hr.post('auth/checkin', { tel: tel, code: code }, result => {
+        this.post('auth/checkin', { tel: tel, code: code }, result => {
             this.profile = result.data;
             this.router.navigate(['/tickets']);
         });

@@ -13,7 +13,7 @@ export class ConfigService {
         /* URL: 'http://app.justitbe.com/' */
     }
     public FONT_HOST = {
-        URL: "http://49.234.15.176:8999/css/fonts.css"
+        URL: "http://49.234.15.176:8999/"
         /* URL: "http://localhost:8999/css/fonts.css" */
     }
     public __DEV__: boolean = true;
