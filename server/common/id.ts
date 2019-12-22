@@ -17,17 +17,17 @@ class Id {
         return d+'';
     }
     get now(){
-        return new Date().toLocaleString();
-        //var d = new Date();
-        //return d.getFullYear()+'-'+("0"+(d.getMonth()+1)).slice(-2)+'-'+("0"+(d.getDate())).slice(-2)+' '+("0"+(d.getHours())).slice(-2)+':'+("0"+(d.getMinutes())).slice(-2)+':'+("0"+(d.getSeconds())).slice(-2);
+        //return new Date().toLocaleString();
+        var d = new Date();
+        return d.getFullYear()+'-'+("0"+(d.getMonth()+1)).slice(-2)+'-'+("0"+(d.getDate())).slice(-2)+' '+("0"+(d.getHours())).slice(-2)+':'+("0"+(d.getMinutes())).slice(-2)+':'+("0"+(d.getSeconds())).slice(-2);
     }
     get today(){
         var d = new Date();
-        return d.getFullYear()+'_'+("0"+(d.getMonth()+1)).slice(-2)+'_'+("0"+(d.getDate())).slice(-2);
+        return d.getFullYear()+'-'+("0"+(d.getMonth()+1)).slice(-2)+'-'+("0"+(d.getDate())).slice(-2);
     }
     get nowFormat(){
         var d = new Date();
-        return ("0"+(d.getHours())).slice(-2)+'_'+("0"+(d.getMinutes())).slice(-2);
+        return ("0"+(d.getHours())).slice(-2)+'-'+("0"+(d.getMinutes())).slice(-2);
     }
     timeDiff(from:string, to:string){
         return new Date(new Date(from).getTime() - new Date(to).getTime());

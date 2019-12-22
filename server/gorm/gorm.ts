@@ -1,5 +1,5 @@
 import { getConnectionManager, Connection,createConnection } from "typeorm";
-import { DBUSER, DBPWD, DBNAME } from "./config";
+import { DBUSER, DBPWD, DBNAME, DBHOST } from "./config";
 import { Vertex } from "./vertex";
 import { Edge } from "./edge";
 import { Log } from "../common/log";
@@ -67,7 +67,7 @@ export class Gorm {
     async create() {
         let connection = await createConnection({
             type: "mysql",
-            host: "localhost",
+            host: DBHOST,
             port: 3306,
             username: DBUSER,
             password: DBPWD,
@@ -77,7 +77,7 @@ export class Gorm {
         await connection.close();
         this.connection = await createConnection({
             type: "mysql",
-            host: "localhost",
+            host: DBHOST,
             port: 3306,
             username: DBUSER,
             password: DBPWD,

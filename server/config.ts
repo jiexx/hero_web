@@ -7,12 +7,12 @@ export const NUMPERSUBPAGE = 5;
 export const MS = {
     MASTER: {
         ONLINE: true,
-        ADDR: 'http://127.0.0.1:8999',
+        ADDR: 'http://49.234.15.176:8999',
         SIGNATURE: '!QAZ@WSX'
     },
     SLAVER: {
         ONLINE: false,
-        ADDR: 'http://127.0.0.1:8999',
+        ADDR: 'http://92.242.63.43:8999',
         SIGNATURE: 'XSW@ZAQ!'
     }
 }
