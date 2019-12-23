@@ -81,7 +81,7 @@ export class PostComponent implements OnInit {
             return;
         }
         this.hr.post('article/comment', { articleid: article.articles_0.id, content: this.content }, result => {
-            if (!article['articles']) {
+            if (!article['articles'] || !article['articles']['list']) {
                 article['articles'] = {list:[], pgNumber:0};
             }
             console.log(article)
@@ -97,7 +97,7 @@ export class PostComponent implements OnInit {
             return;
         }
         this.hr.post('article/post', {title:title, content: content}, result => {
-            if (!this.articles) {
+            if (!this.articles|| !this.articles['articles']['list']) {
                 this.articles = {list:[], pgNumber:0};
             }
             this.busService.send(new DialogMessage(this, InfoDialogComponent, {title:'提示', content:`发布成功`},

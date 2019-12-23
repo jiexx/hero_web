@@ -79,7 +79,7 @@ export class FavorsComponent implements OnInit {
         if(this.closed) {
             this.hr.post('favor/list', { page: 0, active: true, E: ticket.E }, result => {
                 this.subFavors['list'] = result.data;
-                console.log(0,i-1)
+                //console.log(0,i-1)
                 this.favors.list.splice(0,i);
                 this.favors.list.splice(i+1);
             });

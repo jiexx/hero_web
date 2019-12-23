@@ -31,7 +31,7 @@ export class UserProfileComponent implements OnInit {
         this.auth.register();
         return;
     }
-    console.log(this.hr.uploadPath(data))
+    //console.log(this.hr.uploadPath(data))
     this.auth.updateProfile({avatar:this.hr.uploadPath(data)});
   }
 

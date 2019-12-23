@@ -332,7 +332,7 @@ export class ModelRepo extends Repo {
         Column({ type: 'varchar', length: 1 })(clazz.prototype, '_type');
         Object.keys(this.schema).forEach(propertyName => {
             if(this.schema[propertyName].type == G.STRING) {
-                Column({ type: this.schema[propertyName].type || G.STRING, length: this.schema[propertyName].len || 512, default: this.schema[propertyName].default || ''})(clazz.prototype, propertyName);
+                Column({ type: this.schema[propertyName].type || G.STRING, length: this.schema[propertyName].len || 512, default: this.schema[propertyName].default || '', charset:'utf8'})(clazz.prototype, propertyName);
             }else if(this.schema[propertyName].type == G.NUMBER){
                 Column({ type: this.schema[propertyName].type || G.NUMBER, default: this.schema[propertyName].default || 0})(clazz.prototype, propertyName);
             }else {

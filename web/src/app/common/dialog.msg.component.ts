@@ -82,7 +82,7 @@ export class MsgDialogComponent extends IDialogComponent implements OnInit {
     ngOnInit() {
     }
     confirm() {
-        console.log(this.form.value);
+        //console.log(this.form.value);
         super.confirm(this.form.value)
     }
     decline() {

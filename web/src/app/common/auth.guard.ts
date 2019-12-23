@@ -39,7 +39,7 @@ class User extends HttpRequest {
         if(data && typeof data == 'object'){
             
             this.post('auth/profile',data, result => {
-                console.log(result.data)
+                //console.log(result.data)
                 this.profile = result.data;
                 if(callback)callback(); 
             });
@@ -68,7 +68,7 @@ export class AuthGuard extends User implements CanActivate  {
 
     canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
         this.sign(() =>{
-            console.log('done',this.token);
+            //console.log('done',this.token);
         });
         if(route.url[0].path == 'user-profile') {
             if(!this.logined()) {

@@ -87,7 +87,7 @@ export class ProfileComponent implements OnInit {
         this.about.setValue(this.about.value.trim());
         this.cars.setValue(this.autos);
         if (this.form.valid) {
-            console.log(this.form.value, this.autos)
+            //console.log(this.form.value, this.autos)
             this.auth.updateProfile(this.form.value, () => {
                 this.busService.send(new DialogMessage(this, InfoDialogComponent, { title: '提示', content: '个人资料修改成功' }));
             });
