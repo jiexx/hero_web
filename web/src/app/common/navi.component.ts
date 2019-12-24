@@ -1,13 +1,7 @@
-import {COMMA, ENTER} from '@angular/cdk/keycodes';
 import { Component, OnInit, Input} from "@angular/core";
 import { HttpRequest } from "./net.request";
-import { FormControl, Validators, FormGroup } from "@angular/forms";
-import { AuthGuard } from "./auth.guard";
-import { BusService } from "./dcl.bus.service";
-import { DialogMessage } from "./dcl.dialog.message";
-import { DialogComponent } from "./dialog.component";
-import { MatChipInputEvent } from '@angular/material';
-import { InfoDialogComponent } from './dialog.info.component';
+import { User } from "./auth.guard";
+import { ImageUrl } from "./image.url";
 
 @Component({
     selector: 'navi',
@@ -30,7 +24,7 @@ import { InfoDialogComponent } from './dialog.info.component';
                 <span  *ngIf="unread==0">朋友的消息</span>
             </button>
         </mat-menu>
-        <button mat-icon-button [routerLink]="['/user-profile']"  ><img style="width: 1.5rem; height: 1.5rem; border-radius: 50%" src="{{avatar.changingThisBreaksApplicationSecurity}}"></button>
+        <button mat-icon-button [routerLink]="['/user-profile']"  ><img style="width: 1.5rem; height: 1.5rem; border-radius: 50%" src="{{avatar}}"></button>
     </mat-toolbar-row>
 </mat-toolbar>
 `
@@ -38,18 +32,17 @@ import { InfoDialogComponent } from './dialog.info.component';
 
 export class NaviComponent implements OnInit {
     @Input() title: string;
-    @Input() avatar: any;
+    avatar: any;
 
     unread: number = 0;
     favorited: number = 0;
-    constructor(public hr: HttpRequest, public auth: AuthGuard, private busService: BusService) { 
-        
+    constructor(public hr: HttpRequest, public user: User, public imgUrl: ImageUrl) { 
+        this.avatar = imgUrl.media.imgLink(user.profile.avatar, 'marc.jpg');
     }
 
     ngOnInit() {
         this.hr.post('message/count',{unread: '1'}, result => {
             this.unread = parseInt(result.data);
-            console.log(this.unread);
         });
         this.hr.post('favor/count',{unread: 1}, result => {
             this.favorited = parseInt(result.data);

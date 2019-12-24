@@ -5,11 +5,12 @@ import { Routes, RouterModule } from '@angular/router';
 import { BusService } from './common/dcl.bus.service';
 import { ConfigService } from './common/net.config';
 import { HttpRequest } from './common/net.request';
-import { AuthGuard } from './common/auth.guard';
+import { AuthGuard, User } from './common/auth.guard';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { JwtInterceptor } from './common/interceptor.jwt';
 import { ErrorInterceptor } from './common/interceptor.error';
 import { AdminLayoutComponent } from './layouts/admin-layout/admin-layout.component';
+import { ImageUrl } from './common/image.url';
 
 const routes: Routes =[
   {
@@ -37,7 +38,7 @@ const routes: Routes =[
   ],
   exports: [
   ],
-  providers: [BusService,ConfigService,HttpRequest,AuthGuard,
+  providers: [BusService,ConfigService,HttpRequest,AuthGuard,User,ImageUrl,
     {
       provide: HTTP_INTERCEPTORS,
       useClass: JwtInterceptor,

@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpRequest } from 'app/common/net.request';
-import { AuthGuard } from 'app/common/auth.guard';
+import { AuthGuard, User } from 'app/common/auth.guard';
 import { FormControl, Validators, FormGroupDirective, NgForm, FormGroup } from '@angular/forms';
 import { ErrorStateMatcher } from '@angular/material';
+import { ImageUrl } from 'app/common/image.url';
 export class Matcher implements ErrorStateMatcher {
   isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
     const isSubmitted = form && form.submitted;
@@ -17,22 +18,22 @@ export class Matcher implements ErrorStateMatcher {
 export class UserProfileComponent implements OnInit {
 
   avatar: string[] = [];
-  constructor(public hr: HttpRequest, public auth: AuthGuard) {
+  constructor(public imgUrl: ImageUrl, public user: User) {
     
   }
 
   ngOnInit() {
-    this.avatar = [this.auth.profile.avatar];
+    this.avatar = [this.user.profile.avatar];
   }
 
   onUploaded(data){
 
-    if(!this.auth.logined()) {
-        this.auth.register();
+    if(!this.user.logined()) {
+        this.user.register();
         return;
     }
     //console.log(this.hr.uploadPath(data))
-    this.auth.updateProfile({avatar:this.hr.uploadPath(data)});
+    this.user.updateProfile({avatar:data});
   }
 
 }

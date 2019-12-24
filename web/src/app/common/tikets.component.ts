@@ -6,6 +6,7 @@ import { BusService } from "./dcl.bus.service";
 import { DialogMessage } from "./dcl.dialog.message";
 import { MsgDialogComponent } from "./dialog.msg.component";
 import { FavorDialogComponent } from "./dialog.favor.component";
+import { ImageUrl } from "./image.url";
 const Airlines = {
     "EU": ["成都航空有限公司", "028-6666-8888", "http://www.chengduair.cc/"],
     "HU": ["海南航空公司", "95339", "http://www.hnair.com/"],
@@ -274,13 +275,12 @@ export class TicketComponent implements OnInit {
     airlines: any;
     pgNumber: number;
     subpgNumber: number;
-    constructor(public hr: HttpRequest, public busService: BusService) {
+    constructor(public hr: HttpRequest, public imgUrl: ImageUrl, public busService: BusService) {
     }
     airport(B:string){
         return Places[B];
     }
     favor(price, method, ticketid, airline){
-        console.log( parseInt(price))
         this.hr.post('favor/post', { price: parseInt(price), method: method, to: ticketid }, result => {
             airline.favorited = 'where_to_vote';
         });
@@ -337,7 +337,7 @@ export class TicketComponent implements OnInit {
         return flight ? flight.split(',').map(e => { var a = e.match(/.[^0-9]*/); return a.length > 0 ? a[0] : '' }) : '';
     }
     company(flight: string) {
-        return flight ? this.hr.assetsPath('img/com/' + flight.replace('/', '-') + '.png') : '';
+        return flight ? this.imgUrl.assets.imgLink('img/com/' + flight.replace('/', '-') + '.png', 'media/img/default.img') : '';
     }
     link(flight: string) {
          Airlines[flight] ? window.open(Airlines[flight][2],'_blank')  : '';
@@ -346,8 +346,7 @@ export class TicketComponent implements OnInit {
         return Airlines[flight] ? Airlines[flight][0] : '';
     }
     dest(flight: string) {
-        //console.log(this.hr.assetsPath('img/dest/'+flight+'.jpg'));
-        return Places[flight] ? this.hr.assetsPath('img/dest/' + flight + '.jpg') : '';
+        return Places[flight] ? this.imgUrl.assets.imgLink('img/dest/' + flight + '.jpg', 'media/img/default.img') : '';
     }
     destname(flight: string) {
         return Places[flight]

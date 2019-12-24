@@ -5,6 +5,7 @@ import { EventEmitter } from '@angular/core';
 import { HttpRequest } from './net.request';
 import { ConfigService } from './net.config';
 import { AuthGuard } from './auth.guard';
+import { ImageUrl } from './image.url';
 
 class Rect {
     r: number;
@@ -43,7 +44,7 @@ class Project {
     template:
 `<div style="display: table; margin-left: auto; margin-right: auto;border: none" >
 
-    <div style="display:table-cell; vertical-align: middle; position: relative;padding-right:10px;" *ngFor="let img of images; let i = index ">
+    <div style="display:table-cell; vertical-align: middle; position: relative;padding-right:10px;" *ngFor="let img of imgSanitizers(); let i = index ">
         <img [ngStyle]="{'width.px':size.w,'height.px':size.h}" [ngClass]="imageClass" [src]="img" >
         <a style="color:#ff8888; position: absolute; font-size:20px; cursor: pointer; top:-2px; right:2px;" (click)="onRemove(i)"><mat-icon>remove_circle</mat-icon></a>
     </div>
@@ -61,34 +62,27 @@ class Project {
 export class ImageComponent {
     @Input() size: any = {w:1, h:1};  // style show width
     @Input() max: number = 1; // contain number of picture
-
+    @Input() defaultImage: string = 'default.img';
     @Input() imageClass: number = 0;
 
     @Output() onUploaded: EventEmitter<any> = new EventEmitter();
 
     private _images: any[] = [];
     @Input() set images(values: any[]) {
-        var res = [];
-        for(var i = 0 ; i < values.length ; i ++) {
-            if(values[i] && values[i].changingThisBreaksApplicationSecurity && values[i].changingThisBreaksApplicationSecurity.indexOf('image/')<0){
-                //console.log('1',values[i])
-                res.push(values[i]);
-            }else{
-               // console.log('2')
-                res.push(this.sanitizer.bypassSecurityTrustUrl(values[i]));
-            }
-        }
-        this._images = res;
+        this._images = this.imgUrl.media.imgStores(values, this.defaultImage);
     }
     get images(): any[] {
         return this._images;
     }
 
+    imgSanitizers(){
+        return this.imgUrl.media.imgSanitizers(this.images, 'default.png')
+    }
+
     constructor(
         private hr: HttpRequest,
         private ref: ChangeDetectorRef,
-        private sanitizer: DomSanitizer,
-        private auth: AuthGuard
+        public imgUrl: ImageUrl
      ) { 
     }
 
@@ -126,9 +120,10 @@ export class ImageComponent {
         this.hr.upload(data, (result) => {
             this._images.pop();
             //console.log(this.hr.uploadPath(result.data));
-            var uploadPath = this.hr.uploadPath(result.data);
-            this._images.push(this.hr.assetsPath(uploadPath));
-            this.onUploaded.emit(result.data);
+            let url = this.imgUrl.media.imgStore(result.data, this.defaultImage)
+            console.log(url);
+            this._images.push(url);
+            this.onUploaded.emit(url);
             this.imagesChange.emit(this._images);
         });
     }

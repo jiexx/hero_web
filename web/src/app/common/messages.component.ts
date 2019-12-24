@@ -8,13 +8,14 @@ import { DialogMessage } from "./dcl.dialog.message";
 import { DialogComponent } from "./dialog.component";
 import { MsgDialogComponent } from "./dialog.msg.component";
 import { InfoDialogComponent } from "./dialog.info.component";
+import { ImageUrl } from "./image.url";
 
 @Component({
     selector: 'messages',
     template:
 `<mat-list>
     <mat-list-item *ngFor="let message of messages.list; let i = index" [ngClass]="(message.messages_0.readed==1)?'readed':'unread'" >
-        <img mat-list-icon  src="{{ message && message.users_1 && message.users_1.avatar ? hr.assetsPath(message.users_1.avatar) : hr.assetsPath('media/img/marc.jpg')}}" (click)="sendMessage(message.users_1, panel)">
+        <img mat-list-icon  src="{{ message && message.users_1 && imgUrl.media.imgLink(message.users_1.avatar,'marc.jpg')}}" (click)="sendMessage(message.users_1, panel)">
         <h5 mat-line><button mat-icon-button color="warn" (click)="selected(message.messages_0)" ><mat-icon [style.color]="message.messages_0.readed==0? 'tomato' : 'lightgray'">{{message.messages_0.readed==0? 'where_to_vote' : 'location_on'}}</mat-icon></button>{{message.messages_0.title}}</h5>
         <h6 mat-line>{{message.messages_0.content}}</h6>
         <h6 mat-line>{{message.users_1.name}}发送于:{{message.messages_0.createtime.replace(' ','日')}}</h6>
@@ -42,12 +43,12 @@ export class MessagesComponent implements OnInit {
     expanded;
     profile;
 
-    constructor(public hr: HttpRequest, private auth: AuthGuard, private busService: BusService) {
+    constructor(public hr: HttpRequest, private auth: AuthGuard, private imgUrl: ImageUrl, private busService: BusService) {
 
     }
     ngOnInit() {
         this.expanded = true;
-        this.profile = this.auth.profile;
+        this.profile = this.auth.user.profile;
         if(!this.messages){
             this.messages = {list:[], pgNumber:0};
         }
@@ -67,8 +68,7 @@ export class MessagesComponent implements OnInit {
         });
     }
     sendMessage(user, panel){
-        user.avatar = user.avatar ? user.avatar : 'media/img/marc.jpg';
-        this.busService.send(new DialogMessage(this, MsgDialogComponent, { avatar: this.hr.assetsPath(user.avatar), name: user.name, about: user.about},
+        this.busService.send(new DialogMessage(this, MsgDialogComponent, { avatar: this.imgUrl.media.imgSanitizer(user.avatar,'marc.jpg'), name: user.name, about: user.about},
             (form)=>{
                 form['to'] = user.id;
                 this.hr.post('message/post', form, result => {

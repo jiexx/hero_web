@@ -1,8 +1,5 @@
 import { Component, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
-import { HttpRequest } from 'app/common/net.request';
-import { AuthGuard } from 'app/common/auth.guard';
-import { PageEvent } from '@angular/material';
-import { Router } from '@angular/router';
+import { User } from 'app/common/auth.guard';
 import { PostComponent } from 'app/common/posts.component';
 
 @Component({
@@ -15,11 +12,11 @@ export class PostGroupComponent {
   @ViewChild('postRef', { static:false }) postRef:PostComponent;
 
   article = {title: '', content: ''}
-  constructor(private auth: AuthGuard) {
+  constructor(private user: User) {
   }
   toggle(panel1){
-    if(!this.auth.logined()) {
-      this.auth.register();
+    if(!this.user.logined()) {
+      this.user.register();
       return;
     }
     panel1.toggle();

@@ -4,7 +4,7 @@
       <div class="col-md-8">
         <div class="card">
           <div class="card-header card-header-danger">
-            <h4 class="card-title">{{auth.state == '_TEMP'? '注册': '保存'}}</h4>
+            <h4 class="card-title">{{!user.logined()? '注册': '保存'}}</h4>
             <p class="card-category">个人资料</p>
           </div>
           <div class="card-body">
@@ -15,12 +15,12 @@
       <div class="col-md-4">
         <div class="card card-profile">
           <div style="margin-top: -2rem">
-              <images #image [size]={w:100,h:100} [imageClass]="'rounded-circle img-thumbnail'" [max]=1 [(images)]="avatar" (onUploaded)="onUploaded($event)"></images>
+              <images #image [size]={w:100,h:100} [imageClass]="'rounded-circle img-thumbnail'" [max]=1 [(images)]="avatar" (onUploaded)="onUploaded($event)" [defaultImage]="'marc.jpg'"></images>
           </div>
           <div class="card-body">
-            <h4 class="card-title">{{auth.profile.name}}</h4>
+            <h4 class="card-title">{{user.profile.name}}</h4>
             <p class="card-description">
-              {{auth.profile.about}}
+              {{user.profile.about}}
             </p>
           </div>
         </div>

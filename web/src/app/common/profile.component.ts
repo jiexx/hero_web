@@ -2,11 +2,9 @@ import {COMMA, ENTER} from '@angular/cdk/keycodes';
 import { Component, OnInit} from "@angular/core";
 import { HttpRequest } from "./net.request";
 import { FormControl, Validators, FormGroup } from "@angular/forms";
-import { AuthGuard } from "./auth.guard";
+import { User } from "./auth.guard";
 import { BusService } from "./dcl.bus.service";
 import { DialogMessage } from "./dcl.dialog.message";
-import { DialogComponent } from "./dialog.component";
-import { MatChipInputEvent } from '@angular/material';
 import { InfoDialogComponent } from './dialog.info.component';
 
 @Component({
@@ -46,28 +44,28 @@ import { InfoDialogComponent } from './dialog.info.component';
         </div>
         <div style="clear: both;"></div>
     </div>
-    <button mat-raised-button type="submit" color="warn" (click)="act()">{{auth.state == '_TEMP'? '注册': '保存'}}</button>
+    <button mat-raised-button type="submit" color="warn" (click)="act()">{{!user.logined()? '注册': '保存'}}</button>
 </form>
 `
 })
 
 export class ProfileComponent implements OnInit {
-    constructor(public hr: HttpRequest, public auth: AuthGuard, private busService: BusService) { 
-        //console.log(JSON.stringify(this.auth.state)); 
+    profile = this.user.profile;
+    constructor(public hr: HttpRequest, public user: User, private busService: BusService) { 
     }
-    autos: string[] = this.auth.profile.cars ? this.auth.profile.cars.split(',') : [];
+    autos: string[] = this.profile.cars ? this.profile.cars.split(',') : [];
 
-    name = new FormControl(this.auth.profile.name, [
+    name = new FormControl(this.profile.name, [
         Validators.required,
         Validators.maxLength(8),
     ]);
-    about = new FormControl(this.auth.profile.about, [
+    about = new FormControl(this.profile.about, [
         Validators.required,
         Validators.maxLength(128),
     ]);
     cars = new FormControl(this.autos, [
     ]);
-    tel = new FormControl(this.auth.profile.mobile);
+    tel = new FormControl(this.profile.mobile);
     form: FormGroup = new FormGroup({
         tel: this.tel,
         name: this.name,
@@ -79,8 +77,8 @@ export class ProfileComponent implements OnInit {
 
     }
     act() {
-        if (!this.auth.logined()) {
-            this.auth.register();
+        if (!this.user.logined()) {
+            this.user.register();
             return;
         }
         this.name.setValue(this.name.value.trim());
@@ -88,7 +86,7 @@ export class ProfileComponent implements OnInit {
         this.cars.setValue(this.autos);
         if (this.form.valid) {
             //console.log(this.form.value, this.autos)
-            this.auth.updateProfile(this.form.value, () => {
+            this.user.updateProfile(this.form.value, () => {
                 this.busService.send(new DialogMessage(this, InfoDialogComponent, { title: '提示', content: '个人资料修改成功' }));
             });
         }

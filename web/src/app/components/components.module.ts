@@ -69,6 +69,6 @@ import { ConfPaginator } from 'app/common/conf.paginator';
     MsgDialogComponent,
     FavorDialogComponent
   ],
-  providers: [HttpRequest,{ provide: MatPaginatorIntl, useValue: ConfPaginator() }]
+  providers: [{ provide: MatPaginatorIntl, useValue: ConfPaginator() }]
 })
 export class ComponentsModule { }

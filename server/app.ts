@@ -6,7 +6,7 @@ import { Authentication } from './route/authentication';
 import { Router } from './route/router';
 import { HOSTPORT, MS } from './config';
 import { Tickets } from './service/tickets';
-import { TaskManager } from './task/task.manager';
+import { join,resolve } from 'path';
 import { Log } from './common/log';
 import { G } from './gorm/gorm';
 import { Articles } from './service/articles';
@@ -14,6 +14,9 @@ import { ID } from './common/id';
 import { Messages } from './service/messages';
 import { Favors } from './service/favor';
 import { MasterSlaver, SlaverStartTasks } from './service/master.slaver';
+import { _files } from './common/files';
+import { createServer } from 'http';
+import { createGunzip } from 'zlib';
 
 
 // const a = require('request-promise-native')(
@@ -91,12 +94,33 @@ server.on('connection', function(socket) {
 });
 
 if(MS.SLAVER.ONLINE){
-    const slaver_web = express();
-    slaver_web.use('/', express.static('../web/dist', {index: "index.html"}) );
-    const slaver_server = slaver_web.listen(80, async () => {
-        Log.info(`SLAVER WEB Listening at http://${slaver_server.address().address}:${slaver_server.address().port}`);
+
+    const base = resolve('../web/dist');
+    _files.cache(base);
+    //slaver_web.use('/', express.static('../web/dist', {index: "index.html"}) );
+    const slaver_web = createServer(async (req, res) => {
+        let filename = req.url == '/' ? join(base,'index.html') : join(base,req.url)
+        const file = _files.getFileStream(filename);
+        const mimetype = _files.mime(filename);
+        //console.log('mime',mimetype,req.url,filename);
+        if(file && mimetype){
+            res.setHeader('Content-type', mimetype);
+            if(req.headers['accept-encoding'].indexOf('gzip')>-1){
+                res.setHeader('Content-Encoding', 'gzip');
+                file.pipe(res);
+            }else{
+                file.pipe(createGunzip()).pipe(res);
+            }
+            
+        }else{
+            res.end('none.')
+        }
     });
-    slaver_server.on('connection', function(socket) {
+
+    const slaver_server = slaver_web.listen(80, async () => {
+        Log.info(`SLAVER WEB Listening at http://${JSON.stringify(slaver_server.address())}`);
+    });
+    slaver_server.on('connection',  (socket) => {
         Log.info(`slaver connection was made by a client(${socket.remoteAddress}:${socket.remotePort}).`);
     });
     const job = new CronJob({

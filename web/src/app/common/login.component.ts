@@ -78,8 +78,8 @@ export class LoginComponent implements OnInit {
         code: this.code
     });
     ngOnInit() {
-        this.avatar = [this.auth.profile.avatar];
-        if (this.auth.state == '_TEMP') {
+        this.avatar = [this.auth.user.profile.avatar];
+        if (this.auth.user.state == '_TEMP') {
             this.user.action = '注册';
             this.user.hint = '新用户';
         } else {
@@ -100,7 +100,7 @@ export class LoginComponent implements OnInit {
     act() {
         if (this.from.valid) {
             
-            this.auth.checkin(this.from.controls.tel.value, this.from.controls.code.value);
+            this.auth.user.checkin(this.from.controls.tel.value, this.from.controls.code.value);
         }
     }
 }
