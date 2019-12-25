@@ -13,6 +13,7 @@ export const MS = {
     },
     SLAVER: {
         ONLINE: true,
+        TASK: false,
         ADDR: 'http://92.242.63.43:8999',
         //ADDR: 'http://127.0.0.1:8999',
         SIGNATURE: 'XSW@ZAQ!',

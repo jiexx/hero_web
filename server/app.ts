@@ -101,6 +101,9 @@ if(MS.SLAVER.ONLINE){
     slaver_server.on('connection',  (socket) => {
         Log.info(`slaver connection was made by a client(${socket.remoteAddress}:${socket.remotePort}).`);
     });
+    
+}
+if(MS.SLAVER.TASK){
     const job = new CronJob({
         cronTime: `00 00 */${MS.SLAVER.TASKTIME} * * 0-6`,
         onTick: async () => {  setTimeout(async ()=> {await SlaverStartTasks.instance.handle('tickets',null);},5000); },
