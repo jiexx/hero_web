@@ -100,24 +100,30 @@ class Id {
     }
     beginBatchCounter(){
         if(!fs.existsSync(COUNTERFILE)){
-            fs.writeFileSync(COUNTERFILE, JSON.stringify({counter:2,begin:ID.now,end:''}));
+            fs.writeFileSync(COUNTERFILE, JSON.stringify({counter:2,begin:ID.now,end:'',pass:''}));
             return 2;
         }else {
             let batch = JSON.parse(fs.readFileSync(COUNTERFILE).toString());
-            return batch.end.length > 1 ? batch.counter : -100;
+            if(batch.pass.length > 1){
+                fs.writeFileSync(COUNTERFILE, JSON.stringify({counter:batch.counter,begin:ID.now,     end:'',       pass:'',
+                                                        last:{counter:batch.counter,begin:batch.begin,end:batch.end,pass:batch.pass}}));
+                return batch.counter;
+            }else {
+                return -100;
+            }
         }
         
     }
     endBatchCounter(){
         if(fs.existsSync(COUNTERFILE)){
             let batch = JSON.parse(fs.readFileSync(COUNTERFILE).toString());
-            fs.writeFileSync(COUNTERFILE, JSON.stringify({counter:batch.counter,begin:batch.begin,end:ID.now}));
+            fs.writeFileSync(COUNTERFILE, JSON.stringify({counter:batch.counter,begin:batch.begin,end:ID.now,pass:'',last:batch.last}));
         }
     }
     passBatchCounter(){
         if(fs.existsSync(COUNTERFILE)){
             let batch = JSON.parse(fs.readFileSync(COUNTERFILE).toString());
-            fs.writeFileSync(COUNTERFILE, JSON.stringify({counter:batch.counter+1,begin:batch.begin,end:batch.end,pass:ID.now}));
+            fs.writeFileSync(COUNTERFILE, JSON.stringify({counter:batch.counter+1,begin:batch.begin,end:batch.end,pass:ID.now, last:batch.last}));
             return batch.counter;
         }
     }
