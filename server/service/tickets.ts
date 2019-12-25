@@ -1,16 +1,18 @@
 import { AHandler, HandlersContainer } from "../route/handler";
 import { G, V } from "../gorm/gorm";
 import { Vertex } from "../gorm/vertex";
-import { OK } from "../common/result";
+import { OK, ERR } from "../common/result";
 import { NUMPERSUBPAGE, NUMPERPAGE } from "../config";
 
 
 class TicketCount extends AHandler {
     async handle(path:string, q:any){
-        
+        if(!q.note && Object.prototype.toString.call(q.note) != '[object Array]'){
+            return ERR(path);
+        }
         const tickets = await Tickets.instance.tickets.repo.repository.createQueryBuilder(Tickets.instance.tickets.label)
             .select("count(distinct E)", "count")
-            .where("DATEDIFF(NOW(), date(createtime)) > 0 AND DATEDIFF(NOW(), date(createtime)) <= 30 AND E <> '"+q.note+"'");
+            .where("DATEDIFF(NOW(), date(createtime)) >= 0 AND DATEDIFF(NOW(), date(createtime)) <= 30 AND E NOT IN  (" + q.note.map(e=>"'"+e+"'") + ")");
         const result = await Tickets.instance.filter(tickets, q)
             .getRawOne();
         return OK(result.count);
@@ -19,9 +21,12 @@ class TicketCount extends AHandler {
 
 class TicketSubcount extends AHandler {
     async handle(path:string, q:any){
+        if(!q.note && Object.prototype.toString.call(q.note) != '[object Array]'){
+            return ERR(path);
+        }
         const tickets = await Tickets.instance.tickets.repo.repository.createQueryBuilder(Tickets.instance.tickets.label)
             .select("count(*)", "count")
-            .where("DATEDIFF(NOW(), date(createtime)) > 0 AND DATEDIFF(NOW(), date(createtime)) <= 30 AND E <> '"+q.note+"' AND E = '"+q.end+"'");
+            .where("DATEDIFF(NOW(), date(createtime)) >= 0 AND DATEDIFF(NOW(), date(createtime)) <= 30 AND E NOT IN  (" + q.note.map(e=>"'"+e+"'") + ") AND E = '"+q.end+"'");
         const result = await Tickets.instance.filter(tickets, q)
             .getRawOne();
         return OK(result.count);
@@ -31,8 +36,11 @@ class TicketSubcount extends AHandler {
 
 class TicketSublist extends AHandler {
     async handle(path:string, q:any){
+        if(!q.note && Object.prototype.toString.call(q.note) != '[object Array]'){
+            return ERR(path);
+        }
         const tickets = await Tickets.instance.tickets.repo.repository.createQueryBuilder(Tickets.instance.tickets.label)
-            .where("DATEDIFF(NOW(), date(createtime)) > 0 AND DATEDIFF(NOW(), date(createtime)) <= 30 AND E <> '"+q.note+"' AND E = '"+q.end+"'");
+            .where("DATEDIFF(NOW(), date(createtime)) >= 0 AND DATEDIFF(NOW(), date(createtime)) <= 30 AND E NOT IN  (" + q.note.map(e=>"'"+e+"'") + ") AND E = '"+q.end+"'");
         const result = await Tickets.instance.filter(tickets, q)
             .orderBy("CAST(SUBSTRING(price,4) AS SIGNED)", "ASC")
             .limit(NUMPERSUBPAGE)
@@ -48,9 +56,12 @@ class TicketList extends AHandler {
                     .map(e => {if(e=='price') {return'MIN(CAST(SUBSTRING(price,4) AS SIGNED)) as price';} return e  }).join(',');
     }
     async handle(path:string, q:any){
+        if(!q.note && Object.prototype.toString.call(q.note) != '[object Array]'){
+            return ERR(path);
+        }
         const tickets = await Tickets.instance.tickets.repo.repository.createQueryBuilder(Tickets.instance.tickets.label)
             .select(this.fileds())
-            .where("DATEDIFF(NOW(), date(createtime)) > 0 AND DATEDIFF(NOW(), date(createtime)) <= 30 AND E<>'"+q.note+"'");
+            .where("DATEDIFF(NOW(), date(createtime)) >= 0 AND DATEDIFF(NOW(), date(createtime)) <= 30 AND E NOT IN  (" + q.note.map(e=>"'"+e+"'") + ")");
         const result = await Tickets.instance.filter(tickets, q)
             .groupBy("E")
             .orderBy("price", "ASC")
