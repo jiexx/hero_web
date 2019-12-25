@@ -122,8 +122,8 @@ class Http {
         //console.log('mime',mimetype,req.url,filename);
         if(file && mimetype){
             res.setHeader('Content-type', mimetype);
-            let encoding = req.headers['content-encoding'] || req.headers['Content-Encoding'];
-            if(encoding.includes('gzip')){
+            let encoding = req.headers['accept-encoding'] || req.headers['Accept-Encoding'];
+            if(encoding && encoding.includes('gzip')){
                 res.setHeader('Content-Encoding', 'gzip');
                 file.pipe(res);
             }else{
