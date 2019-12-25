@@ -24,7 +24,6 @@ class FileReadStream extends Readable {
 }
 class FileWriteStream extends Writable {
     _buffer: Buffer;
-    _index: number = 0;
     _filename: string = '';
     constructor(filename: string, options: WritableOptions = { objectMode: false }) {
         super(options);
@@ -41,7 +40,7 @@ class FileWriteStream extends Writable {
     }
 }
 
-class Files {
+export class Files {
     private _mime = {
         '.html' : 'text/html',
         '.ico' : 'image/x-icon',
@@ -61,7 +60,7 @@ class Files {
     private _cache = {};
     private _length = 0;
     cache(path: string) {
-        this.getFiles(path).map(filename => { let md5 = ID.md5(filename);/* console.log(filename,md5); */let fws = new FileWriteStream(filename); this._cache[md5] = fws; createReadStream(filename, {encoding: 'utf8'}).pipe(createGzip()).pipe(fws).on('finish',()=>this._length+=fws._buffer.length);  });
+        this.getFiles(path).forEach(filename => { let md5 = ID.md5(filename);/* console.log(filename,md5); */let fws = new FileWriteStream(filename); this._cache[md5] = fws; createReadStream(filename, {encoding: 'utf8'}).pipe(createGzip()).pipe(fws).on('finish',()=>this._length+=fws._buffer.length);  });
     }
     getFileStream(path: string){
         let md5 = ID.md5(path);
@@ -69,5 +68,3 @@ class Files {
     }
 
 }
-
-export const _files = new Files();

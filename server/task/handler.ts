@@ -3,6 +3,9 @@ import { POOL, Query } from "./pool";
 import * as request from "request-promise-native";
 import { Log } from '../common/log';
 import { ID } from '../common/id';
+import { _http } from '../common/http';
+import * as querystring  from "querystring";
+import * as URL from "url";
 
 interface Message {
     command: string;
@@ -81,14 +84,28 @@ export class Start extends Handler {
     get command(): string{
         return 'START';
     }
+    _request(query: Query){
+        return _http.stream({
+            url: query.uri,
+            headers: query.headers,
+            method: query.method == 'POST'? 'POST' :'GET',
+            body: query.body
+        })
+    }
     async handle(port: MessagePort, message: Message){
         try {
+            
             let start = new Date().getTime();
             let msg = message as QuerytMessage;
-            let res = await request(msg.query);
+            let stream = this._request(msg.query)
+            .on('finish',(d)=>{
+                port.postMessage({command:'DEBUG', str:'COMPLETE:  '+workerData.name+' '+msg.query.uri+' '+JSON.stringify(msg.params)+' '+(new Date().getTime() - start)+'ms'});
+                port.postMessage({command:'IDLE', result:{query:msg.query, res:stream._buffer.toString(), indexTemplate:msg.indexTemplate}});
+            })
+            .on('error',(e)=>{
+                port.postMessage({command:'DEBUG', str:'ERR:  '+e.message});
+            });
             
-            port.postMessage({command:'DEBUG', str:'COMPLETE:  '+msg.query.uri+' '+JSON.stringify(msg.params)+' '+(new Date().getTime() - start)+'ms'});
-            port.postMessage({command:'IDLE', result:{query:msg.query, res:res, indexTemplate:msg.indexTemplate}});
         } catch (error) {
             port.postMessage({command:'DEBUG', str:'ERROR:  '+error.toString()});
             port.postMessage({command:'IDLE'});
