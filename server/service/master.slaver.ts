@@ -248,6 +248,16 @@ class SlaverTickets extends SHandler {
 export class SlaverStartTasks extends SHandler {
     tm: any = null;
     async handle(path:string, q:any){
+        let counter = ID.beginBatchCounter();
+        Log.info('batch start '+ counter);
+        if(counter < 0){
+            return;
+        }
+        if(!this.tm) {
+            this.tm = new TaskManager();
+            await this.tm.setup(counter);
+        }
+        
         let bktable = await Tickets.instance.backup('tickets_bk');
         await bktable.repo.clear();
         const queryRunner = G.connection.createQueryRunner();
@@ -265,15 +275,6 @@ export class SlaverStartTasks extends SHandler {
         return OK(path);
     }
     async start(onFinish = null){
-        let counter = ID.beginBatchCounter();
-        Log.info('batch start '+ counter);
-        if(counter < 0){
-            return;
-        }
-        if(!this.tm) {
-            this.tm = new TaskManager();
-            await this.tm.setup(counter);
-        }
         await this.tm.start(()=>{
             ID.endBatchCounter();
             if(onFinish){

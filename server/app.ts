@@ -68,6 +68,14 @@ const setup = async () =>{
             router.process(app);
         })
     }
+    if(MS.SLAVER.TASK){
+        const job = new CronJob({
+            cronTime: `00 00 */${MS.SLAVER.TASKTIME} * * 0-6`,
+            onTick: async () => {  setTimeout(async ()=> {await SlaverStartTasks.instance.handle('tickets',null);},5000); },
+            runOnInit: true
+        });
+        job.start();
+    }
 }
 
 // run app
@@ -103,14 +111,7 @@ if(MS.SLAVER.ONLINE){
     });
     
 }
-if(MS.SLAVER.TASK){
-    const job = new CronJob({
-        cronTime: `00 00 */${MS.SLAVER.TASKTIME} * * 0-6`,
-        onTick: async () => {  setTimeout(async ()=> {await SlaverStartTasks.instance.handle('tickets',null);},5000); },
-        runOnInit: true
-    });
-    job.start();
-}
+
 //
 //wget https://nodejs.org/dist/v12.14.0/node-v12.14.0-linux-x64.tar.xz
 //tar -xvf node-v12.14.0-linux-x64.tar.xz
@@ -135,3 +136,17 @@ if(MS.SLAVER.TASK){
 //npm install typescript
 
 //pm2 start bin/app.js --node-args="--experimental-worker"
+
+//yum install wireguard-dkms wireguard-tools
+//wg genkey | tee cprivatekey | wg pubkey > cpublickey
+// [Interface]
+// Address = 10.8.0.1/24
+// SaveConfig = true
+// PostUp = echo 1 > /proc/sys/net/ipv4/ip_forward; iptables -A FORWARD -o eth0 -j ACCEPT; iptables -A FORWARD -i eth0 -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE;
+// PostDown = iptables -D FORWARD -o eth0 -j ACCEPT; iptables -D FORWARD -i eth0 -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE;
+// ListenPort = 11860
+// PrivateKey = EB8lz2wWRdhx5FVgXyA//gPZ8tTW+Aa5QsPzN/LEgV8=
+// [Peer]
+// PublicKey = VNOR0WOMNNeIqSvQ+vXOnW7ZaR/r49AhxdS0ZSpep20=
+// AllowedIPs = 10.8.0.0/24
+// wg-quick up /etc/wireguard/wg0.conf
