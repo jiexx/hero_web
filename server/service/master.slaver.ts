@@ -255,8 +255,8 @@ export class SlaverStartTasks extends SHandler {
         }
         if(!this.tm) {
             this.tm = new TaskManager();
-            await this.tm.setup(counter);
         }
+        await this.tm.setup(counter);
         
         let bktable = await Tickets.instance.backup('tickets_bk');
         await bktable.repo.clear();
@@ -266,22 +266,16 @@ export class SlaverStartTasks extends SHandler {
         await queryRunner.executeMemoryDownSql();
         await queryRunner.release();
 
-        await this.start(async ()=>{
+
+        await this.tm.start(async ()=>{
+            ID.endBatchCounter();
+            Log.info('batch end. ');
             await this.notify();
             let counter = ID.passBatchCounter();
-            Log.info('batch end '+ counter);
-
-        })
-        return OK(path);
-    }
-    async start(onFinish = null){
-        await this.tm.start(()=>{
-            ID.endBatchCounter();
-            if(onFinish){
-                onFinish();
-            }
+            Log.info('batch pass '+ counter);
         });
-        
+
+        return OK(path);
     }
     async notify(){
         await request(

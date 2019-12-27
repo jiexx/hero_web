@@ -1,4 +1,4 @@
-import { readdirSync, statSync, createReadStream } from 'fs';
+import { readdirSync, statSync, createReadStream, Stats, access } from 'fs';
 import { join } from 'path';
 import { createGzip } from 'zlib';
 import { WritableOptions, ReadableOptions, Readable, Writable  } from "stream";
@@ -42,17 +42,25 @@ class FileWriteStream extends Writable {
 
 export class Files {
     private _mime = {
-        '.html' : 'text/html',
-        '.ico' : 'image/x-icon',
-        '.jpg' : 'image/jpeg',
-        '.png' : 'image/png',
-        '.gif' : 'image/gif',
-        '.css' : 'text/css',
-        '.js' : 'text/javascript'
+        '.html' : {mime:'text/html',encoding:{encoding:'utf8'}},
+        '.ico' : {mime:'image/x-icon',encoding:{}},
+        '.jpg' : {mime:'image/jpeg',encoding:{}},
+        '.png' : {mime:'image/png',encoding:{}},
+        '.gif' : {mime:'image/gif',encoding:{}},
+        '.css' : {mime:'text/css',encoding:{encoding:'utf8'}},
+        '.js' : {mime:'text/javascript',encoding:{encoding:'utf8'}},
+        '.woff2': {mime:'application/font-woff2',encoding:{}},
     };
+    get mimeRegex(){
+        return /\.(htm|html|jpg|png|gif|js|css|ico|woff2)$/;
+    }
     mime(url: string){
         let dotoffset = url.lastIndexOf('.');
-        return this._mime[ url.substr(dotoffset) ];
+        return this._mime[ url.substr(dotoffset) ] && this._mime[ url.substr(dotoffset) ].mime;
+    }
+    encoding(url: string){
+        let dotoffset = url.lastIndexOf('.');
+        return (this._mime[ url.substr(dotoffset) ] && this._mime[ url.substr(dotoffset) ].encoding) || {encoding:'utf8'};
     }
     getFiles(path: string): string[] {
         return readdirSync(path).map(file => join(path, file)).reduce((p, path) => { statSync(path).isDirectory() ? p = p.concat(this.getFiles(path)) : p.push(path); return p }, []);
@@ -60,11 +68,19 @@ export class Files {
     private _cache = {};
     private _length = 0;
     cache(path: string) {
-        this.getFiles(path).forEach(filename => { let md5 = ID.md5(filename);/* console.log(filename,md5); */let fws = new FileWriteStream(filename); this._cache[md5] = fws; createReadStream(filename, {encoding: 'utf8'}).pipe(createGzip()).pipe(fws).on('finish',()=>this._length+=fws._buffer.length);  });
+        this.getFiles(path).forEach(filename => { let md5 = ID.md5(filename);/* console.log(filename,md5); */let fws = new FileWriteStream(filename); this._cache[md5] = fws; createReadStream(filename, this.encoding(filename)).pipe(createGzip()).pipe(fws).on('finish',()=>this._length+=fws._buffer.length);  });
     }
     getFileStream(path: string){
         let md5 = ID.md5(path);
         return this._cache[md5] && this._cache[md5].getReadableStream();
+    }
+
+    getOneStream(path: string, callback: Function){
+        access(path, (err) => {
+            if(!err && callback){
+                callback(createReadStream(path, this.encoding(path)));
+            }
+        });
     }
 
 }

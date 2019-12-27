@@ -28,12 +28,37 @@ import { _http } from './common/http';
 //     }
 // )
 
+
 const app = express();
-app.use('/', express.static('./assets', {
-    setHeaders: function(res, path) {
-        res.set("Access-Control-Allow-Origin", "*");
+// app.use('/', express.static('./assets', {
+//     setHeaders: function(res, path) {
+//         //res.set("Access-Control-Allow-Origin", "*");
+//     }
+// }) );
+if(MS.MASTER.ONLINE || MS.SLAVER.ONLINE){
+    _http.cache();
+    if(MS.SLAVER.ONLINE){
+        //slaver_web.use('/', express.static('../web/dist', {index: "index.html"}) );
+        
+        const slaver_web = createServer(async (req, res) => {
+            _http.response(req, res);
+        });
+    
+        const slaver_server = slaver_web.listen(80, async () => {
+            Log.info(`SLAVER WEB Listening at http://${JSON.stringify(slaver_server.address())}`);
+        });
+        slaver_server.on('connection',  (socket) => {
+            Log.info(`slaver connection was made by a client(${socket.remoteAddress}:${socket.remotePort}).`);
+        });
+        
     }
-}) );
+    if(MS.MASTER.ONLINE){
+        app.get(_http.files.mimeRegex, (req, res) => {
+            _http.response(req, res);
+        });
+    }
+}
+
 //app.use(bodyParser.json());
 app.use(bodyParser.json({ limit: '50mb' })); // for parsing application/json
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true })); // for parsing application/x-www-form-urlencoded
@@ -68,14 +93,6 @@ const setup = async () =>{
             router.process(app);
         })
     }
-    if(MS.SLAVER.TASK){
-        const job = new CronJob({
-            cronTime: `00 00 */${MS.SLAVER.TASKTIME} * * 0-6`,
-            onTick: async () => {  setTimeout(async ()=> {await SlaverStartTasks.instance.handle('tickets',null);},5000); },
-            runOnInit: true
-        });
-        job.start();
-    }
 }
 
 // run app
@@ -97,21 +114,15 @@ server.on('connection', function(socket) {
     });
 });
 
-if(MS.SLAVER.ONLINE){
-    //slaver_web.use('/', express.static('../web/dist', {index: "index.html"}) );
-    const slaver_web = createServer(async (req, res) => {
-        _http.response(req, res);
-    });
 
-    const slaver_server = slaver_web.listen(80, async () => {
-        Log.info(`SLAVER WEB Listening at http://${JSON.stringify(slaver_server.address())}`);
+if(MS.SLAVER.TASK){
+    const job = new CronJob({
+        cronTime: `00 00 */${MS.SLAVER.TASKTIME} * * 0-6`,
+        onTick: async () => {  setTimeout(async ()=> {await SlaverStartTasks.instance.handle('tickets',null);},5000); },
+        runOnInit: true
     });
-    slaver_server.on('connection',  (socket) => {
-        Log.info(`slaver connection was made by a client(${socket.remoteAddress}:${socket.remotePort}).`);
-    });
-    
+    job.start();
 }
-
 //
 //wget https://nodejs.org/dist/v12.14.0/node-v12.14.0-linux-x64.tar.xz
 //tar -xvf node-v12.14.0-linux-x64.tar.xz
@@ -149,4 +160,6 @@ if(MS.SLAVER.ONLINE){
 // [Peer]
 // PublicKey = VNOR0WOMNNeIqSvQ+vXOnW7ZaR/r49AhxdS0ZSpep20=
 // AllowedIPs = 10.8.0.0/24
-// wg-quick up /etc/wireguard/wg0.conf
+// 
+
+// ng build --prod --aot --optimization --build-optimizer --vendor-chunk --common-chunk --extract-licenses --extract-css --source-map=false

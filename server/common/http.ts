@@ -2,10 +2,11 @@ import * as URL from "url";
 import { request, IncomingMessage, IncomingHttpHeaders, ServerResponse } from "http";
 import { Log } from "./log";
 import { Readable, ReadableOptions, Writable, WritableOptions } from "stream";
-import { createGunzip, createInflate } from 'zlib';
+import { createGunzip, createInflate, createGzip } from 'zlib';
 import { join,resolve } from 'path';
 import { MS } from "../config";
 import { Files } from "./files";
+import { ReadStream } from "fs";
 
 class HttpReadStream extends Readable {
     _buffer: Buffer;
@@ -50,7 +51,7 @@ export interface HttpRequestOption {
     method: 'POST' | 'GET';
     body?: any;
 }
-class Http {
+export class Http {
     private http(rq: HttpRequestOption) : Promise<IncomingMessage>{
         return new Promise((resolve, rejects) => {
             try{
@@ -112,15 +113,21 @@ class Http {
         });
     }
     
-    constructor(public files: Files = new Files()){
-        this.files.cache(MS.SLAVER.WEBBASE);
+    constructor(public files: Files = null){
+        
+    }
+    cache(){
+        this.files = new Files();
+        this.files.cache(MS.MASTER.WEBBASE);
     }
     response(req: IncomingMessage, res: ServerResponse){
-        let filename = req.url == '/' ? join(MS.SLAVER.WEBBASE,'index.html') : join(MS.SLAVER.WEBBASE,req.url)
+        let filename = req.url == '/' ? join(MS.MASTER.WEBBASE,'index.html') : join(MS.MASTER.WEBBASE,req.url)
         const file = this.files.getFileStream(filename);
         const mimetype = this.files.mime(filename);
-        //console.log('mime',mimetype,req.url,filename);
+        //console.log('mime',mimetype,req.url);
         if(file && mimetype){
+            res.setHeader("Access-Control-Allow-Origin", "*");
+            res.setHeader("Cache-Control", "public, max-age=432000")
             res.setHeader('Content-type', mimetype);
             let encoding = req.headers['accept-encoding'] || req.headers['Accept-Encoding'];
             if(encoding && encoding.includes('gzip')){
@@ -129,6 +136,18 @@ class Http {
             }else{
                 file.pipe(createGunzip()).pipe(res);
             }
+        }else if(mimetype){
+            this.files.getOneStream(join(MS.MASTER.ASSETS,req.url),(stream: ReadStream)=>{
+                res.setHeader('Content-type', mimetype);
+                let encoding = req.headers['accept-encoding'] || req.headers['Accept-Encoding'];
+                if(encoding && encoding.includes('gzip')){
+                    res.setHeader('Content-Encoding', 'gzip');
+                    stream.pipe(createGzip()).pipe(res);
+                }else{
+                    stream.pipe(res);
+                }
+            })
+            
         }else{
             res.end('none.')
         }

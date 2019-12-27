@@ -2,27 +2,29 @@ import { Worker, MessageChannel } from 'worker_threads';
 import { Idle, Debug, Handler, Dispatcher, End } from './handler';
 import { POOL } from './pool';
 import { config } from './config';
+import { resolve } from 'dns';
+import { rejects } from 'assert';
 
 
 export class TaskManager {
     threads = {};
-    dispatcher: Dispatcher;
-    callback: Function = null;
+    dispatcher: Dispatcher = null;
     constructor(){
-        let couter = config.threads.length;
-        this.dispatcher = new Dispatcher(new Idle(), new Debug(), new End((name)=>{
-            couter --;
-            if(!couter && this.callback){
-                this.callback();
-            }
-        }));
     }
     async setup(batchNo: number = 0){
         await POOL.setup(batchNo);
     }
     async start(callback: Function){
-        this. callback = callback;
-        for(let i = 0 ; i < config.threads.length ; i ++){
+        this.dispatcher = new Dispatcher(new Idle(), new Debug(), new End((name)=>{
+            if(this.threads[name]){
+                this.threads[name] = null;
+            }
+            if( Object.values(this.threads).every(e => e == null) && callback){
+                callback();
+            }
+        }));
+        
+        for  (let i = 0 ; i < config.threads.length ; i ++) {
             if(this.threads[i]){
                 await this.threads[i].terminate();
             }
@@ -33,6 +35,7 @@ export class TaskManager {
             this.threads[config.threads[i].name] = thread;
             this.dispatcher.dispath(thread);
         }
+        
     }
 
 }
