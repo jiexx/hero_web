@@ -1,4 +1,4 @@
-﻿import { Component, OnInit, ViewChild, ViewContainerRef, Inject, Optional } from '@angular/core';
+﻿import { Component } from '@angular/core';
 import { IDialogComponent } from './dialog.component';
 import { FormControl, Validators, FormGroup } from '@angular/forms';
 

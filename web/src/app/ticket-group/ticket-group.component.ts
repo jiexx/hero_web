@@ -1,7 +1,5 @@
 
-import { Component, OnInit } from '@angular/core';
-import { HttpRequest } from 'app/common/net.request';
-
+import { Component } from '@angular/core';
 
 @Component({
     selector: 'ticket-group',

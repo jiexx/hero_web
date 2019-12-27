@@ -1,9 +1,7 @@
-import { Component, Input, OnInit } from "@angular/core";
-import { AuthGuard } from "./auth.guard";
+import { Component, OnInit } from "@angular/core";
 import { HttpRequest } from "./net.request";
-import { kMaxLength } from "buffer";
-import { PageEvent } from "@angular/material";
 import { FormControl, Validators, FormGroup } from "@angular/forms";
+import { User } from "./net.user";
 
 function hint(control: FormControl):{[key:string]: string}{
     if(!!control.value){
@@ -14,8 +12,7 @@ function hint(control: FormControl):{[key:string]: string}{
 @Component({
     selector: 'login',
     template:
-        `
-<div class="main-content">
+`<div class="main-content">
     <div class="container-fluid">
         <div class="card">
             <div class="card-header card-header-danger">
@@ -61,7 +58,7 @@ export class LoginComponent implements OnInit {
     avatar: string[] = [];
     user = { action: '注册', hint: '登陆' };
 
-    constructor(public hr: HttpRequest, private auth: AuthGuard) { 
+    constructor(public hr: HttpRequest, private u: User) { 
         //console.log(JSON.stringify(this.auth.state)); 
     }
     tel = new FormControl('', [
@@ -78,8 +75,8 @@ export class LoginComponent implements OnInit {
         code: this.code
     });
     ngOnInit() {
-        this.avatar = [this.auth.user.profile.avatar];
-        if (this.auth.user.state == '_TEMP') {
+        this.avatar = [this.u.profile.avatar];
+        if (this.u.state == '_TEMP') {
             this.user.action = '注册';
             this.user.hint = '新用户';
         } else {
@@ -100,7 +97,7 @@ export class LoginComponent implements OnInit {
     act() {
         if (this.from.valid) {
             
-            this.auth.user.checkin(this.from.controls.tel.value, this.from.controls.code.value);
+            this.u.checkin(this.from.controls.tel.value, this.from.controls.code.value);
         }
     }
 }

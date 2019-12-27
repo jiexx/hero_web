@@ -1,7 +1,7 @@
 import { Component, OnInit, Input} from "@angular/core";
 import { HttpRequest } from "./net.request";
-import { User } from "./auth.guard";
-import { ImageUrl } from "./image.url";
+import { ImageUrl } from "./net.image";
+import { User } from "./net.user";
 
 @Component({
     selector: 'navi',
@@ -24,7 +24,7 @@ import { ImageUrl } from "./image.url";
                 <span  *ngIf="unread==0">朋友的消息</span>
             </button>
         </mat-menu>
-        <button mat-icon-button [routerLink]="['/user-profile']"  ><img style="width: 1.5rem; height: 1.5rem; border-radius: 50%" src="{{avatar}}"></button>
+        <button mat-icon-button [routerLink]="['/profile']"  ><img style="width: 1.5rem; height: 1.5rem; border-radius: 50%" src="{{avatar}}"></button>
     </mat-toolbar-row>
 </mat-toolbar>
 `

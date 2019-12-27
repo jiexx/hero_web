@@ -1,14 +1,10 @@
 import { Component, Input, OnInit } from "@angular/core";
-import { AuthGuard } from "./auth.guard";
 import { HttpRequest } from "./net.request";
-import { kMaxLength } from "buffer";
-import { PageEvent } from "@angular/material";
 import { BusService } from "./dcl.bus.service";
 import { DialogMessage } from "./dcl.dialog.message";
-import { DialogComponent } from "./dialog.component";
 import { MsgDialogComponent } from "./dialog.msg.component";
-import { InfoDialogComponent } from "./dialog.info.component";
-import { ImageUrl } from "./image.url";
+import { ImageUrl } from "./net.image";
+import { User } from "./net.user";
 
 @Component({
     selector: 'messages',
@@ -43,12 +39,12 @@ export class MessagesComponent implements OnInit {
     expanded;
     profile;
 
-    constructor(public hr: HttpRequest, private auth: AuthGuard, private imgUrl: ImageUrl, private busService: BusService) {
+    constructor(public hr: HttpRequest, private user: User, private imgUrl: ImageUrl, private busService: BusService) {
 
     }
     ngOnInit() {
         this.expanded = true;
-        this.profile = this.auth.user.profile;
+        this.profile = this.user.profile;
         if(!this.messages){
             this.messages = {list:[], pgNumber:0};
         }

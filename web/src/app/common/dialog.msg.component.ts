@@ -1,7 +1,4 @@
-﻿import { Component, OnInit, ViewChild, ViewContainerRef, Inject, Optional } from '@angular/core';
-import { BusService } from 'app/common/dcl.bus.service';
-import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material';
-import { DialogMessage } from './dcl.dialog.message';
+﻿import { Component, OnInit } from '@angular/core';
 import { FormControl, Validators, FormGroup } from '@angular/forms';
 import { IDialogComponent } from './dialog.component';
 

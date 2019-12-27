@@ -1,1 +1,1 @@
-ng build --prod
+ng build --prod --aot --optimization --build-optimizer --vendor-chunk --common-chunk --extract-licenses --extract-css --source-map=false --deploy-url "http://app.justitbe.com:8999/"

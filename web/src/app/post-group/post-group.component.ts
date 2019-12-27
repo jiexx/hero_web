@@ -1,6 +1,6 @@
-import { Component, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
-import { User } from 'app/common/auth.guard';
+import { Component, ViewChild } from '@angular/core';
 import { PostComponent } from 'app/common/posts.component';
+import { User } from 'app/common/net.user';
 
 @Component({
   selector: 'post-group',

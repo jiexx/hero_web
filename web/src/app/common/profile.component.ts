@@ -1,11 +1,10 @@
-import {COMMA, ENTER} from '@angular/cdk/keycodes';
 import { Component, OnInit} from "@angular/core";
 import { HttpRequest } from "./net.request";
 import { FormControl, Validators, FormGroup } from "@angular/forms";
-import { User } from "./auth.guard";
 import { BusService } from "./dcl.bus.service";
 import { DialogMessage } from "./dcl.dialog.message";
 import { InfoDialogComponent } from './dialog.info.component';
+import { User } from "./net.user";
 
 @Component({
     selector: 'profile',

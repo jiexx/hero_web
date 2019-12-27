@@ -1,9 +1,7 @@
-﻿import { Component, OnInit, ViewChild, ViewContainerRef, Inject, Optional } from '@angular/core';
+﻿import { Component, OnInit } from '@angular/core';
 import { BusService } from 'app/common/dcl.bus.service';
-import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material';
+import { MatDialogRef, MatDialog } from '@angular/material';
 import { DialogMessage } from './dcl.dialog.message';
-import { InfoDialogComponent } from './dialog.info.component';
-import { MsgDialogComponent } from './dialog.msg.component';
 
 export class IDialogComponent {
     msg: DialogMessage;
@@ -24,12 +22,12 @@ export class IDialogComponent {
 })
 export class DialogComponent implements OnInit { 
     constructor(public dialog: MatDialog, private busService: BusService) {
+        
+    }
+    ngOnInit() {
         this.add('InfoDialogComponent');
         this.add('MsgDialogComponent');
         this.add('FavorDialogComponent');
-    }
-    ngOnInit() {
-
     }
  
     add(dialog: any){

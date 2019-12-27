@@ -1,4 +1,8 @@
-import { Component} from '@angular/core';
+import { Component, ReflectiveInjector} from '@angular/core';
+import { ConfigService } from './common/net.config';
+
+
+
 
 
 @Component({
@@ -7,5 +11,4 @@ import { Component} from '@angular/core';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-
 }

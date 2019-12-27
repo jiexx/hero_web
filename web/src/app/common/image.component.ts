@@ -1,11 +1,7 @@
-﻿import { Component, ChangeDetectorRef, Input, OnInit, Sanitizer, Output } from '@angular/core';
-
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+﻿import { Component, ChangeDetectorRef, Input, Output } from '@angular/core';
 import { EventEmitter } from '@angular/core';
 import { HttpRequest } from './net.request';
-import { ConfigService } from './net.config';
-import { AuthGuard } from './auth.guard';
-import { ImageUrl } from './image.url';
+import { ImageUrl } from './net.image';
 
 class Rect {
     r: number;

@@ -1,33 +1,26 @@
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HttpModule } from '@angular/http';
-import { RouterModule } from '@angular/router';
-
-
-import { AppRoutingModule } from './app.routing';
-import { ComponentsModule } from './components/components.module';
-
+import { AppRoutingModule } from './app-routings.module';
 import { AppComponent } from './app.component';
-
-import { AdminLayoutComponent } from './layouts/admin-layout/admin-layout.component';
-import { MatPaginatorIntl } from '@angular/material';
-import { ConfPaginator } from './common/conf.paginator';
+import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { HttpClientModule } from '@angular/common/http';
+import { LayoutModule } from './layout/layout.module';
+import { BusService } from './common/dcl.bus.service';
 
 @NgModule({
-  imports: [
-    BrowserAnimationsModule,
-    FormsModule,
-    ReactiveFormsModule,
-    HttpModule,
-    ComponentsModule,
-    RouterModule,
-    AppRoutingModule,
-  ],
-  declarations: [
-    AppComponent,
-    AdminLayoutComponent,
-  ],
-  bootstrap: [AppComponent]
+    imports:[
+        BrowserModule,
+        AppRoutingModule,
+        BrowserAnimationsModule,
+        HttpClientModule,
+        LayoutModule
+    ],
+    declarations: [
+        AppComponent,
+    ],
+    bootstrap: [AppComponent],
+    providers:[
+        BusService
+    ]
 })
 export class AppModule { }

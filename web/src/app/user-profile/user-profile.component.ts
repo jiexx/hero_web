@@ -1,9 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpRequest } from 'app/common/net.request';
-import { AuthGuard, User } from 'app/common/auth.guard';
-import { FormControl, Validators, FormGroupDirective, NgForm, FormGroup } from '@angular/forms';
+import { FormControl, FormGroupDirective, NgForm } from '@angular/forms';
 import { ErrorStateMatcher } from '@angular/material';
-import { ImageUrl } from 'app/common/image.url';
+import { ImageUrl } from 'app/common/net.image';
+import { User } from 'app/common/net.user';
 export class Matcher implements ErrorStateMatcher {
   isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
     const isSubmitted = form && form.submitted;

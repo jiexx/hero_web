@@ -1,13 +1,6 @@
-import { Component, Input, OnInit } from "@angular/core";
-import { AuthGuard } from "./auth.guard";
+import { Component, OnInit } from "@angular/core";
 import { HttpRequest } from "./net.request";
-import { kMaxLength } from "buffer";
-import { PageEvent } from "@angular/material";
-import { BusService } from "./dcl.bus.service";
-import { MsgDialogComponent } from "./dialog.msg.component";
-import { InfoDialogComponent } from "./dialog.info.component";
-import { DialogMessage } from "./dcl.dialog.message";
-import { TicketComponent } from "./tikets.component";
+import { TicketComponent } from "./tickets.component";
 
 @Component({
     providers:[TicketComponent ],

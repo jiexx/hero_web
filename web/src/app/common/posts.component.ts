@@ -1,11 +1,11 @@
 import { Component, Input, OnInit } from "@angular/core";
-import { User } from "./auth.guard";
 import { HttpRequest } from "./net.request";
 import { BusService } from "./dcl.bus.service";
 import { DialogMessage } from "./dcl.dialog.message";
 import { MsgDialogComponent } from "./dialog.msg.component";
 import { InfoDialogComponent } from "./dialog.info.component";
-import { ImageUrl } from "./image.url";
+import { ImageUrl } from "./net.image";
+import { User } from "./net.user";
 
 @Component({
     selector: 'posts',
@@ -23,7 +23,7 @@ import { ImageUrl } from "./image.url";
                 </mat-list-item>
             </mat-expansion-panel-header>
             <h6 *ngIf="level==0">{{article.articles_0.content}}</h6>
-            <mat-form-field>
+            <mat-form-field *ngIf="user.logined()">
                 <textarea matInput class="h6" placeholder="回复内容" [(ngModel)]="content"></textarea>
                 <button mat-icon-button class="small" matSuffix color="warn" (click)="comment(article)"><mat-icon>where_to_vote</mat-icon></button>
             </mat-form-field>
