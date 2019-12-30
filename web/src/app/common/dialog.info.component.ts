@@ -1,5 +1,5 @@
 ﻿import { Component } from '@angular/core';
-import { IDialogComponent } from './dialog.component';
+import { IDialogComponent } from './dialog.interface';
 
 
 

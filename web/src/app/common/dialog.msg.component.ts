@@ -1,6 +1,6 @@
 ﻿import { Component, OnInit } from '@angular/core';
 import { FormControl, Validators, FormGroup } from '@angular/forms';
-import { IDialogComponent } from './dialog.component';
+import { IDialogComponent } from './dialog.interface';
 
 
 

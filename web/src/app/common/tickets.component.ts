@@ -5,6 +5,7 @@ import { BusService } from "./dcl.bus.service";
 import { DialogMessage } from "./dcl.dialog.message";
 import { FavorDialogComponent } from "./dialog.favor.component";
 import { ImageUrl } from "./net.image";
+import { User } from "./net.user";
 const Airlines = {
     "EU": ["成都航空有限公司", "028-6666-8888", "http://www.chengduair.cc/"],
     "HU": ["海南航空公司", "95339", "http://www.hnair.com/"],
@@ -273,29 +274,84 @@ export class TicketComponent implements OnInit {
     airlines: any;
     pgNumber: number;
     subpgNumber: number;
-    constructor(public hr: HttpRequest, public imgUrl: ImageUrl, public busService: BusService) {
+    constructor(public hr: HttpRequest, public imgUrl: ImageUrl, public busService: BusService, public user: User) {
     }
     airport(B:string){
         return Places[B];
     }
-    favor(price, method, ticketid, airline){
-        this.hr.post('favor/post', { price: parseInt(price), method: method, to: ticketid }, result => {
+    favor(price, method, ticketid, airline, orderid){
+        this.hr.post('favor/post', { price: parseInt(price), method: method, to: ticketid, orderid: orderid }, result => {
             airline.favorited = 'where_to_vote';
         });
     }
+    setImageToSVG(svg){
+        return svg;
+    }​
+    
+    qrcode(msg: DialogMessage, success: Function, timeout: Function){
+        var counter = 0;
+        var lastOrderid = '';
+        var refresh = ()=>{
+            if(msg.info._ref && counter < 20){
+                this.hr.get('pay/qrcode?subject=Infomation',result => {
+                    msg.info.qrcode = this.setImageToSVG(result.data.qrcode);
+                    lastOrderid = result.data.orderid;
+                    console.log( !!msg.info._ref, counter, lastOrderid, result.data.orderid, msg.info.qrcode)
+                    if(counter < 20){
+                        //console.log('refresh timer');
+                        counter ++;
+                        setTimeout(query,3000)
+                    }else if(counter >= 20){
+                        msg.info._ref && msg.info._ref.close();
+                        msg.info._ref = null;
+                        timeout && timeout();
+                    }
+                })
+            }
+        }
+        var query = ()=>{
+            if(msg.info._ref && counter < 20){
+                this.hr.get('pay/query?orderid='+lastOrderid,result => {
+                    //console.log( !!msg.info._ref, counter, lastOrderid, result.data)
+                    switch(parseInt(result.data)){
+                        case -500:
+                        case -200:
+                            counter ++;
+                            setTimeout(query,3000);
+                            break;
+                        case -400:
+                        case -300:
+                        case -100:
+                            refresh();
+                            break;
+                        case 100:
+                        case 200:
+                            msg.info._ref && msg.info._ref.close();
+                            msg.info._ref = null;
+                            success && success(lastOrderid);
+                            break;
+                    }
+                })
+            }else if(counter >= 20){
+                msg.info._ref && msg.info._ref.close();
+                msg.info._ref = null;
+                timeout && timeout();
+            }
+        }
+        refresh();
+    }
     favorite(airline, panel){
-        console.log(airline.favorited, airline.favorited);
+        //console.log(airline.favorited, airline.favorited);
         if(!airline.favorited || airline.favorited == 'location_on') {
             panel.disabled = true;
-            this.busService.send(new DialogMessage(this, FavorDialogComponent, {},
-                (form)=>{
-                    this.favor(form.price, 1, airline.id, airline);
-                }, 
-                (form)=>{
-                    this.favor(form.price, 1, airline.id, airline);
-                }, 
-                ()=>{panel.disabled = false;panel.hideToggle = false}
+            var msg = null;
+            this.busService.send(msg = new DialogMessage(this, FavorDialogComponent, {qrcode:''},
+                null, 
+                null, 
+                ()=>{panel.disabled = false;panel.hideToggle = false},
             ));
+            this.qrcode(msg, (orderid)=>{this.favor(msg.info._result.price, 1, airline.id, airline, orderid);}, null);
+            
         }else if(airline.favorited == 'where_to_vote'){
             airline.favorited = 'location_on'
         }

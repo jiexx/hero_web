@@ -37,7 +37,7 @@ export class NaviComponent implements OnInit {
     unread: number = 0;
     favorited: number = 0;
     constructor(public hr: HttpRequest, public user: User, public imgUrl: ImageUrl) { 
-        this.avatar = imgUrl.media.imgLink(user.profile.avatar, 'marc.jpg');
+        this.avatar = imgUrl.media.imgLink(user.profile.avatar, 'media/img/marc.jpg');
     }
 
     ngOnInit() {

@@ -15,7 +15,7 @@ import { User } from "./net.user";
         <mat-expansion-panel *ngFor="let article of articles.list" (opened)="open(article)"  [ngClass]="{'mat-elevation-z0': level>0}" #panel>
             <mat-expansion-panel-header [collapsedHeight]="'auto'" [expandedHeight]="'auto'">
                 <mat-list-item>
-                    <img mat-list-icon  src="{{ article && article.users_1 && imgUrl.media.imgLink(article.users_1.avatar,'marc.jpg') }}" (click)="sendMessage(article.users_1, panel)">
+                    <img mat-list-icon  src="{{ article && article.users_1 && imgUrl.media.imgLink(article.users_1.avatar,'media/img/marc.jpg') }}" (click)="sendMessage(article.users_1, panel)">
                     <mat-icon mat-list-icon color="warn" [style.visibility]="article.users_1.cars.length>3? 'show': 'hidden'">person_pin</mat-icon>
                     <h5 mat-line *ngIf="level==0">{{article.articles_0.title}}</h5>
                     <h6 mat-line *ngIf="level!=0">{{article.articles_0.content}}</h6>
@@ -139,7 +139,7 @@ export class PostComponent implements OnInit {
         if(user.mobile == this.user.profile.mobile) {
             return;
         }
-        this.busService.send(new DialogMessage(this, MsgDialogComponent, { avatar: this.imgUrl.media.imgSanitizer(user.avatar,'marc.jpg'), name: user.name, about: user.about},
+        this.busService.send(new DialogMessage(this, MsgDialogComponent, { avatar: this.imgUrl.media.imgSanitizer(user.avatar,'media/img/marc.jpg'), name: user.name, about: user.about},
             (form)=>{
                 form['to'] = user.id;
                 this.hr.post('message/post', form, result => {

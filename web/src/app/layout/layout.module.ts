@@ -6,20 +6,24 @@ import { FooterComponent } from "./footer/footer.component";
 import { NavbarComponent } from "./navbar/navbar.component";
 import { SidebarComponent } from "./sidebar/sidebar.component";
 import { FormsModule } from "@angular/forms";
-import { DialogModule } from "app/common/dialog.module";
 import { NaviModule } from "app/common/navi.module";
 import { MatIconModule, MatButtonModule } from "@angular/material";
 import { AuthGuard } from "app/common/net.auth";
+import { DialogComponent } from "app/common/dialog.component";
+import { InfoDialogComponent } from "app/common/dialog.info.component";
+import { MsgDialogComponent } from "app/common/dialog.msg.component";
+import { FavorDialogComponent } from "app/common/dialog.favor.component";
+import { DialogModule } from "app/common/dialog.module";
 
 @NgModule({
     imports: [
         FormsModule,
         CommonModule,
         LayoutRoutingModule,
-        DialogModule,
         NaviModule,
         MatIconModule,
-        MatButtonModule
+        MatButtonModule,
+        DialogModule,
     ],
     declarations: [
         LayoutComponent,
@@ -29,6 +33,7 @@ import { AuthGuard } from "app/common/net.auth";
     ],
     providers:[
         AuthGuard,
-    ]
+    ],
+    
 })
 export class LayoutModule { }

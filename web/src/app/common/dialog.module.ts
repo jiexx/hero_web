@@ -7,7 +7,8 @@ import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { BusService } from "./dcl.bus.service";
 import { InfoDialogComponent } from "./dialog.info.component";
 import { MsgDialogComponent } from "./dialog.msg.component";
-import { FavorDialogComponent } from "./dialog.favor.component";
+import { FavorDialogComponent, SafeHtml } from "./dialog.favor.component";
+import { NetModule } from "./net.module";
 
 const routes: Routes = [
     {
@@ -42,7 +43,8 @@ const routes: Routes = [
         DialogComponent,
         InfoDialogComponent,
         MsgDialogComponent,
-        FavorDialogComponent
+        FavorDialogComponent,
+        SafeHtml
     ],
     entryComponents: [
         DialogComponent,

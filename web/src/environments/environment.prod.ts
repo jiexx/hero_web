@@ -1,5 +1,6 @@
 
 
 export const environment = {
-  production: true
+  production: true,
+  URL: 'http://app.justitbe.com:8999/'
 };

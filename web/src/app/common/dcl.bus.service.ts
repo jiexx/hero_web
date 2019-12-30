@@ -62,6 +62,7 @@ export class BusService {
                 // if(message){
                 //     console.log(message.to, that.name, that);
                 // }
+                //console.log(message, that);
                 if(message  && message.to && (
                     message.to.name == that.constructor.name || 
                     message.to.name == that ||

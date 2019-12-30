@@ -64,7 +64,7 @@ class ImageLoc {
     }
     imgLink(img: any, defaultImg: string){
         if(this.isBased64(img)){
-            return defaultImg;
+            return img;
         }else if(this.isSanitizer(img)){
             return this.imgUrl(img.changingThisBreaksApplicationSecurity);
         }else if(this.isImgLabel(img)){
@@ -91,13 +91,23 @@ class MediaUrl extends ImageLoc{
     }
 }
 
+class AssetUrl extends ImageLoc{
+    protected imgUrl(img: string){
+        return img.includes('asset/') ? super.imgUrl(img) : super.imgUrl('asset/'+img);
+    }
+    protected imgPath(img: string){
+        return img.includes('asset/') ? super.imgPath(img) : 'asset/'+super.imgPath(img);
+    }
+}
+
+
 
 @Injectable()
 export class ImageUrl {
-    assets: ImageLoc;
+    assets: AssetUrl;
     media: MediaUrl;
     constructor(protected config: ConfigService, protected sanitizer:DomSanitizer){
-        this.assets = new ImageLoc(config, sanitizer);
+        this.assets = new AssetUrl(config, sanitizer);
         this.media = new MediaUrl(config, sanitizer);
     }
 }

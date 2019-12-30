@@ -59,6 +59,9 @@ export class User {
     register(){
         this.router.navigate(['/login']);
     }
+    favor(){
+        this.router.navigate(['/favor']);
+    }
 
     home(){
         this.router.navigate(['/tickets']);

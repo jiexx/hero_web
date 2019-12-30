@@ -11,7 +11,7 @@ import { User } from "./net.user";
     template:
 `<mat-list>
     <mat-list-item *ngFor="let message of messages.list; let i = index" [ngClass]="(message.messages_0.readed==1)?'readed':'unread'" >
-        <img mat-list-icon  src="{{ message && message.users_1 && imgUrl.media.imgLink(message.users_1.avatar,'marc.jpg')}}" (click)="sendMessage(message.users_1, panel)">
+        <img mat-list-icon  src="{{ message && message.users_1 && imgUrl.media.imgLink(message.users_1.avatar,'media/img/marc.jpg')}}" (click)="sendMessage(message.users_1, panel)">
         <h5 mat-line><button mat-icon-button color="warn" (click)="selected(message.messages_0)" ><mat-icon [style.color]="message.messages_0.readed==0? 'tomato' : 'lightgray'">{{message.messages_0.readed==0? 'where_to_vote' : 'location_on'}}</mat-icon></button>{{message.messages_0.title}}</h5>
         <h6 mat-line>{{message.messages_0.content}}</h6>
         <h6 mat-line>{{message.users_1.name}}发送于:{{message.messages_0.createtime.replace(' ','日')}}</h6>
@@ -64,7 +64,7 @@ export class MessagesComponent implements OnInit {
         });
     }
     sendMessage(user, panel){
-        this.busService.send(new DialogMessage(this, MsgDialogComponent, { avatar: this.imgUrl.media.imgSanitizer(user.avatar,'marc.jpg'), name: user.name, about: user.about},
+        this.busService.send(new DialogMessage(this, MsgDialogComponent, { avatar: this.imgUrl.media.imgSanitizer(user.avatar,'media/img/marc.jpg'), name: user.name, about: user.about},
             (form)=>{
                 form['to'] = user.id;
                 this.hr.post('message/post', form, result => {

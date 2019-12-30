@@ -2,19 +2,12 @@
 import { BusService } from 'app/common/dcl.bus.service';
 import { MatDialogRef, MatDialog } from '@angular/material';
 import { DialogMessage } from './dcl.dialog.message';
+import { InfoDialogComponent } from './dialog.info.component';
+import { MsgDialogComponent } from './dialog.msg.component';
+import { FavorDialogComponent } from './dialog.favor.component';
+import { IDialogComponent } from './dialog.interface';
+import { Type } from '@angular/compiler';
 
-export class IDialogComponent {
-    msg: DialogMessage;
-    dialogRef: MatDialogRef<any>
-    confirm(result: any = null) {
-        if (this.msg && this.msg.pass) this.msg.pass(result);
-        this.dialogRef.close();
-    }
-    decline(result: any = null) {
-        if (this.msg && this.msg.fail) this.msg.fail(result);
-        this.dialogRef.close();
-    }
-}
 
 @Component({
     selector: 'dialogs',
@@ -24,10 +17,11 @@ export class DialogComponent implements OnInit {
     constructor(public dialog: MatDialog, private busService: BusService) {
         
     }
+
     ngOnInit() {
-        this.add('InfoDialogComponent');
-        this.add('MsgDialogComponent');
-        this.add('FavorDialogComponent');
+        this.add(InfoDialogComponent);
+        this.add(MsgDialogComponent);
+        this.add(FavorDialogComponent);
     }
  
     add(dialog: any){
@@ -44,9 +38,16 @@ export class DialogComponent implements OnInit {
         dialogRef.afterClosed().subscribe(result => {
             if (msg && msg.closed) msg.closed();
             this.dialog.closeAll();
+            msg.info['_ref'] = null;
         });
         (<IDialogComponent>dialogRef.componentInstance).msg = msg;
         (<IDialogComponent>dialogRef.componentInstance).dialogRef = dialogRef;
+        if(!msg.info) {
+            msg['info'] = {_ref:dialogRef}
+        }else{
+            msg.info['_ref'] = dialogRef;
+        }
+        return dialogRef;
     }
     
 

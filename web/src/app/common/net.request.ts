@@ -28,5 +28,15 @@ export class HttpRequest{
             }
         })
     }
-
+    get(path: string, callback: Function = null, err: Function = null) {
+        this.http.get(this.config.REST_HOST.URL+path).subscribe(result =>{
+            var r: any = result;
+            if (r && r.code == 'OK') {
+                callback(result);
+            }
+            if(err && r.code == 'ERR'){
+                err(r);
+            }
+        })
+    }
 }

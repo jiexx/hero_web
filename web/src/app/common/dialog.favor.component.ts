@@ -1,8 +1,19 @@
-﻿import { Component } from '@angular/core';
-import { IDialogComponent } from './dialog.component';
+﻿import { Component, OnInit, Pipe, Sanitizer } from '@angular/core';
+import { IDialogComponent } from './dialog.interface';
 import { FormControl, Validators, FormGroup } from '@angular/forms';
+import { HttpRequest } from './net.request';
+import { DomSanitizer } from '@angular/platform-browser';
+import { ImageUrl } from './net.image';
+import { MsgDialogComponent } from './dialog.msg.component';
 
+@Pipe({name: 'safe'})
+export class SafeHtml {
+  constructor(private sanitizer:DomSanitizer){}
 
+  transform(html) {
+    return this.sanitizer.bypassSecurityTrustHtml(html);
+  }
+}
 
 @Component({
     template:
@@ -30,16 +41,54 @@ import { FormControl, Validators, FormGroup } from '@angular/forms';
                 </mat-hint>
             </mat-form-field>
         </form>
-        <img width="80rem" src="data:image/png;base64,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">
+        <div  style="display: inline-block;position: relative;width:100%" cdkFocusInitial>
+            <div style="padding-bottom:100%"></div>
+            <img *ngIf="msg.info.qrcode" style="position:absolute;top:0;bottom:0;left:0;right:0;" [src]="sanitizer.bypassSecurityTrustResourceUrl(msg.info.qrcode)">
+            <img style="position:absolute;left:0;right:0;top:0;bottom:0;margin:auto;width:32px;" src="{{imgUrl.assets.imgLink('assets/img/alipay64x64.png', 'assets/img/default.png')}}">
+            <div *ngIf="!msg.info.qrcode" style="position:absolute;left:0;right:0;top:0;bottom:0;margin:auto;width:5rem;height:5rem">
+                <svg viewBox="0 0 46 46" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient x1="8.042%" y1="0%" x2="65.682%" y2="23.865%" id="a">
+                            <stop stop-color="tomato" stop-opacity="0" offset="0%"/>
+                            <stop stop-color="tomato" stop-opacity=".631" offset="63.146%"/>
+                            <stop stop-color="tomato" offset="100%"/>
+                        </linearGradient>
+                    </defs>
+                    <g fill="none" fill-rule="evenodd">
+                        <g transform="translate(1 1)">
+                            <path d="M36 18c0-9.94-8.06-18-18-18" id="Oval-2" stroke="url(#a)" stroke-width="4">
+                                <animateTransform
+                                    attributeName="transform"
+                                    type="rotate"
+                                    from="0 18 18"
+                                    to="360 18 18"
+                                    dur="0.9s"
+                                    repeatCount="indefinite" />
+                            </path>
+                        </g>
+                    </g>
+                </svg>
+            </div>
+        </div>
         <h6>扫码获取即时短信通知</h6>    
     </mat-dialog-content>
     <mat-dialog-actions align="center">
-        <button mat-raised-button (click)="decline()">邮件</button>
-        <button mat-raised-button (click)="confirm()" [mat-dialog-close]="true" cdkFocusInitial color="warn">短信</button>
+        <button *ngIf="msg.pass" mat-raised-button (click)="decline()">邮件</button>
+        <button *ngIf="msg.fail" mat-raised-button (click)="confirm()" [mat-dialog-close]="true" cdkFocusInitial color="warn">短信</button>
     </mat-dialog-actions>
 `,
 })
-export class FavorDialogComponent extends IDialogComponent {
+export class FavorDialogComponent extends IDialogComponent implements OnInit {
+    constructor(public imgUrl: ImageUrl, public sanitizer:DomSanitizer){ 
+        super()
+        
+    }
+    ngOnInit(): void{
+        // if(!this.msg.info.qrcode){
+        //     this.msg.info.qrcode = `data:image/svg+xml;charset=utf-8,<svg class="circular" viewBox="25 25 50 50"><circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10"/></svg>`;
+        // }
+        this.msg.info['_result'] = this.form.value;
+    }
     price = {
         input: new FormControl('', [
             Validators.required,
