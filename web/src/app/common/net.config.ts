@@ -15,7 +15,7 @@ export class ConfigService {
         URL:  this.url/* 'http://app.justitbe.com:8999/' */
     }
     public FONT_HOST = {
-        URL: this.url/* "http://app.justitbe.com:8999/" */
+        URL: this.url+'asset/'/* "http://app.justitbe.com:8999/" */
         /* URL: "http://localhost:8999/" */
     }
     
