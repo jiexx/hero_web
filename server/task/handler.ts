@@ -83,7 +83,7 @@ export class Start extends Handler {
         return 'START';
     }
     _request(query: Query){
-        return _http.request({
+        return  _http.request({
             url: query.uri,
             headers: query.headers,
             method: query.method == 'POST'? 'POST' :'GET',
@@ -96,10 +96,11 @@ export class Start extends Handler {
             let start = new Date().getTime();
             let msg = message as QuerytMessage;
             let stream = await this._request(msg.query)
-            .catch((e)=>{
-                port.postMessage({command:'DEBUG', str:'ERR:  '+e.message});
-            });
-            
+            // .catch((e)=>{
+            //     port.postMessage({command:'DEBUG', str:'ERR:  '+e.message});
+            // });
+            port.postMessage({command:'DEBUG', str:'COMPLETE:  '+workerData.name+' '+msg.query.uri+' '+JSON.stringify(msg.params)+' '+(new Date().getTime() - start)+'ms'});
+            port.postMessage({command:'IDLE', result:{query:msg.query, res:stream._buffer.toString(), indexTemplate:msg.indexTemplate}});
         } catch (error) {
             port.postMessage({command:'DEBUG', str:'ERROR:  '+error.toString()});
             port.postMessage({command:'IDLE'});
