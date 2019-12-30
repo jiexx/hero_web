@@ -108,6 +108,9 @@ class JSelector implements Selector{
 export class Pool {
     private _items: Item[] = [];
     private _templates: Template[] = [];
+    empty() {
+        return this._items.length <= 0;
+    }
     pop() : Item{
         return this._items.shift();
     }

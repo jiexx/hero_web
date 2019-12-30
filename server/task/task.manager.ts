@@ -19,7 +19,7 @@ export class TaskManager {
             if(this.threads[name]){
                 this.threads[name] = null;
             }
-            if( Object.values(this.threads).every(e => e == null) && callback){
+            if( /* Object.values(this.threads).every(e => e == null) */ POOL.empty() && callback){
                 callback();
             }
         }));

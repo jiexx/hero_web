@@ -1,12 +1,10 @@
 import * as URL from "url";
-import { request, IncomingMessage, IncomingHttpHeaders, ServerResponse } from "http";
+import * as https from "https";
+import { CookieJar } from "tough-cookie";
+import { request, IncomingMessage, ServerResponse, ClientRequest } from "http";
 import { Log } from "./log";
 import { Readable, ReadableOptions, Writable, WritableOptions } from "stream";
 import { createGunzip, createInflate, createGzip } from 'zlib';
-import { join,resolve } from 'path';
-import { MS } from "../config";
-import { Files } from "./files";
-import { ReadStream } from "fs";
 
 class HttpReadStream extends Readable {
     _buffer: Buffer;
@@ -30,6 +28,7 @@ class HttpWriteStream extends Writable {
     _buffer: Buffer;
     headers: {};
     statusCode: number;
+    location: string;
     constructor(options: WritableOptions = { objectMode: false }) {
         super(options);
         this._buffer = Buffer.from('','utf8');
@@ -50,108 +49,145 @@ export interface HttpRequestOption {
     headers?: {};
     method: 'POST' | 'GET';
     body?: any;
+    chunk?: boolean;
+    cookie?: any;
+    counter?: number;
 }
 export class Http {
-    private http(rq: HttpRequestOption) : Promise<IncomingMessage>{
-        return new Promise((resolve, rejects) => {
-            try{
-                const postData = rq.body;
-                const url = URL.parse(rq.url);
-                rq.headers = rq.headers || {timeout: 120000};
+    private http(hnd: (options: https.RequestOptions | string | URL, callback?: (res: IncomingMessage) => void) => ClientRequest, rq: HttpRequestOption, resolve: (im: IncomingMessage) => void, rejects: (error: Error) => void) : void{
+        try{
+            const postData = rq.body;
+            const url = URL.parse(rq.url);
+            rq.headers = rq.headers || {timeout: 120000};
+            if(postData && !rq.chunk){
                 rq.headers['Content-Length'] = Buffer.byteLength(postData);
-                rq.headers['Content-Type'] = rq.headers['Content-Type'] || 'application/x-www-form-urlencoded';
-                rq.headers['Accept-Encoding'] = rq.headers['Accept-Encoding'] || 'gzip';
-                rq.headers['Connection'] = rq.headers['Connection'] || 'keep-alive';
-                const options = {
-                    hostname: url.hostname,
-                    port: url.port,
-                    path: url.pathname,
-                    method: rq.method,
-                    headers: rq.headers
-                };
-                const req = request(options);
-                req.on('response', function (res) {
-                    resolve(res);
-                })
-                req.on('error', (e) => {
-                    // console.error(`problem with request: ${e.message}`);
-                    rejects(e);
-                });
-                req.write(postData);
-                req.end();          
-            }catch(e){
-                Log.error(e.message);
-                rejects(e);
             }
-        })
+            rq.headers['Content-Type'] = rq.headers['Content-Type'] || rq.headers['content-type'] || 'application/x-www-form-urlencoded';
+            rq.headers['Accept-Encoding'] = rq.headers['Accept-Encoding'] || rq.headers['accept-encoding'] || 'gzip';
+            rq.headers['Connection'] = rq.headers['Connection'] || rq.headers['connection'] || 'keep-alive';
+            const options = {
+                hostname: url.hostname,
+                port: url.port,
+                path: url.path,
+                method: rq.method,
+                headers: rq.headers
+            };
+            const req = hnd(options);
+            req.on('response', (res) => {
+                resolve(res);
+            })
+            req.on('error', (e) => {
+                // console.error(`problem with request: ${e.message}`);
+                rejects(e);
+            });
+            if(postData){
+                req.write(postData);
+            }
+            req.end();          
+        }catch(e){
+            Log.error(e.message);
+            rejects(e);
+        }
     }
-    stream(rq: HttpRequestOption){
+    stream(rq: HttpRequestOption, hnd: (options: https.RequestOptions | string | URL, callback?: (res: IncomingMessage) => void) => ClientRequest = request) : HttpWriteStream{
         let hws = new HttpWriteStream();
-        this.http(rq).then((res: IncomingMessage)=>{
+        this.http(hnd, rq, (res: IncomingMessage)=>{
             hws.statusCode = res.statusCode;
             hws.headers = {...res.headers};
+            hws.emit('headers');
             let encoding = res.headers['content-encoding'] || res.headers['Content-Encoding'];
-            if (encoding.includes('gzip')) {
-                res.pipe(createGunzip()).pipe(hws)
-            } else if (encoding.includes('deflate')) {
-                res.pipe(createInflate()).pipe(hws)
+            res.on('error',(e)=>{
+                hws.emit('error', e);
+            })
+            if (encoding && encoding.includes('gzip')) {
+                res.pipe(createGunzip()).on('data',(d)=>{hws.emit('data',d)}).pipe(hws);
+            } else if (encoding && encoding.includes('deflate')) {
+                res.pipe(createInflate()).on('data',(d)=>{hws.emit('data',d)}).pipe(hws)
             } else {
-                res.pipe(hws)
+                res.on('data',(d)=>{hws.emit('data',d)}).pipe(hws);
             }
+        },(e)=>{
+            hws.emit('error', e);
         });
         return hws;
     }
-    request(rq: HttpRequestOption){
+    request(rq: HttpRequestOption): Promise<HttpWriteStream>{
         return new Promise((resolve, rejects) => {
             let hws = this.stream(rq)
             .on('finish', async (d) => {
-                resolve(hws._buffer.toString());
+                resolve(hws);
             })
             .on('error', (e)=>{
                 rejects(e);
             })
         });
     }
-    
-    constructor(public files: Files = null){
-        
-    }
-    cache(){
-        this.files = new Files();
-        this.files.cache(MS.MASTER.WEBBASE);
-    }
-    response(req: IncomingMessage, res: ServerResponse){
-        let filename = req.url == '/' ? join(MS.MASTER.WEBBASE,'index.html') : join(MS.MASTER.WEBBASE,req.url)
-        const file = this.files.getFileStream(filename);
-        const mimetype = this.files.mime(filename);
-        //console.log('mime',mimetype,req.url);
-        if(file && mimetype){
-            res.setHeader("Access-Control-Allow-Origin", "*");
-            res.setHeader("Cache-Control", "public, max-age=432000")
-            res.setHeader('Content-type', mimetype);
-            let encoding = req.headers['accept-encoding'] || req.headers['Accept-Encoding'];
-            if(encoding && encoding.includes('gzip')){
-                res.setHeader('Content-Encoding', 'gzip');
-                file.pipe(res);
-            }else{
-                file.pipe(createGunzip()).pipe(res);
-            }
-        }else if(mimetype){
-            this.files.getOneStream(join(MS.MASTER.ASSETS,req.url),(stream: ReadStream)=>{
-                res.setHeader('Content-type', mimetype);
-                let encoding = req.headers['accept-encoding'] || req.headers['Accept-Encoding'];
-                if(encoding && encoding.includes('gzip')){
-                    res.setHeader('Content-Encoding', 'gzip');
-                    stream.pipe(createGzip()).pipe(res);
-                }else{
-                    stream.pipe(res);
-                }
+    requests(rq: HttpRequestOption): Promise<HttpWriteStream>{
+        return new Promise((resolve, rejects) => {
+            let hws = this.stream(rq, https.request)
+            .on('finish', async (d) => {
+                resolve(hws);
             })
-            
-        }else{
-            res.end('none.')
+            .on('error', (e)=>{
+                rejects(e);
+            })
+        });
+    }
+    redirectsStream(rq: HttpRequestOption, callback: (hws: HttpWriteStream)=>void): void {
+        if(!rq.cookie){
+            rq.cookie = new CookieJar();
+        }
+        !rq.counter ? rq.counter = 0 : rq.counter ++ 
+        let hws = this.stream(rq, https.request)
+        .on('headers', async () => {
+            let res = hws;
+            res.location = rq.url;
+            if(res.statusCode == 302 && res.headers['location'] && rq.counter < 5){
+                rq.url = res.headers['location'];
+                res.location = rq.url;
+                if(res.headers['set-cookie'] ){
+                    if(Object.prototype.toString.call(res.headers['set-cookie']) == '[object Array]'){
+                        res.headers['set-cookie'].forEach(e=>rq.cookie.setCookieSync(e, res.headers['location'], {ignoreError: true}));
+                    }else if(Object.prototype.toString.call(res.headers['set-cookie']) == '[object String]'){
+                        rq.cookie.setCookie(res.headers['set-cookie'], res.location, {ignoreError: true})
+                    }
+                    rq.headers['cookie'] = rq.cookie.getCookieStringSync(res.location);
+                }
+                this.redirectsStream(rq, callback);
+            }else {
+                if(rq['counter'] >= 5){
+                    res.statusCode = -103;
+                }
+                if(callback){
+                    callback(res);
+                }
+            }
+        });
+    }
+    async redirects(rq: HttpRequestOption): Promise<HttpWriteStream> {
+        if(!rq.cookie){
+            rq.cookie = new CookieJar();
+        }
+        !rq.counter ? rq.counter = 0 : rq.counter ++ 
+        let res = await this.requests(rq);
+        res.location = rq.url;
+        if(res.statusCode == 302 && res.headers['location'] && rq.counter < 5){
+            rq.url = res.headers['location'];
+            if(res.headers['set-cookie'] ){
+                if(Object.prototype.toString.call(res.headers['set-cookie']) == '[object Array]'){
+                    res.headers['set-cookie'].forEach(e=>rq.cookie.setCookieSync(e, res.headers['location'], {ignoreError: true}));
+                }else if(Object.prototype.toString.call(res.headers['set-cookie']) == '[object String]'){
+                    rq.cookie.setCookie(res.headers['set-cookie'], res.location, {ignoreError: true})
+                }
+                rq.headers['cookie'] = rq.cookie.getCookieStringSync(res.location);
+            }
+            return await this.redirects(rq);
+        }else {
+            if(rq['counter'] >= 5){
+                res.statusCode = -103;
+            }
+            return res;
         }
     }
 }
-
 export const _http = new Http();

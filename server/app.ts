@@ -12,7 +12,9 @@ import { Messages } from './service/messages';
 import { Favors } from './service/favor';
 import { MasterSlaver, SlaverStartTasks } from './service/master.slaver';
 import { createServer } from 'http';
-import { _http } from './common/http';
+import { _cache } from './common/cache';
+import { Pay } from './service/pay';
+import { _files } from './common/files';
 
 
 // const a = require('request-promise-native')(
@@ -28,7 +30,6 @@ import { _http } from './common/http';
 //     }
 // )
 
-
 const app = express();
 // app.use('/', express.static('./assets', {
 //     setHeaders: function(res, path) {
@@ -36,12 +37,12 @@ const app = express();
 //     }
 // }) );
 if(MS.MASTER.ONLINE || MS.SLAVER.ONLINE){
-    _http.cache();
+    _cache.cache();
     if(MS.SLAVER.ONLINE){
         //slaver_web.use('/', express.static('../web/dist', {index: "index.html"}) );
         
         const slaver_web = createServer(async (req, res) => {
-            _http.response(req, res);
+            _cache.response(req, res);
         });
     
         const slaver_server = slaver_web.listen(80, async () => {
@@ -53,8 +54,14 @@ if(MS.MASTER.ONLINE || MS.SLAVER.ONLINE){
         
     }
     if(MS.MASTER.ONLINE){
-        app.get(_http.files.mimeRegex, (req, res) => {
-            _http.response(req, res);
+        app.get(_files.mediaRegex, (req, res) => {
+            _files.response(req, res);
+        });
+        app.get(_files.assetRegex, (req, res) => {
+            _cache.response(req, res);
+        });
+        app.get('/', (req, res) => {
+            _cache.response(req, res);
         });
     }
 }
@@ -84,7 +91,8 @@ const setup = async () =>{
         Tickets.instance,
         Articles.instance,
         Messages.instance,
-        Favors.instance
+        Favors.instance,
+        Pay.instance
     ];
     for(let i = 0 ; i < HandlerFactory.length ; i ++ ){
         var h = <Handler>HandlerFactory[i];

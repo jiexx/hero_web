@@ -63,14 +63,12 @@ export abstract class PatternUHandler extends Handler {
 };
 
 
-export abstract class FileHandler extends Handler {
+export abstract class AFHandler extends Handler {
 
-    public type: string = ''; 
-    public base: string = '';   
     abstract async handle(path:string, q:any);
 
     protected createRouter(path: string){
-        return new Router(path, this, 0, true, true, true);
+        return new Router(path, this, 1, false, true, true);
     }
 };
 

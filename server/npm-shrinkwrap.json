@@ -157,20 +157,6 @@
         }
       }
     },
-    "crontab": {
-      "version": "1.2.0",
-      "resolved": "https://registry.npmjs.org/crontab/-/crontab-1.2.0.tgz",
-      "integrity": "sha512-OWjWXjT0Y8m4prqwA2pwy+njnOX8Udn7YdzruaiB4DZdxduH6uDMkS5RPgCFr7NMFNfIcYCGsyzAI9/zctnRSQ==",
-      "requires": {
-        "underscore": "^1.6.0"
-      },
-      "dependencies": {
-        "underscore": {
-          "version": "1.9.1",
-          "bundled": true
-        }
-      }
-    },
     "express": {
       "version": "4.16.4",
       "resolved": "https://registry.npmjs.org/express/-/express-4.16.4.tgz",
@@ -476,6 +462,11 @@
         }
       }
     },
+    "ip-regex": {
+      "version": "2.1.0",
+      "resolved": "https://registry.npmjs.org/ip-regex/-/ip-regex-2.1.0.tgz",
+      "integrity": "sha1-+ni/XS5pE8kRzp+BnuUUa7bYROk="
+    },
     "jsonwebtoken": {
       "version": "8.5.1",
       "resolved": "https://registry.npmjs.org/jsonwebtoken/-/jsonwebtoken-8.5.1.tgz",
@@ -562,11 +553,6 @@
           "bundled": true
         }
       }
-    },
-    "lzma": {
-      "version": "2.3.2",
-      "resolved": "https://registry.npmjs.org/lzma/-/lzma-2.3.2.tgz",
-      "integrity": "sha1-N4OySFi5wOdHoN88vx+1/KqSxEE="
     },
     "passport": {
       "version": "0.4.0",
@@ -686,6 +672,21 @@
         }
       }
     },
+    "psl": {
+      "version": "1.6.0",
+      "resolved": "https://registry.npmjs.org/psl/-/psl-1.6.0.tgz",
+      "integrity": "sha512-SYKKmVel98NCOYXpkwUqZqh0ahZeeKfmisiLIcEZdsb+WbLv02g/dI5BUmZnIyOe7RzZtLax81nnb2HbvC2tzA=="
+    },
+    "punycode": {
+      "version": "2.1.1",
+      "resolved": "https://registry.npmjs.org/punycode/-/punycode-2.1.1.tgz",
+      "integrity": "sha512-XRsRjdf+j5ml+y/6GKHPZbrF/8p2Yga0JPtdqTIY2Xe5ohJPD9saDJJLPvp9+NSBprVvevdXZybnj2cv8OEd0A=="
+    },
+    "qr-image": {
+      "version": "3.2.0",
+      "resolved": "https://registry.npmjs.org/qr-image/-/qr-image-3.2.0.tgz",
+      "integrity": "sha1-n6gpW+rlDEoUnPn5CaHbRkqGcug="
+    },
     "request-promise-native": {
       "version": "1.0.7",
       "resolved": "https://registry.npmjs.org/request-promise-native/-/request-promise-native-1.0.7.tgz",
@@ -741,6 +742,16 @@
           "version": "2.0.1",
           "bundled": true
         }
+      }
+    },
+    "tough-cookie": {
+      "version": "3.0.1",
+      "resolved": "https://registry.npmjs.org/tough-cookie/-/tough-cookie-3.0.1.tgz",
+      "integrity": "sha512-yQyJ0u4pZsv9D4clxO69OEjLWYw+jbgspjTue4lTQZLfV0c5l1VmK2y1JK8E9ahdpltPOaAThPcp5nKPUgSnsg==",
+      "requires": {
+        "ip-regex": "^2.1.0",
+        "psl": "^1.1.28",
+        "punycode": "^2.1.1"
       }
     },
     "ts-node": {

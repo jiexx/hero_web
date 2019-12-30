@@ -28,7 +28,7 @@ abstract class Process {
     }
     abstract process(h:Handler, path:string, app:Express);
     protected abstract prepare(h:Handler, path:string, req:Request, res: Response): Object;
-    protected async complete(path:string, result:Object, res:Response){
+    protected async complete(path:string, result:Object, res:Response, req:Request){
         if(result['code']=='REDIRECT'){
             res.redirect(result['data']);
         }else if(result['code']=='DIRECT'){
@@ -44,8 +44,18 @@ abstract class Process {
         }else if(result['code']=='OK'){
             res.send(result);
         }else if(result['code']=='STREAM'){
-            res.header('Content-Encoding', 'gzip');
-            result['data'].pipe(createGzip()).pipe(res);
+            if(result['msg']) {
+                res.header("Content-Type", result['msg']);
+            }
+            let encoding = req.headers['accept-encoding'] || req.headers['Accept-Encoding'];
+            if(encoding && encoding.includes('gzip')){
+                res.setHeader('Content-Encoding', 'gzip');
+                result['data'].pipe(createGzip()).pipe(res);
+            }else{
+                result['data'].pipe(res);
+            }
+            // res.header('Content-Encoding', 'gzip');
+            // result['data'].pipe(createGzip()).pipe(res);
             // res.on('finish', function() {
             //     console.log(res);
             // });
@@ -66,7 +76,7 @@ abstract class Process {
             if(result.code == 'ERR'){
                 this.failed(result, res);
             }else {
-                await this.complete(path, result, res);
+                await this.complete(path, result, res, req);
             }
         }catch(e){
             Log.error(e);

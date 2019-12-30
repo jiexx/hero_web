@@ -141,6 +141,11 @@ class Id {
     md5(key:string){
         return crypto.createHash('md5').update(key).digest('hex') ;
     }
-    
+    rsa256(content: string, privateKey:string, keyEncode: crypto.HexBase64Latin1Encoding = 'base64'){
+        return crypto.createSign('RSA-SHA256').update(content).sign(privateKey,keyEncode);
+    }
+    rsa256V(content: string, pubkey:string, signByPrivateKey:string, keyEncode: crypto.HexBase64Latin1Encoding = 'base64'){
+        return crypto.createVerify('RSA-SHA256').update(content).verify(pubkey, signByPrivateKey, keyEncode)
+    }
 }
 export const ID = new Id();

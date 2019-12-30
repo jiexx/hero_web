@@ -19,6 +19,6 @@ export const FILE = function (type:string, dir:string = null){
     return { code: 'FILE', msg: type, data: dir  };
 }
 
-export const STREAM = function (data:Object = null,msg:any = ''){
+export const STREAM = function (data:Object = null,msg:any = 'text/javascript'){
     return { code: 'STREAM', msg: msg, data: data  };
 }

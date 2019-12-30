@@ -4,8 +4,6 @@ import * as request from "request-promise-native";
 import { Log } from '../common/log';
 import { ID } from '../common/id';
 import { _http } from '../common/http';
-import * as querystring  from "querystring";
-import * as URL from "url";
 
 interface Message {
     command: string;
@@ -85,7 +83,7 @@ export class Start extends Handler {
         return 'START';
     }
     _request(query: Query){
-        return _http.stream({
+        return _http.request({
             url: query.uri,
             headers: query.headers,
             method: query.method == 'POST'? 'POST' :'GET',
@@ -97,12 +95,8 @@ export class Start extends Handler {
             
             let start = new Date().getTime();
             let msg = message as QuerytMessage;
-            let stream = this._request(msg.query)
-            .on('finish',(d)=>{
-                port.postMessage({command:'DEBUG', str:'COMPLETE:  '+workerData.name+' '+msg.query.uri+' '+JSON.stringify(msg.params)+' '+(new Date().getTime() - start)+'ms'});
-                port.postMessage({command:'IDLE', result:{query:msg.query, res:stream._buffer.toString(), indexTemplate:msg.indexTemplate}});
-            })
-            .on('error',(e)=>{
+            let stream = await this._request(msg.query)
+            .catch((e)=>{
                 port.postMessage({command:'DEBUG', str:'ERR:  '+e.message});
             });
             
