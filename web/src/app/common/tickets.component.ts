@@ -296,7 +296,7 @@ export class TicketComponent implements OnInit {
                 this.hr.get('pay/qrcode?subject=Infomation',result => {
                     msg.info.qrcode = this.setImageToSVG(result.data.qrcode);
                     lastOrderid = result.data.orderid;
-                    console.log( !!msg.info._ref, counter, lastOrderid, result.data.orderid, msg.info.qrcode)
+                    //console.log( !!msg.info._ref, counter, lastOrderid, result.data.orderid, msg.info.qrcode)
                     if(counter < 20){
                         //console.log('refresh timer');
                         counter ++;
