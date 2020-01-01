@@ -9,10 +9,6 @@ import { FormsModule } from "@angular/forms";
 import { NaviModule } from "app/common/navi.module";
 import { MatIconModule, MatButtonModule } from "@angular/material";
 import { AuthGuard } from "app/common/net.auth";
-import { DialogComponent } from "app/common/dialog.component";
-import { InfoDialogComponent } from "app/common/dialog.info.component";
-import { MsgDialogComponent } from "app/common/dialog.msg.component";
-import { FavorDialogComponent } from "app/common/dialog.favor.component";
 import { DialogModule } from "app/common/dialog.module";
 
 @NgModule({

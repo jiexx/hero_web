@@ -1,8 +1,9 @@
 import { NgModule } from "@angular/core";
 import { CommonModule } from "@angular/common";
-import { TicketGroupComponent } from "./ticket-group.component";
+import { TicketDepartComponent } from "./ticket-depart.component";
 import { TicketsModule } from "app/common/tickets.module";
 import { TicketsRoutingModule } from "./tickets-routing.module";
+import { TicketArriveComponent } from "./ticket-arrive.component";
 
 @NgModule({
     imports: [
@@ -11,7 +12,8 @@ import { TicketsRoutingModule } from "./tickets-routing.module";
         TicketsModule
     ],
     declarations: [
-        TicketGroupComponent,
+        TicketDepartComponent,
+        TicketArriveComponent
     ]
 })
 export class TicketsGroupModule { }

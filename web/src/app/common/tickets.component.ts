@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, Input } from "@angular/core";
 import { HttpRequest } from "./net.request";
 import { KeyValue } from "@angular/common";
 import { BusService } from "./dcl.bus.service";
@@ -226,7 +226,7 @@ const PlaceOptions = [{"key":"AUH","value":"阿布扎比"},{"key":"AMS","value":
     <mat-expansion-panel *ngFor="let airline of airlines" (afterExpand)="open(airline)" #panel>
         <mat-expansion-panel-header [collapsedHeight]="'auto'" [expandedHeight]="'auto'">
             <mat-list-item>
-                <span mat-list-icon style="width:auto;height:auto"><img style="width:4rem;border-radius:4px"  src={{dest(airline.E)}}></span>
+                <span mat-list-icon style="width:auto;height:auto"><img *ngIf="contains=='IN'" style="width:4rem;border-radius:4px;padding:2px"  src={{dest(airline.B)}}><img style="width:4rem;border-radius:4px;padding:2px"  src={{dest(airline.E)}}></span>
                 <h5 mat-line><button  mat-icon-button  color="warn"><mat-icon (click)="favorite(airline, panel)">{{airline.favorited ? airline.favorited : 'location_on'}}</mat-icon></button>{{destname(airline.E)}}({{airline.end}})</h5>
                 <h6 mat-line>出发:{{airport(airline.B)}}|{{airline.depart.replace('T',' ')}}</h6>
                 <h6 mat-line *ngIf="airline.stops && airline.stops!='null'" > 经停:{{airline.stops}} </h6>
@@ -275,6 +275,8 @@ const PlaceOptions = [{"key":"AUH","value":"阿布扎比"},{"key":"AMS","value":
 })
 
 export class TicketComponent implements OnInit {
+    @Input() arrives: string[] = ['SHA','PVG'];
+    @Input() contains: string = 'NOT IN';
     items = { 1: 'value 1', 2: 'value 2', 3: 'value 3' };
     filter1 = {hint: '目的地', input: '', options: PlaceOptions};
     filter2 = {hint: '经停地', input: '', options: {'B':'包含经停航班','I':'只包含经停航班','X':'不包含经停航班'} };
@@ -365,7 +367,7 @@ export class TicketComponent implements OnInit {
     }
     getTicketList(pg: number, opened: boolean = false){
         if(!opened) {
-            this.hr.post('ticket/list', { page: pg, note: ['SHA','PVG'], eqe: this.filter1.input, stops:this.filter2.input }, result => {
+            this.hr.post('ticket/list', { page: pg, note: this.arrives, contains:this.contains, eqe: this.filter1.input, stops:this.filter2.input }, result => {
                 //console.log('ticket list', result)
                 this.airlines = result.data;
             });
@@ -373,21 +375,21 @@ export class TicketComponent implements OnInit {
     }
     getTicketCount(opened: boolean = false){
         if(!opened) {
-            this.hr.post('ticket/count', { note: ['SHA','PVG'], eqe: this.filter1.input, stops:this.filter2.input }, result => {
+            this.hr.post('ticket/count', { note: this.arrives, contains:this.contains, eqe: this.filter1.input, stops:this.filter2.input }, result => {
                 this.pgNumber = parseInt(result.data);
             });
         }
     }
     getSubTicketList(airline, pg: number, opened: boolean = false){
         if(!opened) {
-            this.hr.post('ticket/sublist', { page: pg, end: airline.E, note: ['SHA','PVG'], eqe: this.filter1.input, stops:this.filter2.input }, result => {
+            this.hr.post('ticket/sublist', { page: pg, end: airline.E, note: this.arrives, contains:this.contains, eqe: this.filter1.input, stops:this.filter2.input }, result => {
                 airline['sublist'] = result.data;
             });
         } 
     }
     getSubTicketCount(airline, opened: boolean = false){
         if(!opened) {
-            this.hr.post('ticket/subcount', { end: airline.E, note: ['SHA','PVG'], eqe: this.filter1.input, stops:this.filter2.input }, result => {
+            this.hr.post('ticket/subcount', { end: airline.E, note: this.arrives, contains:this.contains, eqe: this.filter1.input, stops:this.filter2.input }, result => {
                 this.subpgNumber = parseInt(result.data);
             });
         }
@@ -420,6 +422,7 @@ export class TicketComponent implements OnInit {
     ngOnInit() {
         this.getTicketList(0);
         this.getTicketCount();
+        console.log('TicketArriveComponent' +this.contains)
     }
     page($event) {
         this.getTicketList($event ? $event.pageIndex : 0);

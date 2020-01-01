@@ -9,6 +9,7 @@ declare interface RouteInfo {
 }
 export const ROUTES: RouteInfo[] = [
     { path: '/tickets', title: '出境机票',  icon:'where_to_vote', class: '' },
+    { path: '/tickets/arrive', title: '入境机票',  icon:'where_to_vote', class: '' },
     { path: '/post', title: '互助接机',  icon:'person_pin_circle', class: '' },
     { path: '/profile', title: '用户资料',  icon:'person', class: '' },
     //{ path: '/notifications', title: '通知信息',  icon:'notifications', class: '' },

@@ -22,6 +22,7 @@ export class NavbarComponent implements OnInit {
     }
     ngOnInit(){
       this.listTitles = [
+        { path: '/tickets/arrive', title: '入境机票',  icon:'favorite', class: '' },
         { path: '/tickets', title: '出境机票',  icon:'favorite', class: '' },
         { path: '/post', title: '接机交流',  icon:'local_taxi', class: '' },
         { path: '/profile', title: '用户资料',  icon:'person', class: '' },
