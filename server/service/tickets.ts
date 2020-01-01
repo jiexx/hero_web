@@ -12,7 +12,7 @@ class TicketCount extends AHandler {
         }
         const tickets = await Tickets.instance.tickets.repo.repository.createQueryBuilder(Tickets.instance.tickets.label)
             .select("count(distinct E)", "count")
-            .where("DATEDIFF(NOW(), date(depart)) > 0 AND DATEDIFF(NOW(), date(createtime)) <= 30 AND E NOT IN  (" + q.note.map(e=>"'"+e+"'") + ")");
+            .where("DATEDIFF(date(depart), NOW()) > 0 AND DATEDIFF(NOW(), date(createtime)) <= 30 AND E NOT IN  (" + q.note.map(e=>"'"+e+"'") + ")");
         const result = await Tickets.instance.filter(tickets, q)
             .getRawOne();
         return OK(result.count);
@@ -26,7 +26,7 @@ class TicketSubcount extends AHandler {
         }
         const tickets = await Tickets.instance.tickets.repo.repository.createQueryBuilder(Tickets.instance.tickets.label)
             .select("count(*)", "count")
-            .where("DATEDIFF(NOW(), date(depart)) > 0 AND DATEDIFF(NOW(), date(createtime)) <= 30 AND E NOT IN  (" + q.note.map(e=>"'"+e+"'") + ") AND E = '"+q.end+"'");
+            .where("DATEDIFF(date(depart), NOW()) > 0 AND DATEDIFF(NOW(), date(createtime)) <= 30 AND E NOT IN  (" + q.note.map(e=>"'"+e+"'") + ") AND E = '"+q.end+"'");
         const result = await Tickets.instance.filter(tickets, q)
             .getRawOne();
         return OK(result.count);
@@ -40,7 +40,7 @@ class TicketSublist extends AHandler {
             return ERR(path);
         }
         const tickets = await Tickets.instance.tickets.repo.repository.createQueryBuilder(Tickets.instance.tickets.label)
-            .where("DATEDIFF(NOW(), date(depart)) > 0 AND DATEDIFF(NOW(), date(createtime)) <= 30 AND E NOT IN  (" + q.note.map(e=>"'"+e+"'") + ") AND E = '"+q.end+"'");
+            .where("DATEDIFF(date(depart), NOW()) > 0 AND DATEDIFF(NOW(), date(createtime)) <= 30 AND E NOT IN  (" + q.note.map(e=>"'"+e+"'") + ") AND E = '"+q.end+"'");
         const result = await Tickets.instance.filter(tickets, q)
             .orderBy("CAST(SUBSTRING(price,4) AS SIGNED)", "ASC")
             .limit(NUMPERSUBPAGE)
@@ -61,7 +61,7 @@ class TicketList extends AHandler {
         }
         const tickets = await Tickets.instance.tickets.repo.repository.createQueryBuilder(Tickets.instance.tickets.label)
             .select(this.fileds())
-            .where("DATEDIFF(NOW(), date(depart)) > 0 AND DATEDIFF(NOW(), date(createtime)) <= 30 AND E NOT IN  (" + q.note.map(e=>"'"+e+"'") + ")");
+            .where("DATEDIFF(date(depart), NOW()) > 0 AND DATEDIFF(NOW(), date(createtime)) <= 30 AND E NOT IN  (" + q.note.map(e=>"'"+e+"'") + ")");
         const result = await Tickets.instance.filter(tickets, q)
             .groupBy("E")
             .orderBy("price", "ASC")

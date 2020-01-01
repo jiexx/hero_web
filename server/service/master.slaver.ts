@@ -67,7 +67,7 @@ class Streams {
     get names(){
         return this.sequence;
     }
-    exist(name:string){
+    exist(name:string){// if repo name.
         return !!this.list[name];
     }
     async merge(){
@@ -109,10 +109,11 @@ class Streams {
     private repo = null;
     private async process(data){
         let stack = [];
+        Log.info('put received data['+data.length+'] to '+(this.repo && this.repo.label))
         for(let i = 0 ; i < data.length ; i ++){
             if(this.repo){
                 if(this.exist(data[i])){
-                    if(stack.length > 0){
+                    if(stack.length > 0){  //last repo save final data.
                         await this.repo.save(stack);
                     }
                     this.repo = this.list[data[i]];
@@ -129,6 +130,7 @@ class Streams {
         if(this.repo && stack.length > 0) {
             await this.repo.save(stack);
         }
+        stack = null;
     }
     async receive(opts){
         return new Promise((resolve, reject) => {
@@ -219,13 +221,14 @@ class MasterRestoreTickets extends MHandler {
                 'Authorization': `Bearer ${Authentication.instance._sign(MS.SLAVER.SIGNATURE)}`,
             }
         });
-
+        Log.info('switch tables...')
         const queryRunner = G.connection.createQueryRunner();
         await queryRunner.connect();
         await queryRunner.query(`RENAME TABLE ${Tickets.instance.tickets.label} To tickets_tmp,  tickets_bk TO ${Tickets.instance.tickets.label}, tickets_tmp To tickets_bk`)
         await queryRunner.executeMemoryDownSql();
         await queryRunner.release();
 
+        Log.info('favor update...')
         await FavorNotify.instance.handle(path, q);
         // RENAME TABLE foo TO foo_old, foo_new To foo;
         return OK(path);
