@@ -1,7 +1,7 @@
 
 
 import { Request, Response, Express } from "express";
-import { createGzip } from "zlib";
+import { createGzip, createGunzip } from "zlib";
 import { Log } from "../common/log";
 import { Handler } from "./handler";
 import { Authentication } from "./authentication";
@@ -39,8 +39,6 @@ abstract class Process {
         }else if(result['code']=='FILE'){
             res.header("Content-Type", result['msg']);
             res.sendFile(result['data'],{ root : cwd});
-        }else if(result['code']=='IMAGE'){
-            res.send(result['data']);
         }else if(result['code']=='OK'){
             res.send(result);
         }else if(result['code']=='STREAM'){
@@ -54,11 +52,6 @@ abstract class Process {
             }else{
                 result['data'].pipe(res);
             }
-            // res.header('Content-Encoding', 'gzip');
-            // result['data'].pipe(createGzip()).pipe(res);
-            // res.on('finish', function() {
-            //     console.log(res);
-            // });
         }else {
             res.send({code:'OK', msg:'', data:result});
         }

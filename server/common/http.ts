@@ -24,6 +24,25 @@ class HttpReadStream extends Readable {
         }
     };
 }
+
+class ProxyReadStream extends Readable {
+    hws: HttpWriteStream;
+    constructor(hws: HttpWriteStream, options: ReadableOptions = { objectMode: false }) {
+        super(options);
+        this.hws = hws;
+        hws.on('data', d => {
+            if(!this.push(d, 'utf8') ){
+
+            }
+        }).on('finish', ()=>{
+            this.push(null);
+            hws.destroy();
+        })
+    }
+    _read = () => {
+    };
+}
+
 class HttpWriteStream extends Writable {
     _buffer: Buffer;
     headers: {};
@@ -41,6 +60,9 @@ class HttpWriteStream extends Writable {
     _destroy(err, callback){
         this._buffer = null;
         super._destroy(err, callback);
+    }
+    getProxyReadStream(): ProxyReadStream{
+        return new ProxyReadStream(this);
     }
 }
 
@@ -89,7 +111,7 @@ export class Http {
             rejects(e);
         }
     }
-    stream(rq: HttpRequestOption, hnd: (options: https.RequestOptions | string | URL, callback?: (res: IncomingMessage) => void) => ClientRequest = request) : HttpWriteStream{
+    private _stream(rq: HttpRequestOption, hnd: (options: https.RequestOptions | string | URL, callback?: (res: IncomingMessage) => void) => ClientRequest = request, withGzip: boolean = true) : HttpWriteStream{
         let hws = new HttpWriteStream();
         this.http(hnd, rq, (res: IncomingMessage)=>{
             hws.statusCode = res.statusCode;
@@ -99,21 +121,29 @@ export class Http {
             res.on('error',(e)=>{
                 hws.emit('error', e);
             })
-            if (encoding && encoding.includes('gzip')) {
+            if (encoding && encoding.includes('gzip') && withGzip) {
                 res.pipe(createGunzip()).on('data',(d)=>{hws.emit('data',d)}).pipe(hws);
-            } else if (encoding && encoding.includes('deflate')) {
+            } else if (encoding && encoding.includes('deflate') && withGzip) {
                 res.pipe(createInflate()).on('data',(d)=>{hws.emit('data',d)}).pipe(hws)
             } else {
-                res.on('data',(d)=>{hws.emit('data',d)}).pipe(hws);
+                res.on('data',(d)=>{
+                    hws.emit('data',d)
+                }).pipe(hws);
             }
         },(e)=>{
             hws.emit('error', e);
         });
         return hws;
     }
+    stream(rq: HttpRequestOption, withGzip: boolean = true): HttpWriteStream{
+        return this._stream(rq, request, withGzip);
+    }
+    streams(rq: HttpRequestOption, withGzip: boolean = true): HttpWriteStream{
+        return this._stream(rq, https.request, withGzip);
+    }
     request(rq: HttpRequestOption): Promise<HttpWriteStream>{
         return new Promise((resolve, rejects) => {
-            let hws = this.stream(rq)
+            let hws = this._stream(rq)
             .on('finish', async (d) => {
                 resolve(hws);
             })
@@ -124,7 +154,7 @@ export class Http {
     }
     requests(rq: HttpRequestOption): Promise<HttpWriteStream>{
         return new Promise((resolve, rejects) => {
-            let hws = this.stream(rq, https.request)
+            let hws = this._stream(rq, https.request)
             .on('finish', async (d) => {
                 resolve(hws);
             })
@@ -138,7 +168,7 @@ export class Http {
             rq.cookie = new CookieJar();
         }
         !rq.counter ? rq.counter = 0 : rq.counter ++ 
-        let hws = this.stream(rq, https.request)
+        let hws = this._stream(rq, https.request)
         .on('headers', async () => {
             let res = hws;
             res.location = rq.url;

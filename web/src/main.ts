@@ -19,11 +19,11 @@ const config = ReflectiveInjector.resolveAndCreate([ConfigService]).get(ConfigSe
 // }
 // alter('link', 'href');
 // alter('script', 'src')
-var e = document.getElementById('__font');
-if(e){
-  var href = e.getAttribute('href');
-  e.setAttribute('href' ,config.FONT_HOST.URL+href);      
-}
+// var e = document.getElementById('__font');
+// if(e){
+//   var href = e.getAttribute('href');
+//   e.setAttribute('href' ,config.FONT_HOST.URL+href);      
+// }
 
 if (environment.production) {
   enableProdMode();

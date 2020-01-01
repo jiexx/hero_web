@@ -1,6 +1,7 @@
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { ConfigService } from "./net.config";
 import { Injectable } from "@angular/core";
+import { tap } from "rxjs/operators";
 
 
 @Injectable()
@@ -27,6 +28,16 @@ export class HttpRequest{
                 err(r);
             }
         })
+    }
+    downloadUrl(path: string){
+        return this.config.REST_HOST.URL+path
+    }
+    download(path: string, callback: Function = null, err: Function = null){
+        this.http.get(this.config.REST_HOST.URL+path, {responseType: 'text'})
+        .subscribe(
+            data => callback && callback(data),
+            error => err && err(error)
+        );
     }
     get(path: string, callback: Function = null, err: Function = null) {
         this.http.get(this.config.REST_HOST.URL+path).subscribe(result =>{

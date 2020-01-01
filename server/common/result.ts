@@ -22,3 +22,7 @@ export const FILE = function (type:string, dir:string = null){
 export const STREAM = function (data:Object = null,msg:any = 'text/javascript'){
     return { code: 'STREAM', msg: msg, data: data  };
 }
+
+export const XSTREAM = function (data:Object = null,msg:any = 'text/javascript'){
+    return { code: 'XSTREAM', msg: msg, data: data  };
+}

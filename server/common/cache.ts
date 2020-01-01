@@ -1,8 +1,6 @@
 import { readdirSync, statSync, createReadStream, Stats, access } from 'fs';
 import * as https from "https"
 import { request, IncomingMessage, ServerResponse, ClientRequest } from "http";
-import { Log } from "./log";
-import { Readable, ReadableOptions, Writable, WritableOptions } from "stream";
 import { createGunzip, createInflate, createGzip } from 'zlib';
 import { join,resolve } from 'path';
 import { MS } from "../config";
@@ -29,6 +27,9 @@ export class Cache {
     cacheStream(path: string){
         let md5 = ID.md5(path);
         return this._cache[md5] && this._cache[md5].getReadableStream();
+    }
+    get cacheRegex(){
+        return '/';
     }
     response(req: IncomingMessage, res: ServerResponse){
         let filename = req.url == '/' ? join(MS.MASTER.ASSETS,'index.html') : join(MS.MASTER.ASSETS,req.url.substr(req.url.indexOf('asset/')+6));

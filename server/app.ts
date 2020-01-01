@@ -15,7 +15,9 @@ import { createServer } from 'http';
 import { _cache } from './common/cache';
 import { Pay } from './service/pay';
 import { _files } from './common/files';
-
+import { _http } from './common/http';
+import { createGunzip, createInflate, createGzip } from 'zlib';
+import { _proxy } from './common/proxy';
 
 // const a = require('request-promise-native')(
 //     {
@@ -60,9 +62,12 @@ if(MS.MASTER.ONLINE || MS.SLAVER.ONLINE){
         app.get(_files.assetRegex, (req, res) => {
             _cache.response(req, res);
         });
-        app.get('/', (req, res) => {
+        app.get(_cache.cacheRegex, (req, res) => {
             _cache.response(req, res);
         });
+        // app.get(_proxy.urlRegex, (req, res) => {
+        //     _proxy.response(req, res);
+        // });
     }
 }
 
@@ -92,7 +97,7 @@ const setup = async () =>{
         Articles.instance,
         Messages.instance,
         Favors.instance,
-        Pay.instance
+        Pay.instance,
     ];
     for(let i = 0 ; i < HandlerFactory.length ; i ++ ){
         var h = <Handler>HandlerFactory[i];

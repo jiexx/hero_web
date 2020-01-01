@@ -46,6 +46,7 @@ export class Alipay {
                     if(m){
                         //Log.info(m[1]);
                         hws.end();
+                        hws.destroy();
                         resolve(m[1]);
                     }
                 })
@@ -112,14 +113,16 @@ export class Alipay {
                         sub_code = e[1]; 
                         if(sub_code == 'ACQ.TRADE_NOT_EXIST'){
                             trade_status = 'ACQ.TRADE_NOT_EXIST';
-                            resolve({out_trade_no: out_trade_no, trade_status: trade_status, error: true})
                             hws.end();
+                            hws.destroy();
+                            resolve({out_trade_no: out_trade_no, trade_status: trade_status, error: true})
                         }
                         //Log.info(m[1]);
                     }
                     if(trade_status /* && trade_status */){
-                        resolve({out_trade_no: out_trade_no, trade_status: trade_status, error: false})
                         hws.end();
+                        hws.destroy();
+                        resolve({out_trade_no: out_trade_no, trade_status: trade_status, error: false})
                     }
                 })
                 .on('error',e =>{
