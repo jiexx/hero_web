@@ -80,8 +80,8 @@ export class ProfileComponent implements OnInit {
             this.user.register();
             return;
         }
-        this.name.setValue(this.name.value.trim());
-        this.about.setValue(this.about.value.trim());
+        this.name.setValue(this.name.value);
+        this.about.setValue(this.about.value);
         this.cars.setValue(this.autos);
         if (this.form.valid) {
             //console.log(this.form.value, this.autos)

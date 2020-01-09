@@ -2,8 +2,6 @@ import { Worker, MessageChannel } from 'worker_threads';
 import { Idle, Debug, Handler, Dispatcher, End } from './handler';
 import { POOL } from './pool';
 import { config } from './config';
-import { resolve } from 'dns';
-import { rejects } from 'assert';
 
 
 export class TaskManager {
@@ -15,11 +13,13 @@ export class TaskManager {
         await POOL.setup(batchNo);
     }
     async start(callback: Function){
+        let once = true;
         this.dispatcher = new Dispatcher(new Idle(), new Debug(), new End((name)=>{
             if(this.threads[name]){
                 this.threads[name] = null;
             }
-            if( /* Object.values(this.threads).every(e => e == null) */ POOL.empty() && callback){
+            if( /* Object.values(this.threads).every(e => e == null) */once && POOL.empty() && callback){
+                once = false;
                 callback();
             }
         }));

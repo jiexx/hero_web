@@ -163,7 +163,7 @@ export class Http {
             })
         });
     }
-    redirectsStream(rq: HttpRequestOption, callback: (hws: HttpWriteStream)=>void): void {
+    redirectsStream(rq: HttpRequestOption, callback: (hws: HttpWriteStream)=>void, err: (e: Error, hws: HttpWriteStream)=>void = null): void {
         if(!rq.cookie){
             rq.cookie = new CookieJar();
         }
@@ -183,7 +183,7 @@ export class Http {
                     }
                     rq.headers['cookie'] = rq.cookie.getCookieStringSync(res.location);
                 }
-                this.redirectsStream(rq, callback);
+                this.redirectsStream(rq, callback, err);
             }else {
                 if(rq['counter'] >= 5){
                     res.statusCode = -103;
@@ -191,6 +191,11 @@ export class Http {
                 if(callback){
                     callback(res);
                 }
+            }
+        })
+        .on('error', e =>{
+            if(err){
+                err(e, hws);
             }
         });
     }

@@ -6,6 +6,7 @@ import { NetModule } from "./net.module";
 import { TicketComponent } from "./tickets.component";
 import { DialogModule } from "./dialog.module";
 import { FormsModule } from "@angular/forms";
+import { FlexLayoutModule } from "@angular/flex-layout";
 
 const routes: Routes = [
     {
@@ -30,6 +31,7 @@ const routes: Routes = [
         MatSelectModule,
         MatListModule,
         MatExpansionModule,
+        FlexLayoutModule
     ],
     exports: [RouterModule, TicketComponent],
     declarations: [

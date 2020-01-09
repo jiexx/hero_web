@@ -53,6 +53,8 @@ export class Alipay {
                 .on('error',e =>{
                     rejects(e);
                 })
+            }, (e, hws)=>{
+                rejects(e);
             }); 
         })
         

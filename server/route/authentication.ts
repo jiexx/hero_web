@@ -6,15 +6,12 @@ import * as crypto from 'crypto';
 import * as request from "request-promise-native";
 import * as urlencode from 'urlencode';
 
-
-import { Singleton } from "../common/singleton";
 import { Log } from "../common/log";
 import { V, G } from "../gorm/gorm";
 import { Vertex } from "../gorm/vertex";
 import { ID } from "../common/id";
 import { OK, ERR } from "../common/result";
-import { UHandler, AHandler, Handler, HandlersContainer } from "./handler";
-import { Router } from "./router";
+import { UHandler, AHandler, Handler, HandlersContainer, AdminHandler } from "./handler";
 import { MS } from "../config";
 
 class Sms {
@@ -41,8 +38,17 @@ class Sms {
     async send(mobile:string, code:string){//海优良品登录验证码：{w1-8}，请惠存。 '登录验证码：'+code+'，如非本人操作，请忽略此短信。'
         this.emit(mobile, '海优良品登录验证码：'+code+'，请惠存。');
     }
+    async notify(mobile:string, price:string){//老司机（www.justitbe.com）提醒，您关注的国际机票现低于价格：{d0-10}，快去看看。
+        this.emit(mobile, '老司机（www.justitbe.com）提醒，您关注的国际机票现低于价格：'+price+'，快去看看。');
+    }
 }
 export const SMS: Sms = new Sms();
+
+export enum Permit {
+    BLOCKED = -100,
+    COMMON = 0,
+    ADMIN = 100,
+}
 
 class AuthSign extends UHandler {
     async handle(path:string, q:any){
@@ -103,6 +109,7 @@ class AuthCheckin extends AHandler {
             }
             let userWithTelReplaced = (userWithTelExisted[0] as Vertex).properties();
             userWithTelReplaced['mobile'] = parseInt(q.tel);
+            userWithTelReplaced['permit'] = parseInt(userWithTelReplaced['permit']);
             userWithTelReplaced['signid'] = q.user.signid;
             userWithTelReplaced['code'] = q.user.code;
             userWithTelReplaced['state'] = '_CHECKED';
@@ -131,7 +138,20 @@ class AuthUpload extends AHandler {
         return OK(label);
     }
 }
-
+class AuthBlock extends AdminHandler {
+    async handle(path:string, q:any){
+        if(!q.userid){
+            return ERR(path);
+        }
+        q.user.permit = parseInt(q.user.permit) == Permit.COMMON ? Permit.BLOCKED : Permit.COMMON;
+        q.user.mobile = parseInt(q.user.mobile);
+        const userSaved = await Authentication.instance.users.add(q.user);
+        if (userSaved.mobile != q.user.mobile) {
+            return ERR(path);
+        }
+        return OK(Authentication.instance.profile(q.user));
+    }
+}
 class AuthProfile extends AHandler {
     async handle(path:string, q:any){
         if(!q.avatar && !q.name && !q.about){
@@ -150,7 +170,7 @@ class AuthProfile extends AHandler {
         if(q.cars){
             q.user.cars = q.cars.join(',');
         }
-        
+        q.user.permit = parseInt(q.user.permit);
         q.user.mobile = parseInt(q.user.mobile);
         const userSaved = await Authentication.instance.users.add(q.user);
         if (userSaved.mobile != q.user.mobile) {
@@ -167,6 +187,24 @@ export class Authentication  extends HandlersContainer  {
     };
     constructor(public users: Vertex){
         super();
+        passport.use('admin', new Strategy(this.options, async (jwt_payload, next) => {
+            Log.info('signature received '+jwt_payload.id);
+            if(!jwt_payload.id){
+                next(null, false);
+                return;
+            }
+			try{
+                const user = await this.users.find({signid : jwt_payload.id});
+                if (user.length == 1 && user[0]['permit'] == Permit.ADMIN) {
+                    next(null, user[0].properties());
+                }else {
+                    next(null, false);
+                }
+            }catch(err){
+                Log.error(err);
+                next(null, false);
+            }
+        }));
         passport.use('logined', new Strategy(this.options, async (jwt_payload, next) => {
             Log.info('signature received '+jwt_payload.id);
             if(!jwt_payload.id){
@@ -227,13 +265,16 @@ export class Authentication  extends HandlersContainer  {
     get authenticate(){
         return passport.authenticate('logined', { session: false }) ;
     }
+    get adminAuthenticate(){
+        return passport.authenticate('admin', { session: false }) ;
+    }
     get masterAuthenticate(){
         return passport.authenticate('master', { session: false }) ;
     }
     get slaverAuthenticate(){
         return passport.authenticate('slaver', { session: false }) ;
     }
-    allowed = ['name', 'mobile', 'avatar', 'about', 'state', 'cars'];
+    allowed = ['name', 'mobile', 'avatar', 'about', 'state', 'cars', 'permit'];
     profile(user: any){
         return this.allowed.reduce((obj, key) => { if(user[key]) { obj[key] = user[key] }; return obj; }, {});
     }
@@ -263,6 +304,10 @@ export class Authentication  extends HandlersContainer  {
                 type: G.STRING,
                 len: 32
             },
+            permit: {
+                type: G.NUMBER,
+                default: 0
+            },
             cars: {
                 type: G.STRING,
                 len: 256
@@ -281,6 +326,7 @@ export class Authentication  extends HandlersContainer  {
         this.addHandler(new AuthCheckin());
         this.addHandler(new AuthProfile());
         this.addHandler(new AuthUpload());
+        this.addHandler(new AuthBlock());
     }
     public async routers(){
         await this.setup();

@@ -53,6 +53,9 @@ export class User {
             if(callback) return callback(this.token);
         }));
     }
+    get admin(){
+        return this.profile && this.profile.permit == 100;
+    }
     logined(){
         return this.state == '_CHECKED';
     }

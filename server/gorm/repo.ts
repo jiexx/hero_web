@@ -1,14 +1,13 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, OneToOne, Repository } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, Repository } from 'typeorm';
 import { G } from './gorm';
 import { Model } from './model';
 import { Vertex } from './vertex';
 import { Edge } from './edge';
-import { join } from 'path';
-import { Interface } from 'readline';
 
-export interface IReplacement {
-    target: Model[],
-    replace: string[]
+export interface IInternalOptions {
+    replace?: any;
+    verties?: any;
+    needLeftVertex?: boolean;
 }
 class Join {
     id: number;
@@ -142,8 +141,10 @@ class Alias {
 export class ExJoinSQL {
     relation = 'join';//Join;
     alias: Alias ;
+    iterator: JoinIterator;
     constructor( dir: string = 'from'){
         this.alias = new Alias(dir);
+        this.iterator = new JoinIterator().create(dir);
     }
     _first(q: any, m: Model) {
         if( !m.id || m.id < 0 ){
@@ -155,7 +156,7 @@ export class ExJoinSQL {
         return q.leftJoinAndSelect( m.label, m.label+first, this.alias.condition_join_model(first, m, 0));
     }
     _iterate(q: any, m: Model, n: number, countVLast: number) {
-        return q.leftJoinAndSelect(this.relation, this.alias.name(n), this.alias.condition_join_iterate(n, m, countVLast))
+        return q.leftJoinAndSelect(this.relation, this.alias.name(countVLast), this.alias.condition_join_iterate(n, m, countVLast))
                 .leftJoinAndSelect( m.label, m.label+n, this.alias.condition_join_model(n, m, countVLast));
     }
     _iterateWithoutV(q: any, m: Model, n: number, countVLast: number) {
@@ -169,7 +170,10 @@ export class ExJoinSQL {
     ELast(m:Model){
         return m.constructor.name == 'Edge'
     }
-    async count(list:Model[],joinWhere:Model,opts:Object = null){
+    VLast(m:Model){
+        return m.constructor.name == 'Vertex'
+    }
+    async count0(list:Model[],joinWhere:Model,opts:Object = null){
         //console.log(G);
         if(!G.join){
             await G.getJoin();
@@ -207,12 +211,13 @@ export class ExJoinSQL {
         let result = await query.getRawOne();
         return result.count;
     }
-    async query(list:Model[],joinWhere:Model,opts:Object = null){
+    async query0(list:Model[],joinWhere:Model,opts:Object = null){
         //console.log(G);
         if(!G.join){
             await G.getJoin();
         }
         let q = G.join.repository.createQueryBuilder(this.alias.name(0));
+
         let countVLast = 0;
         let where = this.alias.beginWhere(joinWhere);
         let first = this._first(q, joinWhere);
@@ -245,20 +250,214 @@ export class ExJoinSQL {
         }
         //console.log(query.getSql());
         let result = await query.getRawMany();
-        let transform = this.transform(result, list, opts['replacement'] || null, offset);
+        let transform = this.transform(result, list, opts && opts['replacement']);
         return transform;
     }
-    transform(data:any[], list:Model[], replacement: IReplacement = null, offset: number = 0){
-        let T = null;
-        if(replacement){
-            T = replacement.target.reduce((p,v,i)=>{p = Object.assign(p, v.columns().reduce((col,c)=>{  col[v.label+i+'_'+c] = {on: replacement.replace[i] +'_'+i,prop:c}; return col;}, {})); return p},{});
-        }else {
-            T = list.reduce((p,v,i)=>{p = Object.assign(p, v.columns().reduce((col,c)=>{  col[v.label+(i+offset)+'_'+c] = {on: v.label +'_'+(i+offset),prop:c}; return col;}, {})); return p},{});
+
+    async count(list:Model[],joinWhere:Model,opts:Object = null){
+        //console.log(G);
+        if(!G.join){
+            await G.getJoin();
         }
-        return data.map(row => { return Object.keys(row).reduce((p,v)=>{if(!T[v]){ return p;}; if(!p[T[v].on]){p[T[v].on]={}}; p[T[v].on][T[v].prop]=row[v]; return p;},{}) });
-        //return data.reduce((p,row,i) => { Object.keys(row).forEach((v)=>{if(!T[v]){ return p;}; if(!p[T[v].on]){p[T[v].on]=[]}; if(!p[T[v].on][i]){p[T[v].on][i]={}}; p[T[v].on][i][T[v].prop]=row[v]; return p;},[]); return p; },{});
+        let query = G.join.repository.createQueryBuilder(this.alias.name(0)).select("count(*)", "count");
+        let groups = list.reduce((p,c,i)=>{ this.VLast(c) ? p.push({V:c,E:[]}) : p[i].E.push(c); return p }, [this.VLast(joinWhere) ? {V:joinWhere,E:[]} : {V: null, E:[joinWhere]}]) 
+        
+        groups.forEach(e =>{
+            query = this.iterator.iterate(e.V, e.E as Edge[], query) as any;
+        })
+        query = query.where(this.iterator._where);
+
+
+        if(opts){
+            for(let opt in opts) {
+                if(query[opt]){
+                    if(Object.prototype.toString.call(opts[opt]).slice(8, -1) != 'Array'){
+                        query = query[opt].apply(query, [opts[opt]]);
+                    }else{
+                        query = query[opt].apply(query, opts[opt]);
+                    }
+                }
+            }
+        }
+        //console.log(query.getSql());
+        let result = await query.getRawOne();
+        return result.count;
     }
+    async query(list:Model[],joinWhere:Model,opts:Object = null){
+        //console.log(G);
+        if(!G.join){
+            await G.getJoin();
+        }
+        let query = G.join.repository.createQueryBuilder(this.iterator._joinAlias);
+
+        let groups = list.reduce((p,c,i)=>{ this.VLast(c) ? p.push({V:c,E:[]}) : p[p.length-1].E.push(c); return p }, [this.VLast(joinWhere) ? {V:joinWhere,E:[]} : {V: null, E:[joinWhere]}]) 
+
+        opts && this.iterator.needV0(opts['__InternalOptions']);
+        groups.forEach(e =>{
+            query = this.iterator.iterate(e.V, e.E as Edge[], query) as any;
+        })
+        query = query.where(this.iterator._where);
+        
+        if(opts){
+            for(let opt in opts) {
+                if(query[opt]){
+                    if(Object.prototype.toString.call(opts[opt]).slice(8, -1) != 'Array'){
+                        query = query[opt].apply(query, [opts[opt]]);
+                    }else{
+                        query = query[opt].apply(query, opts[opt]);
+                    }
+                }
+            }
+        }
+        //console.log(query.getSql());
+        let result = await query.getRawMany();
+        //let transform = this.transform(result, list, opts && opts['__InternalOptions']);
+        return this.iterator.transform(result);
+    }
+    transform(data:any[], list:Model[], iopts: IInternalOptions = null){
+        let T = null;
+        if(iopts){
+            iopts.replace && (T = list.reduce((p,v,i)=>{p = Object.assign(p, v.columns().reduce((col,c)=>{  col[iopts.replace[v.label+i]+'_'+c] = {on: v.label +'_'+(i),prop:c}; return col;}, {})); return p},{}));
+            iopts.verties && (T = iopts.verties.reduce((p,v) => {if(!p[v]){p[v]={on:v,prop:v}}; return p}, T));
+        }else {
+            T = list.reduce((p,v,i)=>{p = Object.assign(p, v.columns().reduce((col,c)=>{  col[v.label+(i)+'_'+c] = {on: v.label +'_'+(i),prop:c}; return col;}, {})); return p},{});
+        }
+        return data.map(row => { return Object.keys(row).reduce((p,v)=>{if(!T[v]){ return p;}; if(!p[T[v].on]){p[T[v].on]={}}; p[T[v].on][T[v].prop]=row[v]; return p;},{}) });    }
 }
+
+class JoinIterator {
+    static R = 'join';
+    static TAG = '$';
+    static DIR: string[] = ['from', 'to'];
+    N: {Vertex:string, Edge:string} = {'Vertex':'_v_', 'Edge':'_e'}
+    private indicator: number = 0;
+    private index: number = 0;
+    private prev: JoinIterator;
+    setDirection(direction: string = 'from'){
+        this.indicator = direction == 'from' ? 1 : 0;
+    }
+    create(direction: string = 'from'){
+        this.setDirection(direction);
+        this.prev = new JoinIterator();
+        this.prev.setDirection(direction);
+        return this;
+    }
+    step(){
+        if(this.index == 0){
+            this.index ++
+        }else {
+            this.index ++;
+            this.prev.index ++;
+        }
+    }
+    get _joinAlias(){
+        return new Array(this.index+2).join(JoinIterator.TAG);
+    }
+    private get _from(){
+        return JoinIterator.DIR[this.indicator];
+    }
+    private get _to(){
+        return JoinIterator.DIR[1-this.indicator];
+    }
+    private _n(node: 'Vertex' | 'Edge' = 'Vertex'){
+        return this.N[node];
+    }
+    _nodeAlias(node: Model){
+        return `${node.label}${this.index}`;
+    }
+
+    n_p(node: Model, p: 'id'| 'label'){
+        return (node[p] && typeof node[p] == 'string' && `'${node[p]}'`) 
+        || (node[p] && typeof node[p] == 'number' && `${node[p]}`)
+        ||`${this._nodeAlias(node)}.${p == 'id' ? 'id' : '_label'}`
+    }
+
+    from_n_p(p: 'id'| 'label', node: 'Vertex' | 'Edge' = 'Vertex'){
+        return `${this._joinAlias}.${this._n(node)}${node == 'Vertex' ? this._from : ''}_${p}`;
+    }
+    to_n_p(p: 'id'| 'label', node: 'Vertex' | 'Edge' = 'Vertex'){
+        return `${this._joinAlias}.${this._n(node)}${node == 'Vertex' ? this._to : ''}_${p}`;
+    }
+
+    curr_to_n_p_equal_prev_from_n_p(){
+        return ['id','label'].map(e => `${this.to_n_p(e as any)} = ${this.prev.from_n_p(e as any)}`).join(' AND ');
+    }
+    x1il_equal_x2(node: Model, x1:(node: Model, p: 'id'| 'label')=>void, x2: (p: 'id'| 'label', node: 'Vertex' | 'Edge')=>void ){
+        return ['id', 'label'].map(e => `${x1.call(this, node, e as any)} = ${x2.call(this, e as any, node.constructor.name as any)}`).join(' AND ');
+    }
+    x1i_equal_x2(node: Model, x1:(node: Model, p: 'id'| 'label')=>void, x2: (p: 'id'| 'label', node: 'Vertex' | 'Edge')=>void ){
+        return (node.id && node.id > -1 ? ['id', 'label'] : ['label']).map(e => `${x1.call(this, node, e as any)} = ${x2.call(this, e as any, node.constructor.name as any)}`).join(' AND ');
+    }
+    joinPrev(qb: {leftJoinAndSelect:(name: string, alias: string, condition: string)=>any}){
+        return qb.leftJoinAndSelect(JoinIterator.R, this._joinAlias, this.curr_to_n_p_equal_prev_from_n_p());
+    }
+    private _transformor = {};
+    transform(result: any[]){
+        return result.map(row => { return Object.keys(row).reduce((p,v)=>{if(!this._transformor[v]){ return p;}; if(!p[this._transformor[v].on]){p[this._transformor[v].on]={}}; p[this._transformor[v].on][this._transformor[v].prop]=row[v]; return p;},{}) });   
+    }
+    joinModel(node: Model, qb: {leftJoinAndSelect:(name: string, alias: string, condition: string)=>any}, x_n_p:(p: 'id'| 'label', node: 'Vertex' | 'Edge')=>any = this.from_n_p){
+        !this._replaces ? this._transformor = {...this._transformor, ...(node.columns().reduce((col,c)=>{  col[this._nodeAlias(node)+'_'+c] = {on: node.label +'_'+(this.index),prop:c}; return col;}, {}))}
+                        : this._transformor = {...this._transformor, ...(node.columns().reduce((col,c)=>{  col[this._nodeAlias(node)+'_'+c] = {on: (this._replaces[this._nodeAlias(node)] || node.label) +'_'+(this.index),prop:c}; return col;}, {}))};
+        return qb.leftJoinAndSelect(node.label, this._nodeAlias(node), this.x1il_equal_x2(node, this.n_p, x_n_p) );
+    }
+    to_n_p_equal_n_p(node: Model){
+        return this.x1i_equal_x2(node, this.n_p, this.to_n_p)
+    }
+    from_n_p_equal_n_p(node: Model){
+        return this.x1i_equal_x2(node, this.n_p, this.from_n_p)
+    }
+
+    /* V0  E...   V    E...   V
+
+    to<---e----from        
+                   <----e-----from */
+    private _needV0: boolean = false;
+    private _replaces = null;
+    needV0(iopts: IInternalOptions){
+        if(!iopts){
+            return;
+        }
+        iopts.needLeftVertex && (this._needV0 = iopts.needLeftVertex);
+
+        iopts.verties && (this._transformor = iopts.verties);//iopts.verties.reduce((p,v) => {if(!p[v]){p[v]={on:v,prop:v}}; return p}, this._transformor);
+
+        iopts.replace && (this._replaces = iopts.replace);
+    }
+    private _count: number = 0;
+    iterate(v: Vertex, es: Edge[], qb: {leftJoinAndSelect:(name: string, alias: string, condition: string)=>any}){
+        let q  = qb;
+        if(this._count == 0) {
+            this._where = this.to_n_p_equal_n_p(v);
+            es.forEach(e => this._where += ' AND ' + this.to_n_p_equal_n_p(e));
+            if(this._needV0){
+                q = this.joinModel(v, q, this.to_n_p);
+            }
+
+            q = es.reduce((p,e)=>this.joinModel(e, p), q);
+            this._count ++;
+        }else if(this._count == 1) {
+            this._where += ' AND ' +  this.from_n_p_equal_n_p(v);
+            q = this.joinModel(v, q);
+
+            this._count ++;
+            this.step();
+        }else{
+            this._where += ' AND ' +  this.from_n_p_equal_n_p(v);
+            es.forEach(e => this._where += ' AND ' + this.from_n_p_equal_n_p(e));
+
+            q = this.joinPrev(q);
+            q = this.joinModel(v, q);
+            q = es.reduce((p,e)=>this.joinModel(e, p), q);
+
+            this.step();
+        }
+        return q;
+    }
+    _where: string = '';
+}
+
+
+
 export abstract class Repo {
     constructor(protected label: string,  public schema:Object, public repository: Repository<any> = null){
         const clz = this.getClass(this.label);

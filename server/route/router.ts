@@ -23,6 +23,9 @@ abstract class Process {
             case 3: 
                 this.auth = Authentication.instance.slaverAuthenticate;
                 break;
+            case 5: 
+                this.auth = Authentication.instance.adminAuthenticate;
+                break;
         }
         //this.auth = auth ? Authentication.instance.authenticate : null;
     }

@@ -10,8 +10,9 @@ class PayQrcode extends AFHandler {
         let order = _alipay.order(q.subject, 10, q.user.id)
         let qrcode = await _alipay.qrPay(order);
         Log.info(qrcode);
-        let img = imageSync(qrcode, { type: q.type || 'svg'  });
-        return {qrcode:/* 'data:image/svg+xml;base64,' */'data:image/svg+xml;charset=utf-8,'+img,orderid:order.out_trade_no};
+        //let img = imageSync(qrcode, { type: q.type || 'svg'  });
+        //return {qrcode:/* 'data:image/svg+xml;base64,' */'data:image/svg+xml;charset=utf-8,'+img,orderid:order.out_trade_no};
+        return {qrcode:qrcode,orderid:order.out_trade_no};
     }
     async handle(path:string, q:any){
         if(!q.subject){

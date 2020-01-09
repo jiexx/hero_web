@@ -12,7 +12,7 @@ class TicketCount extends AHandler {
         }
         const tickets = await Tickets.instance.tickets.repo.repository.createQueryBuilder(Tickets.instance.tickets.label)
             .select("count(distinct E)", "count")
-            .where("DATEDIFF(date(depart), NOW()) > 0 AND DATEDIFF(NOW(), date(createtime)) <= 30 AND E "+(q.contains || 'NOT IN')+" (" + q.note.map(e=>"'"+e+"'") + ")");
+            .where("DATEDIFF(date(depart), NOW()) > 0 AND DATEDIFF(NOW(), date(createtime)) <= 30 ");
         const result = await Tickets.instance.filter(tickets, q)
             .getRawOne();
         return OK(result.count);
@@ -26,7 +26,7 @@ class TicketSubcount extends AHandler {
         }
         const tickets = await Tickets.instance.tickets.repo.repository.createQueryBuilder(Tickets.instance.tickets.label)
             .select("count(*)", "count")
-            .where("DATEDIFF(date(depart), NOW()) > 0 AND DATEDIFF(NOW(), date(createtime)) <= 30 AND E "+(q.contains || 'NOT IN')+" (" + q.note.map(e=>"'"+e+"'") + ") AND E = '"+q.end+"'");
+            .where("DATEDIFF(date(depart), NOW()) > 0 AND DATEDIFF(NOW(), date(createtime)) <= 30 ");
         const result = await Tickets.instance.filter(tickets, q)
             .getRawOne();
         return OK(result.count);
@@ -36,18 +36,19 @@ class TicketSubcount extends AHandler {
 
 class TicketSublist extends AHandler {
     async handle(path:string, q:any){
-        if(!q.note && Object.prototype.toString.call(q.note) != '[object Array]'){
+        if(!q.note && Object.prototype.toString.call(q.note) != '[object Array]' && !q.end && !q.begin){
             return ERR(path);
         }
         
         const tickets = await Tickets.instance.tickets.repo.repository.createQueryBuilder(Tickets.instance.tickets.label)
-            .where("DATEDIFF(date(depart), NOW()) > 0 AND DATEDIFF(NOW(), date(createtime)) <= 30 AND E "+(q.contains || 'NOT IN')+" (" + q.note.map(e=>"'"+e+"'") + ") AND E = '"+q.end+"'");
+            .where("DATEDIFF(date(depart), NOW()) > 0 AND DATEDIFF(NOW(), date(createtime)) <= 30 ");
         const result = await Tickets.instance.filter(tickets, q)
             .orderBy("CAST(SUBSTRING(price,4) AS SIGNED)", "ASC")
             .limit(NUMPERSUBPAGE)
             .offset( q.page*NUMPERSUBPAGE)
-            .getMany();
-        return OK(result);
+        //let sql = result.getSql();
+        const r = await result.getMany();
+        return OK(r);
     }
 }
 
@@ -62,9 +63,8 @@ class TicketList extends AHandler {
         }
         const tickets = await Tickets.instance.tickets.repo.repository.createQueryBuilder(Tickets.instance.tickets.label)
             .select(this.fileds())
-            .where("DATEDIFF(date(depart), NOW()) > 0 AND DATEDIFF(NOW(), date(createtime)) <= 30 AND E "+(q.contains || 'NOT IN')+" (" + q.note.map(e=>"'"+e+"'") + ")");
-        const result = await Tickets.instance.filter(tickets, q)
-            .groupBy("E")
+            .where("DATEDIFF(date(depart), NOW()) > 0 AND DATEDIFF(NOW(), date(createtime)) <= 30 ");
+        const result = await Tickets.instance.filter(tickets, q) 
             .orderBy("price", "ASC")
             .limit(NUMPERPAGE)
             .offset( q.page*NUMPERPAGE);
@@ -94,10 +94,22 @@ export class Tickets extends HandlersContainer {
         return Object.keys(j).reduce((p, c) => { p[c] = {type: G.STRING}; return p}, {createtime:{type: G.STRING}, batch:{type: G.NUMBER}})
     }
     filter(tickets: any, q: any){
-        if(!!q.eqe && q.eqe.length > 0) {
-            tickets.andWhere("E IN ('"+q.eqe.join("','")+"') ");
+        if(q.end && (q.contains || 'NOT IN') == 'NOT IN'){
+            tickets.andWhere(" E = '"+q.end+"'");
+        }else if(q.begin && (q.contains || 'NOT IN') == 'IN'){
+            tickets.andWhere(" B = '"+q.begin+"'");
+        }else {
+            
+            if((q.contains || 'NOT IN') == 'NOT IN') {
+                tickets.andWhere(" E NOT IN (" + q.note.map(e=>"'"+e+"'") + ")" );
+                tickets.addGroupBy('E')
+            }else {
+                tickets.andWhere(" B NOT IN (" + q.note.map(e=>"'"+e+"'") + ")" );
+                tickets.addGroupBy('B')
+            }
         }
-        switch(q.stops){
+        
+        switch(q.stops){ 
             case 'X':
             tickets.andWhere("LOCATE(',', flight) < 1");
             break;

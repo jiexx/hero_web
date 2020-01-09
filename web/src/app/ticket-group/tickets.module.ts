@@ -4,12 +4,14 @@ import { TicketDepartComponent } from "./ticket-depart.component";
 import { TicketsModule } from "app/common/tickets.module";
 import { TicketsRoutingModule } from "./tickets-routing.module";
 import { TicketArriveComponent } from "./ticket-arrive.component";
+import { MatIcon, MatIconModule } from "@angular/material";
 
 @NgModule({
     imports: [
         CommonModule,
         TicketsRoutingModule,
-        TicketsModule
+        TicketsModule,
+        MatIconModule
     ],
     declarations: [
         TicketDepartComponent,

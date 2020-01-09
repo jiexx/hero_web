@@ -17,7 +17,6 @@ import { FormsModule } from "@angular/forms";
         MatCardModule,
         MatExpansionModule,
         MatIconModule,
-        MatGridListModule,
         MatButtonModule,
         PostsModule
     ],

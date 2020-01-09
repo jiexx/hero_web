@@ -1,7 +1,7 @@
 import { NgModule } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { Routes, RouterModule } from "@angular/router";
-import { MatPaginatorModule, MatListModule, MatIconModule } from "@angular/material";
+import { MatPaginatorModule, MatListModule, MatIconModule, MatButtonModule } from "@angular/material";
 import { NetModule } from "./net.module";
 import { FavorsComponent } from "./favors.component";
 import { DialogModule } from "./dialog.module";
@@ -18,12 +18,14 @@ const routes: Routes = [
         CommonModule,
         NetModule,
         DialogModule,
-        RouterModule.forChild(routes),
+        //RouterModule.forChild(routes),
         MatPaginatorModule,
         MatListModule,
-        MatIconModule
+        MatIconModule,
+        MatButtonModule,
+        DialogModule,
     ],
-    exports: [RouterModule, FavorsComponent],
+    exports: [/* RouterModule ,*/ FavorsComponent],
     declarations: [
         FavorsComponent
     ]

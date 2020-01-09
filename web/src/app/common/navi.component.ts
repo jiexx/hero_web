@@ -11,8 +11,8 @@ import { User } from "./net.user";
         <h3>{{title}}</h3>
         <div style="flex: 1 1 auto;"></div>
         <button mat-icon-button [matMenuTriggerFor]="menu">
-            <mat-icon matBadge="{{favorited+unread}}" *ngIf="favorited+unread > 0" matBadgeColor="warn" class="text-muted">notifications</mat-icon>
-            <mat-icon *ngIf="favorited+unread == 0" matBadgeColor="warn" class="text-muted">notifications</mat-icon>
+            <mat-icon matBadge="{{favorited+unread}}" matBadgeColor="warn" *ngIf="favorited+unread > 0" style="color:gray">notifications</mat-icon>
+            <mat-icon *ngIf="favorited+unread == 0" style="color:gray" >notifications</mat-icon>
         </button>
         <mat-menu #menu="matMenu">
             <button mat-menu-item [routerLink]="['/favor']">
@@ -44,7 +44,7 @@ export class NaviComponent implements OnInit {
         this.hr.post('message/count',{unread: '1'}, result => {
             this.unread = parseInt(result.data);
         });
-        this.hr.post('favor/count',{unread: 1}, result => {
+        this.hr.post('favor/count',{state: 'received'}, result => {
             this.favorited = parseInt(result.data);
         });
     }

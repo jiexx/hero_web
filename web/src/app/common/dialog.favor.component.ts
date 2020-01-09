@@ -22,7 +22,7 @@ export class SafeHtml {
         选择通知方式
     </h5>
     <mat-dialog-content align="center" >
-        <form  [formGroup]="form">
+        <form  [formGroup]="form" >
             <mat-form-field>
                 <input matInput placeholder="通知价格低于"  [matAutocomplete]="auto" [formControl]="price.input">
                 <mat-autocomplete #auto="matAutocomplete">
@@ -43,7 +43,8 @@ export class SafeHtml {
         </form>
         <div  style="display: inline-block;position: relative;width:100%" cdkFocusInitial>
             <div style="padding-bottom:100%"></div>
-            <img *ngIf="msg.info.qrcode" style="position:absolute;top:0;bottom:0;left:0;right:0;" [src]="sanitizer.bypassSecurityTrustResourceUrl(msg.info.qrcode)">
+            <!-- img *ngIf="msg.info.qrcode" style="position:absolute;top:0;bottom:0;left:0;right:0;" [src]="sanitizer.bypassSecurityTrustResourceUrl(msg.info.qrcode)" -->
+            <qr-code *ngIf="msg.info.qrcode" style="position:absolute;top:0;bottom:0;left:0;right:0;" [value]="msg.info.qrcode" [size]="300"></qr-code>
             <img style="position:absolute;left:0;right:0;top:0;bottom:0;margin:auto;width:32px;" src="{{imgUrl.assets.imgLink('assets/img/alipay64x64.png', 'assets/img/default.png')}}">
             <div *ngIf="!msg.info.qrcode" style="position:absolute;left:0;right:0;top:0;bottom:0;margin:auto;width:5rem;height:5rem">
                 <svg viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg">
@@ -76,7 +77,7 @@ export class SafeHtml {
         <button *ngIf="msg.pass" mat-raised-button (click)="decline()">邮件</button>
         <button *ngIf="msg.fail" mat-raised-button (click)="confirm()" [mat-dialog-close]="true" cdkFocusInitial color="warn">短信</button>
     </mat-dialog-actions>
-`,
+`
 })
 export class FavorDialogComponent extends IDialogComponent implements OnInit {
     constructor(public imgUrl: ImageUrl, public sanitizer:DomSanitizer){ 
@@ -87,7 +88,11 @@ export class FavorDialogComponent extends IDialogComponent implements OnInit {
         // if(!this.msg.info.qrcode){
         //     this.msg.info.qrcode = `data:image/svg+xml;charset=utf-8,<svg class="circular" viewBox="25 25 50 50"><circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10"/></svg>`;
         // }
-        this.msg.info['_result'] = this.form.value;
+        this.form.valueChanges.subscribe(data =>{
+            console.log('onChange',data)
+            this.msg.info['_result'] = data;
+            
+        })
     }
     price = {
         input: new FormControl('', [

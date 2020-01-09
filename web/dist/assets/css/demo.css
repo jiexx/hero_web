@@ -1,0 +1,144 @@
+@import "~@angular/material/prebuilt-themes/indigo-pink.css";
+body{
+    font-family: Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: whitesmoke;
+    font-weight: 300;
+    color: #3c4858;
+    
+}
+h4, .h4 {
+    font-size: 1.125rem !important;
+    font-weight: 300 !important;
+}
+
+h3, .h3 {
+    font-size: 20px !important;
+    font-weight: 300 !important;
+}
+
+h6, .h6 {
+    font-weight: 300 !important;
+    font-size: 12px !important;
+    /*text-transform: uppercase;*/
+    text-decoration: none;
+}
+
+.text-black {
+    color: black !important;
+}
+
+p, .p {
+    font-size: 14px !important;
+    white-space: nowrap;
+    font-weight: 300 !important;
+    
+}
+
+.mat-icon-button.xlarge .mat-icon {
+    font-size: 4rem;
+    width: 4rem;
+    height: 4rem;
+    line-height: 4rem;
+    color: orangered;
+}
+.mat-icon-button.large .mat-icon {
+    font-size: 3rem;
+    width: 3rem;
+    height: 3rem;
+    line-height: 3rem;
+    color: tomato;
+}
+.mat-icon-button.small .mat-icon {
+    font-size: 1.5rem !important;
+    width: 1.5rem !important;
+    height: 1.5rem;
+    line-height: 1.5rem;
+    color: limegreen;
+  }
+
+.mat-icon-button.large {
+    width: 3rem;
+    height: 3rem;
+    line-height: 3rem;
+}
+
+.mat-icon-button.small {
+    width: 1.5rem;
+    height: 1.5rem;
+    line-height: 1.5rem;  
+}
+  
+.mat-icon-button.xlarge {
+    width: 4rem;
+    height: 4rem;
+    line-height: 4rem;
+}
+
+
+.main-content{
+    padding: 1rem;
+    height: 100%;
+    display: block;
+}
+
+.card {
+    background: white;
+}
+
+.card-header {
+    margin-bottom: 0.5rem;
+    background: linear-gradient(60deg,#ef5350,tomato);
+    box-shadow: 0 4px 20px 0px rgba(0, 0, 0, 0.14), 0 7px 10px -5px rgba(244, 67, 54, 0.4);
+    border: 0;
+    border-radius: 3px;
+    color: white;
+    padding: 1.0rem;
+}
+
+.card-header > * {
+    margin: 0;
+    padding: 0;
+}
+
+.card-header > p {
+    color: rgba(255,255,255,.62);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.card-header > h4 {
+    padding-bottom: 0.5rem;
+}
+
+.card-body > form, .card-body {
+    padding: 2rem;
+    border-radius: 6px;
+    box-shadow: 0 2px 2px 0 rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.2), 0 1px 5px 0 rgba(0,0,0,.12);
+}
+mat-form-field{
+    width: 100%;
+}
+
+.rounded-circle {
+    border-radius: 50%!important;
+}
+.img-thumbnail {
+    padding: .25rem;
+    background-color: #fafafa;
+    border: 1px solid #dee2e6;
+    box-shadow: 0 1px 2px rgba(0,0,0,.075);
+    max-width: 100%;
+    height: auto;
+}
+.img-thumbnail {
+    border-radius: 16px;
+}
+
+
+qr-code > img {
+    width: 100% !important;
+    height: 100% !important;
+}

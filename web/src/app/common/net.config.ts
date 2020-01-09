@@ -3,7 +3,7 @@ import { environment } from "environments/environment";
 
 @Injectable()
 export class ConfigService {
-    url = /* environment['URL'] ? environment['URL'] : */ 'http://app.justitbe.com:8999/'
+    url = /* environment['URL'] ? environment['URL'] : */  /* "http://localhost:8999/"; */'http://app.justitbe.com:8999/'
     public MEDIA_HOST = {
        /*  URL: "http://49.234.15.176:8999/" */
        /*  URL: 'http://127.0.0.1:8999/' */
@@ -20,6 +20,6 @@ export class ConfigService {
     }
     
     constructor(){
-        console.log(this.url)
+        //console.log(this.url)
     }
 }

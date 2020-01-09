@@ -121,3 +121,42 @@ export class Vertex extends Model {
         return o;
     }
 }
+
+export class Vertices extends Array<Vertex> {
+    constructor(private repoVertex: Vertex){
+        super();
+    }
+    async add(props: Object[]){
+        return await this.addV(props);
+    }
+    async addV(props: Object[]) {
+        let edges = Edge.instance(props);
+        if (edges.length < 1) {
+            return null;    
+        }
+        edges.forEach((e,i) =>{
+            // const checkSchemaResponse = e.checkSchema(e.repo.schema, props[i], true);
+            // if (e.checkSchemaFailed(checkSchemaResponse)) {
+            //     throw (checkSchemaResponse);
+            // }
+            props[i]['_label'] = e.label;
+            props[i]['_type'] = 'E';
+        })
+        let prop = props.reduce((p:Object[],c)=>{p.push(c);return p},[])
+        
+        let result = await this.repoVertex.repo.save(prop);
+        if(result.length < 1){
+            return null;
+        }
+        this.push(...Vertex.instance(result));
+        return this;
+    }
+    async drops(){
+        if(this.length < 1){
+            return;
+        }
+        let prop = this.reduce((p:Object[],c)=>{p.push({id:c.id});return p},[])
+        let o = await this[0].repo.remove(prop);
+        return o;
+    }
+}

@@ -1,29 +1,10 @@
-<div class="logo">
-    <a href="#" class="simple-text ">
-        <h4><button mat-icon-button  color="warn" class="xlarge"><mat-icon >person_pin_circle</mat-icon></button>老司机</h4>
+
+<mat-nav-list>
+    <div fxLayout="row" fxLayoutAlign="center center" style="height: 10rem; border: 1px">
+        <button mat-icon-button  color="warn" class="xlarge"><mat-icon >person_pin_circle</mat-icon></button><h4>老司机</h4>
+    </div>
+    <a mat-list-item routerLinkActive="router-link-active" class="router-link-inactive"  [routerLinkActiveOptions]="{exact: true}" *ngFor="let menuItem of menuItems" [routerLink]="[menuItem.path]">
+        <mat-icon>{{menuItem.icon}}</mat-icon>
+        <p style="padding-left: 1rem">{{menuItem.title}}</p> 
     </a>
-    
-</div>
-<div class="sidebar-wrapper">
-  <!-- <div *ngIf="isMobileMenu()">
-    <form class="navbar-form">
-      <span class="bmd-form-group">
-        <div class="input-group no-border">
-          <input type="text" value="" class="form-control" placeholder="查找...">
-          <button mat-raised-button type="submit" class="btn btn-white btn-round btn-just-icon">
-            <i class="material-icons">查找...</i>
-            <div class="ripple-container"></div>
-          </button>
-        </div>
-      </span>
-    </form>
-  </div> -->
-    <ul class="nav">
-        <li routerLinkActive="active"  [routerLinkActiveOptions]="{exact: true}" *ngFor="let menuItem of menuItems" class="{{menuItem.class}} nav-item">
-            <a class="nav-link" [routerLink]="[menuItem.path]">
-                <i class="material-icons">{{menuItem.icon}}</i>
-                <p>{{menuItem.title}}</p>
-            </a>
-        </li>
-    </ul>
-</div>
+</mat-nav-list>

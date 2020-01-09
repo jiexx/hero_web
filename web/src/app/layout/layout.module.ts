@@ -7,9 +7,10 @@ import { NavbarComponent } from "./navbar/navbar.component";
 import { SidebarComponent } from "./sidebar/sidebar.component";
 import { FormsModule } from "@angular/forms";
 import { NaviModule } from "app/common/navi.module";
-import { MatIconModule, MatButtonModule } from "@angular/material";
+import { MatIconModule, MatButtonModule, MatSidenavModule, MatListModule } from "@angular/material";
 import { AuthGuard } from "app/common/net.auth";
 import { DialogModule } from "app/common/dialog.module";
+import { FlexLayoutModule } from "@angular/flex-layout";
 
 @NgModule({
     imports: [
@@ -20,6 +21,9 @@ import { DialogModule } from "app/common/dialog.module";
         MatIconModule,
         MatButtonModule,
         DialogModule,
+        MatSidenavModule,
+        MatListModule,
+        FlexLayoutModule
     ],
     declarations: [
         LayoutComponent,

@@ -19,7 +19,7 @@ import { IDialogComponent } from './dialog.interface';
         </p>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
-        <button mat-raised-button (click)="decline()" *ngIf="msg && msg.fail">取消</button>
+        <button mat-raised-button color="warn" (click)="decline()" *ngIf="msg && msg.fail">取消</button>
         <button mat-raised-button (click)="confirm()" [mat-dialog-close]="true" cdkFocusInitial>确定</button>
     </mat-dialog-actions>
     `,

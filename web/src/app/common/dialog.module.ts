@@ -8,7 +8,8 @@ import { BusService } from "./dcl.bus.service";
 import { InfoDialogComponent } from "./dialog.info.component";
 import { MsgDialogComponent } from "./dialog.msg.component";
 import { FavorDialogComponent, SafeHtml } from "./dialog.favor.component";
-import { NetModule } from "./net.module";
+import { QRCodeModule } from 'angular2-qrcode';
+
 
 const routes: Routes = [
     {
@@ -30,7 +31,8 @@ const routes: Routes = [
         MatInputModule,
         MatAutocompleteModule,
         MatIconModule,
-        MatButtonModule
+        MatButtonModule,
+        QRCodeModule
     ],
     exports: [
         //RouterModule, 

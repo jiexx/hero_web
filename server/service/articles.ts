@@ -1,10 +1,10 @@
 import { V, G, E } from "../gorm/gorm";
-import { Vertex } from "../gorm/vertex";
+import { Vertex, Vertices } from "../gorm/vertex";
 import { ID } from "../common/id";
 import { OK, ERR } from "../common/result";
-import { UHandler, AHandler, Handler, HandlersContainer } from "../route/handler";
-import { Edge } from "../gorm/edge";
-import { Authentication } from "../route/authentication";
+import { UHandler, AHandler, Handler, HandlersContainer, AdminHandler } from "../route/handler";
+import { Edge, Edges } from "../gorm/edge";
+import { Authentication, Permit } from "../route/authentication";
 import { NUMPERPAGE, NUMPERSUBPAGE } from "../config";
 
 class ArticleCount extends AHandler {
@@ -100,7 +100,7 @@ class ArticleSublist extends AHandler {
 
 class ArticleComment extends AHandler {
     async handle(path:string, q:any){
-        if (!q.content) {
+        if (!q.content && !q.articleid) {
             return ERR(path);
         }
         let user = Vertex.instance([q.user])[0];
@@ -124,10 +124,42 @@ class ArticleComment extends AHandler {
         }
         await user.addE(post).to(reply).next();
         await reply.addE(comment).to(article[0]).next();
-        return OK(path);
+        return OK(reply.id);
     }
 }
 
+class ArticleRemove extends AdminHandler {
+    async handle(path:string, q:any){
+        if (!q.articleid) {
+            return ERR(path);
+        }
+        let article = await Articles.instance.articles.find({id: q.articleid})
+        if (article.length < 1) {
+            return ERR(path);
+        }
+        let v = [], e = [];
+        let ev = [];
+        for(let i = 0 ; i < 4 ; i ++ ){
+            ev.push(Articles.instance.comment);
+            ev.push(Articles.instance.articles);
+            let r = await article[0].exIn(ev);
+            r.forEach(a => Object.keys(a).forEach((name:string) => name.includes(Articles.instance.comment.label)? e.push(a[name]) : v.push(a[name])));
+        }
+
+        e = e.filter((val,i) =>{ return e.findIndex(value=>value.id == val.id) == i });
+        let edges = new Edges(Articles.instance.comment);
+        edges.push(...Edge.instance(e) );
+        await edges.drops();
+
+        v = v.filter((val,i) =>{ return v.findIndex(value=>value.id == val.id) == i });
+        v.push(article[0]);
+        let vertices = new Vertices(Articles.instance.comment);
+        vertices.push(...Vertex.instance(v) );
+        await vertices.drops();
+
+        return OK(path);
+    }
+}
 
 export class Articles  extends HandlersContainer  {
     constructor(public articles: Vertex, public comment: Edge, public post: Edge){
@@ -171,6 +203,7 @@ export class Articles  extends HandlersContainer  {
         this.addHandler(new ArticlePost());
         this.addHandler(new ArticleComment());
         this.addHandler(new ArticleSublist());
+        this.addHandler(new ArticleRemove());
     }
     public async routers(){
         await this.setup();

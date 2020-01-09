@@ -1,7 +1,7 @@
 import { NgModule } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { Routes, RouterModule } from "@angular/router";
-import { MatPaginatorModule, MatListModule, MatIconModule } from "@angular/material";
+import { MatPaginatorModule, MatListModule, MatIconModule, MatButtonModule } from "@angular/material";
 import { NetModule } from "./net.module";
 import { MessagesComponent } from "./messages.component";
 import { BusService } from "./dcl.bus.service";
@@ -19,12 +19,13 @@ const routes: Routes = [
         CommonModule,
         NetModule,
         DialogModule,
-        RouterModule.forChild(routes),
+        //RouterModule.forChild(routes),
         MatPaginatorModule,
         MatListModule,
-        MatIconModule
+        MatIconModule,
+        MatButtonModule
     ],
-    exports: [RouterModule, MessagesComponent],
+    exports: [MessagesComponent],
     declarations: [
         MessagesComponent
     ],

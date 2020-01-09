@@ -5,6 +5,7 @@ import { MatButtonModule, MatFormFieldModule, MatInputModule } from "@angular/ma
 import { NetModule } from "./net.module";
 import { LoginComponent } from "./login.component";
 import { ReactiveFormsModule } from "@angular/forms";
+import { FlexLayoutModule } from "@angular/flex-layout";
 
 const routes: Routes = [
     {

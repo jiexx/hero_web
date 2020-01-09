@@ -1,22 +1,23 @@
-<svg width="42" height="42" viewBox="0 0 42 42" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-        <linearGradient x1="8.042%" y1="0%" x2="65.682%" y2="23.865%" id="a">
-            <stop stop-color="tomato" stop-opacity="0" offset="0%"/>
-            <stop stop-color="tomato" stop-opacity=".631" offset="63.146%"/>
-            <stop stop-color="tomato" offset="100%"/>
-        </linearGradient>
-    </defs>
-    <g fill="none" fill-rule="evenodd">
-        <g transform="translate(1 1)">
-            <path d="M36 18c0-9.94-8.06-18-18-18" id="Oval-2" stroke="url(#a)" stroke-width="4">
-                <animateTransform
-                    attributeName="transform"
-                    type="rotate"
-                    from="0 18 18"
-                    to="360 18 18"
-                    dur="0.9s"
-                    repeatCount="indefinite" />
-            </path>
-        </g>
-    </g>
-</svg>
+
+198.181.57.134  26119 rimbX7FFgwoi
+ rm -f /usr/local/bin/node
+ rm -f /usr/local/bin/npm
+ rm -f /usr/local/bin/tsc
+ rm -f /usr/local/bin/tsserver
+
+ rm -f /usr/bin/node
+ rm -f /usr/bin/npm
+ rm -f /usr//bin/tsc
+ rm -f /usr/local/bin/tsserver
+
+ln -s ~/node-v9.9.0-linux-x86/bin/node /usr/local/bin/node
+ln -s ~/node-v9.9.0-linux-x86/bin/npm /usr/local/bin/npm
+ln -s ~/node-v9.9.0-linux-x86/bin/tsc /usr/local/bin/tsc
+ln -s ~/node-v9.9.0-linux-x86/bin/tsserver /usr/local/bin/tsserver
+ln -s ~/node-v9.9.0-linux-x86/bin/pm2 /usr/local/bin/pm2
+
+
+chmod -R root:root /usr/local/bin/node
+chmod -R root:root /usr/local/bin/npm
+chmod -R root:root  /usr/local/bin/tsc
+chmod -R root:root /usr/local/bin/tsserver

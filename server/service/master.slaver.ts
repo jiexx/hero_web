@@ -215,7 +215,7 @@ class MasterRestoreTickets extends MHandler {
             method: 'POST', 
             url: `${MS.SLAVER.ADDR}/slaver/tickets`,
             gzip: true,
-            timeout:150000,
+            timeout:180000,
             headers: {
                 'Accept-Encoding': 'gzip',
                 'Authorization': `Bearer ${Authentication.instance._sign(MS.SLAVER.SIGNATURE)}`,
@@ -273,15 +273,13 @@ export class SlaverStartTasks extends SHandler {
         await this.tm.start(async ()=>{
             ID.endBatchCounter();
             Log.info('batch end. ');
-            await this.notify();
-            let counter = ID.passBatchCounter();
-            Log.info('batch pass '+ counter);
+            this.notify();
         });
 
         return OK(path);
     }
-    async notify(){
-        await request(
+    notify(){
+        request(
             {
                 method: 'POST', 
                 url: `${MS.MASTER.ADDR}/master/restore/tickets`,
@@ -289,6 +287,9 @@ export class SlaverStartTasks extends SHandler {
                     'Accept-Encoding': 'gzip',
                     'Authorization': `Bearer ${Authentication.instance._sign(MS.MASTER.SIGNATURE)}`,
                 }
+            },(a, b,c )=>{
+                let counter = ID.passBatchCounter();
+                Log.info('batch pass '+ counter, a);
             }
         )
     }

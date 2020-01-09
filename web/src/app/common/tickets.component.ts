@@ -6,6 +6,9 @@ import { DialogMessage } from "./dcl.dialog.message";
 import { FavorDialogComponent } from "./dialog.favor.component";
 import { ImageUrl } from "./net.image";
 import { User } from "./net.user";
+import { ViewEncapsulation } from "@angular/compiler/src/core";
+import { Subscription } from "rxjs";
+import { MediaObserver, MediaChange } from "@angular/flex-layout";
 const Airlines = {
     "EU": ["成都航空有限公司", "028-6666-8888", "https://www.cdal.com.cn/"],
     "HU": ["海南航空公司", "95339", "https://www.hnair.com/"],
@@ -203,31 +206,40 @@ const PlaceOptions = [{"key":"AUH","value":"阿布扎比"},{"key":"AMS","value":
 @Component({
     selector: 'tickets',
     template:
-`<mat-list>
-<mat-list-item>
-    <mat-form-field>
-        <mat-label>{{filter1.hint}}</mat-label>
-        <mat-select [(ngModel)]="filter1.input" (openedChange)="getTicketList(0, $event);getTicketCount($event)" multiple>
-            <mat-option *ngFor="let place of filter1.options" [value]="place.key">
-                {{place.value}}
-            </mat-option>
-        </mat-select>
-    </mat-form-field>
-    <mat-form-field>
-        <mat-label>{{filter2.hint}}</mat-label>
-        <mat-select [(ngModel)]="filter2.input" (openedChange)="getTicketList(0, $event);getTicketCount($event)">
-            <mat-option *ngFor="let place of filter2.options | keyvalue" [value]="place.key">
-                {{place.value}}
-            </mat-option>
-        </mat-select>
-    </mat-form-field>
-</mat-list-item>   
+`<mat-list style="margin-top:-1.5rem">
+    <div fxLayout="column" fxLayout.gt-xs="row" fxLayoutAlign="center center" fxLayoutGap="1rem" style="padding: 0 1rem">
+        <mat-form-field  fxFlex="90" fxFlex.gt-xs="20" >
+            <mat-label>{{filter1.hint}}</mat-label>
+            <mat-select [(ngModel)]="filter1.input" (openedChange)="getTicketList(0, $event);getTicketCount($event)" multiple>
+                <mat-option *ngFor="let place of filter1.options" [value]="place.key">
+                    {{place.value}}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+        <mat-form-field fxFlex="90"  fxFlex.gt-xs="20">
+            <mat-label>{{filter2.hint}}</mat-label>
+            <mat-select [(ngModel)]="filter2.input" (openedChange)="getTicketList(0, $event);getTicketCount($event)">
+                <mat-option *ngFor="let place of filter2.options | keyvalue" [value]="place.key">
+                    {{place.value}}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>
 <mat-accordion>
     <mat-expansion-panel *ngFor="let airline of airlines" (afterExpand)="open(airline)" #panel>
         <mat-expansion-panel-header [collapsedHeight]="'auto'" [expandedHeight]="'auto'">
-            <mat-list-item>
-                <span mat-list-icon style="width:auto;height:auto"><img *ngIf="contains=='IN'" style="width:4rem;border-radius:4px;padding:2px"  src={{dest(airline.B)}}><img style="width:4rem;border-radius:4px;padding:2px"  src={{dest(airline.E)}}></span>
-                <h5 mat-line><button  mat-icon-button  color="warn"><mat-icon (click)="favorite(airline, panel)">{{airline.favorited ? airline.favorited : 'location_on'}}</mat-icon></button>{{destname(airline.E)}}({{airline.end}})</h5>
+            <mat-list-item  >
+                <span mat-list-icon style="width:auto;height:auto;padding-right:2rem"  [ngStyle.xs]="{display: 'none'}"  >
+                    <img *ngIf="contains=='IN'" style="width:4rem;border-radius:4px;padding:2px"  src={{dest(airline.B)}}>
+                    <img *ngIf="contains=='NOT IN'" style="width:4rem;border-radius:4px;padding:2px"  src={{dest(airline.E)}}></span>
+                <h5 mat-line >
+                    <button  mat-icon-button  color="warn" [ngStyle.xs]="{display: 'inline-block'}" style="display:none">
+                        <img *ngIf="contains=='IN'" style="width:2rem;border-radius:4px;padding:2px"  src={{dest(airline.B)}}>
+                        <img *ngIf="contains=='NOT IN'" style="width:2rem;border-radius:4px;padding:2px"  src={{dest(airline.E)}}>
+                    </button>
+                    <button  mat-icon-button  color="warn"><mat-icon (click)="favorite(airline, panel)">{{airline.favorited ? airline.favorited : 'location_on'}}</mat-icon></button>
+                        <span *ngIf="contains=='IN'">{{destname(airline.B)}}—</span>{{destname(airline.E)}}
+                </h5>
                 <h6 mat-line>出发:{{airport(airline.B)}}|{{airline.depart.replace('T',' ')}}</h6>
                 <h6 mat-line *ngIf="airline.stops && airline.stops!='null'" > 经停:{{airline.stops}} </h6>
                 <h6 mat-line >
@@ -242,12 +254,11 @@ const PlaceOptions = [{"key":"AUH","value":"阿布扎比"},{"key":"AMS","value":
                     </span>
                 </h6>
                 <h6 mat-line>到达:{{airport(airline.E)}}({{airline.E}})|{{airline.arrive.replace('T',' ')}}</h6>
-                <h4>{{airline.price}}</h4>
+                <h4 >{{airline.price}}</h4>
             </mat-list-item>
         </mat-expansion-panel-header>
-        <mat-list style="margin-left:30px;">
+        <mat-list style="margin-left:2rem;">
             <mat-list-item  *ngFor="let airline of airline.sublist">
-                <h5 mat-line>{{destname(airline.E)}}({{airline.end}})</h5>
                 <h6 mat-line>出发:{{airport(airline.B)}}|{{airline.depart.replace('T',' ')}}</h6>
                 <h6 mat-line *ngIf="airline.stops && airline.stops!='null'" > 经停:{{airline.stops}} </h6>
                 <h6 mat-line >
@@ -271,7 +282,15 @@ const PlaceOptions = [{"key":"AUH","value":"阿布扎比"},{"key":"AMS","value":
     </mat-expansion-panel>
 </mat-accordion>
 </mat-list>
-`
+`, styles: [
+    `:host /deep/ .mat-list-item-content{
+        padding-left: 0 !important;
+    }
+    :host /deep/ .mat-list-text{
+        padding-left: 0 !important;
+    }
+    `
+]
 })
 
 export class TicketComponent implements OnInit {
@@ -283,15 +302,19 @@ export class TicketComponent implements OnInit {
     airlines: any;
     pgNumber: number;
     subpgNumber: number;
-    constructor(public hr: HttpRequest, public imgUrl: ImageUrl, public busService: BusService, public user: User) {
+
+    constructor( public hr: HttpRequest, public imgUrl: ImageUrl, public busService: BusService, public user: User) {
+    
     }
     airport(B:string){
         return Places[B];
     }
-    favor(price, method, ticketid, airline, orderid){
-        this.hr.post('favor/post', { price: parseInt(price), method: method, to: ticketid, orderid: orderid }, result => {
-            airline.favorited = 'where_to_vote';
-        });
+    favor(msgInfo, method, airline, orderid){
+        if(msgInfo && msgInfo._result && msgInfo._result.price && airline){
+            this.hr.post('favor/post', { price: parseInt(msgInfo._result.price), method: method, to: airline.id, place: this.contains=='IN' ? airline.B : airline.E, orderid: orderid }, result => {
+                airline.favorited = 'where_to_vote';
+            });
+        }
     }
     setImageToSVG(svg){
         return svg;
@@ -357,9 +380,9 @@ export class TicketComponent implements OnInit {
             this.busService.send(msg = new DialogMessage(this, FavorDialogComponent, {qrcode:''},
                 null, 
                 null, 
-                ()=>{panel.disabled = false;panel.hideToggle = false},
+                ()=>{panel.disabled = false;panel.hideToggle = false;this.favor(msg.info, 1, airline, 1);},
             ));
-            this.qrcode(msg, (orderid)=>{this.favor(msg.info._result.price, 1, airline.id, airline, orderid);}, null);
+            //this.qrcode(msg, (orderid)=>{this.favor(msg.info._result.price, 1, airline.id, airline, orderid);}, null);
             
         }else if(airline.favorited == 'where_to_vote'){
             airline.favorited = 'location_on'
@@ -422,7 +445,6 @@ export class TicketComponent implements OnInit {
     ngOnInit() {
         this.getTicketList(0);
         this.getTicketCount();
-        console.log('TicketArriveComponent' +this.contains)
     }
     page($event) {
         this.getTicketList($event ? $event.pageIndex : 0);

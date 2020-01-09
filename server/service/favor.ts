@@ -2,59 +2,131 @@ import { V, G, E } from "../gorm/gorm";
 import { Vertex } from "../gorm/vertex";
 import { ID } from "../common/id";
 import { OK, ERR } from "../common/result";
-import { UHandler, AHandler, Handler, HandlersContainer } from "../route/handler";
+import { AHandler, HandlersContainer, AdminHandler } from "../route/handler";
 import { Edge, Edges } from "../gorm/edge";
 import { Authentication } from "../route/authentication";
-import { NUMPERPAGE, NUMPERSUBPAGE } from "../config";
+import { NUMPERPAGE } from "../config";
 import { Tickets } from "./tickets";
+import { IInternalOptions } from "../gorm/repo";
 
-const EMAILMSG = 0;
-const SMSMSG = 1;
-const FAVORDISABLE = 0;
-const FAVORENABLE = 1;
-const FAVORMSG = 2;
+enum FavorState {
+    READED = 3,
+    SUBSCRIBED = 1,
+    OFF = 0,
+    RECIEVED = 2,
+}
 
-class FavorCount extends AHandler {
-    async handle(path:string, q:any){
-        let user = Vertex.instance([q.user]);
-        if (user.length < 1) {
-            return ERR(path);    
-        }
-        const count = await user[0].exOutCount([Favors.instance.favors],
-            {
-                andWhere: q.active ? `${Favors.instance.favors.label}0.state = ${FAVORMSG}` 
-                    : `${Favors.instance.favors.label}0.state = ${FAVORENABLE}`,
-            }
-        );
-        return OK(count);
+enum FavorMethod {
+    MSG = 1,
+    EMAIL = 0,
+}
+
+class FavorValidator {
+    private data: string[] = [];
+    ticketDeparttime(){
+        this.data.push( `DATEDIFF(NOW(), date(${Tickets.instance.tickets.label}1.createtime)) <= 30 AND DATEDIFF(date(${Tickets.instance.tickets.label}1.depart), NOW()) > 3` );
+        return this;
+    }
+    greaterTicketPrice(){
+        this.data.push( `CAST(SUBSTRING(${Tickets.instance.tickets.label}1.price,4) AS SIGNED) < ${Favors.instance.favors.label}0.price ` );
+        return this;
+    }
+        
+    createtime(){
+        this.data.push( `DATEDIFF(NOW(), date(${Favors.instance.favors.label}0.createtime)) <= 30 ` );
+        return this;
+    }
+    equalPlace(place: string){
+        this.data.push( `${Favors.instance.favors.label}0.place = '${place}'` );
+        return this;
+    }
+
+    subscribed(){
+        this.data.push( `${Favors.instance.favors.label}0.state = ${FavorState.SUBSCRIBED}` );
+        return this;
+    }
+
+    received(){
+        this.data.push( `${Favors.instance.favors.label}0.state = ${FavorState.RECIEVED}` );
+        return this;
+    }
+
+    readed(){
+        this.data.push( `${Favors.instance.favors.label}0.state = ${FavorState.READED}` );
+        return this;
+    }
+    
+    join(op: string){
+        let e = this.data.join(' '+op+' ');
+        this.data = ['('+ e+')'];
+        return this;
+    }
+    complete(op: string = ''){
+        return this.data.join(' '+op+' ');
+    }
+}
+class InternalOptions {
+    private opts :IInternalOptions = {replace:null};
+    replace(internalVertexName: string, to: string){
+        !this.opts.replace &&( this.opts.replace = {});
+        !this.opts.replace[internalVertexName] && (this.opts.replace[internalVertexName] = to);
+        return this;
+    }
+    addVerties(internalVertexName: string, externalVertexName: string, props: string[]){
+        let vs = props.reduce((p,v) => {p[internalVertexName+'_'+v] = {on:externalVertexName,prop:v}; return p;}, {});
+        this.opts.verties = {...this.opts.verties, ...vs};
+        return this;
+    }
+    needLeftVertex(){
+        this.opts['needLeftVertex'] = true;
+        return this;
+    }
+    complete(){
+        return this.opts;
     }
 }
 
-class FavorActive extends AHandler {
+
+
+
+class FavorCancel extends AHandler {
     async handle(path:string, q:any){
-        if(!q.favorid || !q.E) {
+        if(!q.favorid || !q.place) {
             return ERR(path);    
         }
         let favor = await Favors.instance.favors.find({id: q.favorid})
         if (favor.length < 1) {
             return ERR(path);
         }
-        if(favor[0].state == FAVORENABLE){
-            let user = Vertex.instance([q.user]);
-            if (user.length < 1) {
-                return ERR(path);    
+        let user = Vertex.instance([q.user]);
+        if (user.length < 1) {
+            return ERR(path);    
+        }
+        let list = await user[0].exOut([Favors.instance.favors],
+            {
+                andWhere: new FavorValidator().equalPlace(q.place).complete()
             }
-            let list = await user[0].exOut([Favors.instance.favors, Tickets.instance.tickets],
-                {
-                    andWhere: `'${q.E}' = ${Tickets.instance.tickets.label}1.E`,
-                }
-            );
-            let result = list.reduce((p:any[],c)=>{p.push(c['favors_0']); return p}, []);
-            let edges = new Edges(Favors.instance.favors);
-            edges.push(...Edge.instance(result));
-            await edges.drops();
-        }else {
-            await favor[0].remove();
+        );
+        let result = list.reduce((p:any[],c)=>{p.push(c['favors_0']); return p}, []);
+        let edges = new Edges(Favors.instance.favors);
+        edges.push(...Edge.instance(result));
+        await edges.drops();
+        
+        return OK(path);
+    }
+}
+class FavorRead extends AHandler {
+    async handle(path:string, q:any){
+        if(!q.favorid || !q.place) {
+            return ERR(path);    
+        }
+        let favor = await Favors.instance.favors.find({id: q.favorid})
+        if (favor.length < 1) {
+            return ERR(path);
+        }
+        let result = await Favors.instance.favors.add({ id: favor[0].id, state:FavorState.READED, updatetime: ID.now});
+        if (!result.id) {
+            return ERR(path);
         }
         
         return OK(path);
@@ -63,7 +135,54 @@ class FavorActive extends AHandler {
 
 class FavorList extends AHandler {
     async handle(path:string, q:any){
-        if (q.active && !q.E) {
+
+        let user = Vertex.instance([q.user]);
+        if (user.length < 1) {
+            return ERR(path);    
+        }
+
+        let list = await user[0].exOut([Favors.instance.favors],
+            {
+                addSelect: ["count(*)", "count_n"],
+                andWhere: !q.place ? new FavorValidator().createtime().subscribed().complete('AND') : new FavorValidator().createtime().subscribed().equalPlace(q.place).complete('AND'),
+                offset:NUMPERPAGE*q.page,
+                limit:NUMPERPAGE,
+                groupBy: [Favors.instance.favors.label+"0.place"],
+                orderBy:[Favors.instance.favors.label+"0.createtime", "ASC"],
+                __InternalOptions: new InternalOptions().addVerties('count','count',['n']).complete()
+            }
+        );
+
+        return OK(list);
+    }
+}
+
+class FavorCount extends AHandler {
+    async handle(path:string, q:any){
+        let where = '';
+        if(q.state == 'received'){
+            where = new FavorValidator().createtime().received().complete('AND')
+        }else {
+            where = new FavorValidator().createtime().subscribed().complete('AND')
+        }
+        let user = Vertex.instance([q.user]);
+        if (user.length < 1) {
+            return ERR(path);    
+        }
+        
+
+        const count = await user[0].exOutCount([Favors.instance.favors],
+            {
+                andWhere: where
+            }
+        );
+        return OK(count);
+    }
+}
+
+class FavorSublist extends AHandler {
+    async handle(path:string, q:any){
+        if (!q.place ) {
             return ERR(path);
         }
         let user = Vertex.instance([q.user]);
@@ -72,25 +191,43 @@ class FavorList extends AHandler {
         }
         let list = await user[0].exOut([Favors.instance.favors, Tickets.instance.tickets],
             {
-                andWhere: q.active ? `${Favors.instance.favors.label}0.state = ${FAVORMSG} AND '${q.E}' = ${Tickets.instance.tickets.label}1.E` 
-                    : `${Favors.instance.favors.label}0.state = ${FAVORENABLE}`,
+                andWhere:  new FavorValidator().createtime().received().equalPlace(q.place).complete('AND'),
                 offset:NUMPERPAGE*q.page,
                 limit:NUMPERPAGE,
-                orderBy:[Tickets.instance.tickets.label+"1.depart", "ASC"],
-                replacement:{
-                    target:[Favors.instance.favors, Tickets.instance.tickets],
-                    replace:[Favors.instance.favors.label, 'tickets']
-                }
+                orderBy:[Tickets.instance.tickets.label+"0.depart", "ASC"],
+                __InternalOptions: new InternalOptions().replace(Tickets.instance.tickets.label+'0', 'tickets').complete()
             }
         );
         return OK(list);
     }
 }
-
+class FavorSubcount extends AHandler {
+    async handle(path:string, q:any){
+        if (!q.place ) {
+            return ERR(path);
+        }
+        let where = '';
+        if(q.state == 'received'){
+            where = new FavorValidator().createtime().received().equalPlace(q.place).complete('AND')
+        }else {
+            where = new FavorValidator().readed().received().join('OR').createtime().equalPlace(q.place).complete('AND')
+        }
+        let user = Vertex.instance([q.user]);
+        if (user.length < 1) {
+            return ERR(path);    
+        }
+        const count = await user[0].exOutCount([Favors.instance.favors],
+            {
+                andWhere: where
+            }
+        );
+        return OK(count);
+    }
+}
 
 class FavorPost extends AHandler {
-    async handle(path:string, q:any){
-        if (!q.price || (q.method != SMSMSG && q.method != EMAILMSG) || !q.to ) {
+    async handle(path:string, q:any){ 
+        if (!q.price || (q.method != FavorMethod.EMAIL && q.method != FavorMethod.MSG) || !q.to || !q.place ) {
             return ERR(path);
         }
         let user = Vertex.instance([q.user])[0];
@@ -99,9 +236,9 @@ class FavorPost extends AHandler {
         if (to.length < 1) {
             return ERR(path);
         }
-        let list = await user.exOut([Favors.instance.favors, Tickets.instance.tickets],
+        let list = await user.exOut([Favors.instance.favors],
             {
-                andWhere: `${Tickets.instance.tickets.label}1.E = '${to[0].E}'`,
+                andWhere: new FavorValidator().equalPlace(q.place).createtime().complete('AND'),
             }
         );
         if(list.length > 0){
@@ -109,7 +246,7 @@ class FavorPost extends AHandler {
         }
 
         /////////////////////////////////////////////////////////////
-        let favor = await Favors.instance.favors.add({price:q.price, method:q.method, state:FAVORENABLE, createtime: now, updatetime: now});
+        let favor = await Favors.instance.favors.add({price:q.price, method:q.method, state:FavorState.SUBSCRIBED, place:q.place, createtime: now, updatetime: now});
         if (!favor.id) {
             return ERR(path);
         }
@@ -117,37 +254,34 @@ class FavorPost extends AHandler {
         return OK(path);
     }
 }
-class FavorClear extends AHandler {
+class FavorClear extends AdminHandler {
     async handle(path:string, q:any){
-        let opt = {
-            andWhere: `${Favors.instance.favors.label}1.state = ${FAVORMSG} `
-        };
-        const favors = await Authentication.instance.users.exOut([Favors.instance.favors, Tickets.instance.tickets],
-                opt
+        const favors = await Authentication.instance.users.exOut([Favors.instance.favors],
+                {
+                    andWhere: `${Favors.instance.favors.label}0.state = ${FavorState.RECIEVED} `
+                }
             );
-        let result = favors.reduce((p:any[],c)=>{p.push(c['favors_1']); return p}, []);
+        let result = favors.reduce((p:any[],c)=>{p.push(c['favors_0']); return p}, []);
         let edges = new Edges(Favors.instance.favors);
         edges.push(...Edge.instance(result));
         await edges.drops();
         return OK(path);
     }
 }
-export class FavorNotify extends AHandler {
+export class FavorNotify extends AdminHandler {
     async handle(path:string, q:any){
         let opt = {
             leftJoinAndSelect: [
                 `${Tickets.instance.tickets.label}`,
-                `${Tickets.instance.tickets.label}3`,
-                `${Tickets.instance.tickets.label}2.E = ${Tickets.instance.tickets.label}3.E`,
+                `${Tickets.instance.tickets.label}1`,
+                `${Tickets.instance.tickets.label}1.E = ${Favors.instance.favors.label}0.place OR ${Tickets.instance.tickets.label}1.B = ${Favors.instance.favors.label}0.place`,
             ],
-            andWhere: `DATEDIFF(NOW(), date(${Favors.instance.favors.label}1.createtime)) >= 0 AND DATEDIFF(NOW(), date(${Favors.instance.favors.label}1.createtime)) <= 30 AND ${Favors.instance.favors.label}1.state = ${FAVORENABLE}
-                AND DATEDIFF(NOW(), date(${Tickets.instance.tickets.label}2.createtime)) >= 0 AND DATEDIFF(NOW(), date(${Tickets.instance.tickets.label}2.createtime)) <= 30
-                AND CAST(SUBSTRING(${Tickets.instance.tickets.label}3.price,4) AS SIGNED) < ${Favors.instance.favors.label}1.price 
-                AND DATEDIFF(date(${Tickets.instance.tickets.label}3.depart), NOW()) > 0`,
-            replacement:{
-                target:[Authentication.instance.users, Favors.instance.favors, Tickets.instance.tickets, Tickets.instance.tickets],
-                replace:[Authentication.instance.users.label, Favors.instance.favors.label, '$tickets', 'tickets']
-            }
+            andWhere: new FavorValidator().createtime().ticketDeparttime().greaterTicketPrice().subscribed().complete('AND'),
+            __InternalOptions: new InternalOptions()
+                            .needLeftVertex()
+                            .addVerties(Tickets.instance.tickets.label+'1', 'tickets', Tickets.instance.tickets.columns())
+                            .replace(Tickets.instance.tickets.label+'0', '$tickets')
+                            .complete()
         };
         const favors = await Authentication.instance.users.exOut([Favors.instance.favors, Tickets.instance.tickets],
                 opt
@@ -157,9 +291,9 @@ export class FavorNotify extends AHandler {
         }
         let now = ID.now;
         let result = favors.reduce((p,c,i) => { 
-            const { id, ...f } = c.favors_1;
-            p.edges[i] = {...f, ...{state:FAVORMSG, createtime: now, updatetime: now}}; 
-            p.from[i] = c.users_0; p.to[i] = c.tickets_3;
+            const { id, ...f } = c.favors_0;
+            p.edges[i] = {...f, ...{state:FavorState.RECIEVED, createtime: now, updatetime: now}}; 
+            p.from[i] = c.users_0; p.to[i] = c.tickets;
             return p;
         }, {edges:[], from:[], to:[]});
         let edges = new Edges(Favors.instance.favors);
@@ -184,7 +318,14 @@ export class Favors  extends HandlersContainer  {
                 type: G.NUMBER,
             },
             state:{
-                type: G.NUMBER, //0: cancel, 1: to be favor, 2: to be removed, 
+                type: G.NUMBER, //0: off, 1: on, 2: sublist, 
+            },
+            place: {
+                type: G.STRING,
+                len: 8
+            },
+            ticketid: {
+                type: G.NUMBER,
             },
             createtime: {
                 type: G.STRING,
@@ -196,11 +337,14 @@ export class Favors  extends HandlersContainer  {
             },
         });
         this.addHandler(new FavorCount());
+        this.addHandler(new FavorSubcount());
         this.addHandler(new FavorList())
+        this.addHandler(new FavorSublist());
         this.addHandler(new FavorPost());
-        this.addHandler(new FavorActive());
+        this.addHandler(new FavorCancel());
         this.addHandler(new FavorNotify());
         this.addHandler(new FavorClear());
+        this.addHandler(new FavorRead());
     }
     public async routers(){
         await this.setup();

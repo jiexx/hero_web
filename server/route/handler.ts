@@ -86,4 +86,11 @@ export abstract class SHandler extends Handler {
         return new Router(path, this, 3, true, false, true);
     }
 };
+export abstract class AdminHandler extends Handler {
+    abstract async handle(path:string, q:any);
+
+    protected createRouter(path: string){
+        return new Router(path, this, 5, true, false, true);
+    }
+};
 
