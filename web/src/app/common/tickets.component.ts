@@ -380,9 +380,9 @@ export class TicketComponent implements OnInit {
             this.busService.send(msg = new DialogMessage(this, FavorDialogComponent, {qrcode:''},
                 null, 
                 null, 
-                ()=>{panel.disabled = false;panel.hideToggle = false;this.favor(msg.info, 1, airline, 1);},
+                ()=>{panel.disabled = false;panel.hideToggle = false;/* this.favor(msg.info, 1, airline, 1); */},
             ));
-            //this.qrcode(msg, (orderid)=>{this.favor(msg.info._result.price, 1, airline.id, airline, orderid);}, null);
+            this.qrcode(msg, (orderid)=>{this.favor(msg.info, 1, airline, orderid);}, null);
             
         }else if(airline.favorited == 'where_to_vote'){
             airline.favorited = 'location_on'
