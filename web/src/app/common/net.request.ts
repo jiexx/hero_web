@@ -1,7 +1,6 @@
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { ConfigService } from "./net.config";
 import { Injectable } from "@angular/core";
-import { tap } from "rxjs/operators";
 
 
 @Injectable()

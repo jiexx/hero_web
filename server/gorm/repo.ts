@@ -401,10 +401,14 @@ class JoinIterator {
         return qb.leftJoinAndSelect(node.label, this._nodeAlias(node), this.x1il_equal_x2(node, this.n_p, x_n_p) );
     }
     to_n_p_equal_n_p(node: Model){
-        return this.x1i_equal_x2(node, this.n_p, this.to_n_p)
+        return this.x1i_equal_x2(node, this.n_p, this.to_n_p)  
     }
     from_n_p_equal_n_p(node: Model){
-        return this.x1i_equal_x2(node, this.n_p, this.from_n_p)
+        return this.x1i_equal_x2(node, this.n_p, this.from_n_p)  
+    }
+
+    n_equal_n_id(node: Model){
+        return node.id && node.id > -1 ? ` AND ${this.n_p(node, 'id')} = ${this._nodeAlias(node)}.id ` : '';
     }
 
     /* V0  E...   V    E...   V
@@ -428,22 +432,23 @@ class JoinIterator {
         let q  = qb;
         if(this._count == 0) {
             this._where = this.to_n_p_equal_n_p(v);
-            es.forEach(e => this._where += ' AND ' + this.to_n_p_equal_n_p(e));
+            es.forEach(e => this._where += ' AND ' + this.to_n_p_equal_n_p(e) + this.n_equal_n_id(e));
             if(this._needV0){
                 q = this.joinModel(v, q, this.to_n_p);
+                this._where += this.n_equal_n_id(v);
             }
 
             q = es.reduce((p,e)=>this.joinModel(e, p), q);
             this._count ++;
         }else if(this._count == 1) {
-            this._where += ' AND ' +  this.from_n_p_equal_n_p(v);
+            this._where += ' AND ' +  this.from_n_p_equal_n_p(v) + this.n_equal_n_id(v);
             q = this.joinModel(v, q);
 
             this._count ++;
             this.step();
         }else{
-            this._where += ' AND ' +  this.from_n_p_equal_n_p(v);
-            es.forEach(e => this._where += ' AND ' + this.from_n_p_equal_n_p(e));
+            this._where += ' AND ' +  this.from_n_p_equal_n_p(v) + this.n_equal_n_id(v);
+            es.forEach(e => this._where += ' AND ' + this.from_n_p_equal_n_p(e) + this.n_equal_n_id(e));
 
             q = this.joinPrev(q);
             q = this.joinModel(v, q);

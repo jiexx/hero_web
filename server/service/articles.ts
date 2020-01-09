@@ -133,12 +133,21 @@ class ArticleRemove extends AdminHandler {
         if (!q.articleid) {
             return ERR(path);
         }
+        let root = await Articles.instance.articles.find({id: 1});
+        if (root.length < 1) {
+            return ERR(path);    
+        }
+        
         let article = await Articles.instance.articles.find({id: q.articleid})
         if (article.length < 1) {
             return ERR(path);
         }
+        let head = await root[0].exIn([Articles.instance.comment,article[0]]);
         let v = [], e = [];
         let ev = [];
+        if(head.length==1){
+            e.push(head[0][Articles.instance.comment.label+'_0']);
+        }
         for(let i = 0 ; i < 4 ; i ++ ){
             ev.push(Articles.instance.comment);
             ev.push(Articles.instance.articles);
