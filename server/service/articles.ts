@@ -143,7 +143,7 @@ class ArticleRemove extends AdminHandler {
             return ERR(path);
         }
         let head = await root[0].exIn([Articles.instance.comment,article[0]]);
-        let v = [], e = [];
+        let v = [], e = [], ep = [];
         let ev = [];
         if(head.length==1){
             e.push(head[0][Articles.instance.comment.label+'_0']);
@@ -154,16 +154,28 @@ class ArticleRemove extends AdminHandler {
             let r = await article[0].exIn(ev);
             r.forEach(a => Object.keys(a).forEach((name:string) => name.includes(Articles.instance.comment.label)? e.push(a[name]) : v.push(a[name])));
         }
-
-        e = e.filter((val,i) =>{ return e.findIndex(value=>value.id == val.id) == i });
-        let edges = new Edges(Articles.instance.comment);
-        edges.push(...Edge.instance(e) );
-        await edges.drops();
-
         v = v.filter((val,i) =>{ return v.findIndex(value=>value.id == val.id) == i });
         v.push(article[0]);
+        v = Vertex.instance(v);
+
+        for(let vi = 0 ; vi < v.length ; vi ++ ){
+            let r = await Authentication.instance.users.exOut([Articles.instance.post, v[vi]]);
+            r.forEach(a => Object.keys(a).forEach((name:string) => name.includes(Articles.instance.post.label)? ep.push(a[name]) : null));
+        }
+        ep = Edge.instance(ep);
+        ep = ep.filter((val,i) =>{ return ep.findIndex(value=>value.id == val.id) == i });
+        let epost = new Edges(Articles.instance.post);
+        epost.push(...ep );
+        await epost.drops();
+
+        e = Edge.instance(e);
+        e = e.filter((val,i) =>{ return e.findIndex(value=>value.id == val.id) == i });
+        let edges = new Edges(Articles.instance.comment);
+        edges.push(...e );
+        await edges.drops();
+
         let vertices = new Vertices(Articles.instance.comment);
-        vertices.push(...Vertex.instance(v) );
+        vertices.push(...v );
         await vertices.drops();
 
         return OK(path);
