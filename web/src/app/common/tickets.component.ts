@@ -405,14 +405,14 @@ export class TicketComponent implements OnInit {
     }
     getSubTicketList(airline, pg: number, opened: boolean = false){
         if(!opened) {
-            this.hr.post('ticket/sublist', { page: pg, end: airline.E, note: this.arrives, contains:this.contains, eqe: this.filter1.input, stops:this.filter2.input }, result => {
+            this.hr.post('ticket/sublist', { page: pg, end: airline.E, begin:airline.B, note: this.arrives, contains:this.contains, eqe: this.filter1.input, stops:this.filter2.input }, result => {
                 airline['sublist'] = result.data;
             });
         } 
     }
     getSubTicketCount(airline, opened: boolean = false){
         if(!opened) {
-            this.hr.post('ticket/subcount', { end: airline.E, note: this.arrives, contains:this.contains, eqe: this.filter1.input, stops:this.filter2.input }, result => {
+            this.hr.post('ticket/subcount', { end: airline.E, begin:airline.B, note: this.arrives, contains:this.contains, eqe: this.filter1.input, stops:this.filter2.input }, result => {
                 this.subpgNumber = parseInt(result.data);
             });
         }

@@ -10,8 +10,9 @@ class TicketCount extends AHandler {
         if(!q.note && Object.prototype.toString.call(q.note) != '[object Array]'){
             return ERR(path);
         }
+        const depart = (q.contains || 'NOT IN') == 'NOT IN' ? 'count(distinct E)': 'count(distinct B)'
         const tickets = await Tickets.instance.tickets.repo.repository.createQueryBuilder(Tickets.instance.tickets.label)
-            .select("count(distinct E)", "count")
+            .select(depart, "count")
             .where("DATEDIFF(date(depart), NOW()) > 0 AND DATEDIFF(NOW(), date(createtime)) <= 30 ");
         const result =  Tickets.instance.filter(tickets, q, -100);
 
@@ -43,7 +44,7 @@ class TicketSublist extends AHandler {
         
         const tickets = await Tickets.instance.tickets.repo.repository.createQueryBuilder(Tickets.instance.tickets.label)
             .where("DATEDIFF(date(depart), NOW()) > 0 AND DATEDIFF(NOW(), date(createtime)) <= 30 ");
-        const result = await Tickets.instance.filter(tickets, q)
+        const result = await Tickets.instance.filter(tickets, q, -100)
             .orderBy("CAST(SUBSTRING(price,4) AS SIGNED)", "ASC")
             .limit(NUMPERSUBPAGE)
             .offset( q.page*NUMPERSUBPAGE)
