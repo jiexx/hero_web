@@ -13,9 +13,10 @@ class TicketCount extends AHandler {
         const tickets = await Tickets.instance.tickets.repo.repository.createQueryBuilder(Tickets.instance.tickets.label)
             .select("count(distinct E)", "count")
             .where("DATEDIFF(date(depart), NOW()) > 0 AND DATEDIFF(NOW(), date(createtime)) <= 30 ");
-        const result = await Tickets.instance.filter(tickets, q)
-            .getRawOne();
-        return OK(result.count);
+        const result =  Tickets.instance.filter(tickets, q, -100);
+
+        const r = await result.getRawOne();
+        return OK(r.count);
     }
 }
 
@@ -27,7 +28,7 @@ class TicketSubcount extends AHandler {
         const tickets = await Tickets.instance.tickets.repo.repository.createQueryBuilder(Tickets.instance.tickets.label)
             .select("count(*)", "count")
             .where("DATEDIFF(date(depart), NOW()) > 0 AND DATEDIFF(NOW(), date(createtime)) <= 30 ");
-        const result = await Tickets.instance.filter(tickets, q)
+        const result = await Tickets.instance.filter(tickets, q, -100)
             .getRawOne();
         return OK(result.count);
     }
@@ -93,7 +94,7 @@ export class Tickets extends HandlersContainer {
         };
         return Object.keys(j).reduce((p, c) => { p[c] = {type: G.STRING}; return p}, {createtime:{type: G.STRING}, batch:{type: G.NUMBER}})
     }
-    filter(tickets: any, q: any){
+    filter(tickets: any, q: any, opt: number){
         if(q.end && (q.contains || 'NOT IN') == 'NOT IN'){
             tickets.andWhere(" E = '"+q.end+"'");
         }else if(q.begin && (q.contains || 'NOT IN') == 'IN'){
@@ -102,10 +103,14 @@ export class Tickets extends HandlersContainer {
             
             if((q.contains || 'NOT IN') == 'NOT IN') {
                 tickets.andWhere(" E NOT IN (" + q.note.map(e=>"'"+e+"'") + ")" );
-                tickets.addGroupBy('E')
+                if(opt != -100){
+                    tickets.addGroupBy('E')
+                }
             }else {
                 tickets.andWhere(" B NOT IN (" + q.note.map(e=>"'"+e+"'") + ")" );
-                tickets.addGroupBy('B')
+                if(opt != -100){
+                    tickets.addGroupBy('B')
+                }
             }
         }
         
