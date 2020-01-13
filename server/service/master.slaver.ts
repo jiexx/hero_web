@@ -215,7 +215,7 @@ class MasterRestoreTickets extends MHandler {
             method: 'POST', 
             url: `${MS.SLAVER.ADDR}/slaver/tickets`,
             gzip: true,
-            timeout:180000,
+            timeout:300000,
             headers: {
                 'Accept-Encoding': 'gzip',
                 'Authorization': `Bearer ${Authentication.instance._sign(MS.SLAVER.SIGNATURE)}`,
@@ -286,7 +286,8 @@ export class SlaverStartTasks extends SHandler {
                 headers: {
                     'Accept-Encoding': 'gzip',
                     'Authorization': `Bearer ${Authentication.instance._sign(MS.MASTER.SIGNATURE)}`,
-                }
+                },
+                timeout:300000,
             },(a, b,c )=>{
                 let counter = ID.passBatchCounter();
                 Log.info('batch pass '+ counter, a);
