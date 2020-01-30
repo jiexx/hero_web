@@ -114,6 +114,10 @@ export class Tickets extends HandlersContainer {
                 }
             }
         }
+
+        if(!!q.eqe && q.eqe.length > 0) {
+            tickets.andWhere("E IN ('"+q.eqe.join("','")+"') ");
+        }
         
         switch(q.stops){ 
             case 'X':

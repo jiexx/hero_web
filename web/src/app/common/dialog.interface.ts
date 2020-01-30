@@ -1,6 +1,6 @@
 ﻿import { Component, OnInit } from '@angular/core';
 import { BusService } from 'app/common/dcl.bus.service';
-import { MatDialogRef, MatDialog } from '@angular/material';
+import { MatDialogRef, MatDialog } from '@angular/material/dialog';
 import { DialogMessage } from './dcl.dialog.message';
 
 

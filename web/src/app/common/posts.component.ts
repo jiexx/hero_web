@@ -78,6 +78,7 @@ export class PostComponent implements OnInit {
             }
 
             this.hr.post('article/list', { page: 0 }, result => {
+                console.log(result)
                 this.articles['list'] = result.data;
             });
             

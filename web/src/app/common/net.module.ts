@@ -7,7 +7,7 @@ import { ImageUrl } from "./net.image";
 import { JwtInterceptor } from "./net.interceptor.jwt";
 import { ErrorInterceptor } from "./net.interceptor.error";
 import { User } from "./net.user";
-import { MatPaginatorIntl } from "@angular/material";
+import { MatPaginatorIntl } from "@angular/material/paginator";
 import { ConfPaginator } from "./conf.paginator";
 
 

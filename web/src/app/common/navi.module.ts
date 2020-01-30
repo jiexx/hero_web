@@ -1,7 +1,11 @@
 import { NgModule } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { Routes, RouterModule } from "@angular/router";
-import { MatButtonModule, MatMenuModule, MatBadgeModule, MatIconModule, MatToolbarModule } from "@angular/material";
+import { MatButtonModule } from "@angular/material/button";
+import { MatMenuModule } from "@angular/material/menu";
+import { MatBadgeModule } from "@angular/material/badge";
+import { MatIconModule } from "@angular/material/icon";
+import { MatToolbarModule } from "@angular/material/toolbar";
 import { NetModule } from "./net.module";
 import { NaviComponent } from "./navi.component";
 

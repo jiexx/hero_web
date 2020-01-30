@@ -3,7 +3,7 @@ import { CommonModule } from "@angular/common";
 import { Routes, RouterModule } from "@angular/router";
 import { ImageComponent } from "./image.component";
 import { NetModule } from "./net.module";
-import { MatIconModule } from "@angular/material";
+import { MatIconModule } from "@angular/material/icon";
 
 const routes: Routes = [
     {

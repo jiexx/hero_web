@@ -6,6 +6,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
 import { LayoutModule } from './layout/layout.module';
 import { BusService } from './common/dcl.bus.service';
+import { ServiceWorkerModule } from '@angular/service-worker';
+import { environment } from '../environments/environment';
 
 @NgModule({
     imports:[
@@ -14,6 +16,7 @@ import { BusService } from './common/dcl.bus.service';
         BrowserAnimationsModule,
         HttpClientModule,
         LayoutModule,
+        ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production }),
     ],
     declarations: [
         AppComponent,
