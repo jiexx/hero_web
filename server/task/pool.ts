@@ -116,10 +116,11 @@ export class Pool {
     }
     async push(req:Query, result:any, indexTemplate:number){
         let template = this._templates[indexTemplate];
-        let data = JSON.parse(result);
+        
         // let js1 = new JSelector(template.curr);
         // let js2 = new JSelector(template.next);
         try {
+            let data = JSON.parse(result);
             let curr = template.parseCurrPage(data);
             let next = template.parseNextPage(data);
             if(data && data.error) {
