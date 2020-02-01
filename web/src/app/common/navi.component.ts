@@ -11,6 +11,9 @@ import { Location } from "@angular/common";
     <mat-toolbar-row>
         <h3>{{title}}</h3>
         <div style="flex: 1 1 auto;"></div>
+        <button mat-icon-button [routerLink]="['/post']">
+            <mat-icon  color="warn" >person_pin_circle</mat-icon>
+        </button>
         <button mat-icon-button [matMenuTriggerFor]="menu">
             <mat-icon matBadge="{{favorited+unread}}" matBadgeColor="warn" *ngIf="favorited+unread > 0" style="color:gray">notifications</mat-icon>
             <mat-icon *ngIf="favorited+unread == 0" style="color:gray" >notifications</mat-icon>
@@ -24,9 +27,7 @@ import { Location } from "@angular/common";
                 <span  matBadge="{{unread}}" matBadgeColor="warn" *ngIf="unread>0">朋友的消息</span>
                 <span  *ngIf="unread==0">朋友的消息</span>
             </button>
-            <button mat-menu-item [routerLink]="['/post']">
-                <span><mat-icon  style="color:gray" >person_pin_circle</mat-icon>互助接机</span>
-            </button>
+            
         </mat-menu>
         <button mat-icon-button [routerLink]="['/profile']"  ><img style="width: 1.5rem; height: 1.5rem; border-radius: 50%" src="{{avatar}}"></button>
     </mat-toolbar-row>
