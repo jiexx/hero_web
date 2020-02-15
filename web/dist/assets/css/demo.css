@@ -33,7 +33,16 @@ p, .p {
     font-size: 14px !important;
     white-space: nowrap;
     font-weight: 300 !important;
-    
+}
+.mat-list-text{
+    padding-left: 0 !important;
+}
+.wrap {
+    word-wrap: break-word !important;
+    white-space: pre-wrap !important;
+}
+mat-list-item{
+    height:auto !important;
 }
 
 .mat-icon-button.xlarge .mat-icon {

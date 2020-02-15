@@ -9,10 +9,13 @@ import { Location } from "@angular/common";
     template:
 `<mat-toolbar  layout="row" >
     <mat-toolbar-row>
-        <h3>{{title}}</h3>
+        <!--h3>{{title}}</h3-->
+        <button mat-icon-button [routerLink]="['/tickets']">
+            <mat-icon  color="warn" >person_pin_circle</mat-icon>
+        </button>
         <div style="flex: 1 1 auto;"></div>
         <button mat-icon-button [routerLink]="['/post']">
-            <mat-icon  color="warn" >person_pin_circle</mat-icon>
+            <mat-icon  color="warn" >not_listed_location</mat-icon>
         </button>
         <button mat-icon-button [matMenuTriggerFor]="menu">
             <mat-icon matBadge="{{favorited+unread}}" matBadgeColor="warn" *ngIf="favorited+unread > 0" style="color:gray">notifications</mat-icon>

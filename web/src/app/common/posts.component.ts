@@ -22,11 +22,11 @@ import { User } from "./net.user";
                         <mat-icon   *ngIf="user.admin && article.users_1.permit != 0" color="warn" (click)="block(article)">check_circle_outline</mat-icon>
                     </div>
                     <h5 mat-line *ngIf="level==0"><button  mat-icon-button *ngIf="user.admin" color="warn"><mat-icon  (click)="remove(article, articles, i)">cancel</mat-icon></button>{{article.articles_0.title}}</h5>
-                    <h6 mat-line *ngIf="level!=0">{{article.articles_0.content}}</h6>
-                    <h6 mat-line>{{article && article.users_1 && article.users_1.name ? article.users_1.name : ''}}发表于{{article.articles_0.createtime}}</h6>
+                    <h6 mat-line *ngIf="level!=0" class="wrap">{{article.articles_0.content}}</h6>
+                    <h6 mat-line style="font-size: 0.4rem !important;">{{article && article.users_1 && article.users_1.name ? article.users_1.name : ''}}发表于{{article.articles_0.createtime}}</h6>
                 </mat-list-item>
             </mat-expansion-panel-header>
-            <h6 *ngIf="level==0">{{article.articles_0.content}}</h6>
+            <h6 *ngIf="level==0" class="wrap">{{article.articles_0.content}}</h6>
             <mat-form-field *ngIf="user.logined() && level <= 3">
                 <textarea matInput class="h6" placeholder="回复内容" [(ngModel)]="content"></textarea>
                 <button mat-icon-button class="small" matSuffix color="warn" (click)="comment(article)"><mat-icon>where_to_vote</mat-icon></button>
