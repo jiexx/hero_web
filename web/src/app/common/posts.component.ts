@@ -57,6 +57,17 @@ div.mat-list-icon *{
     width:1rem;
     height:1rem;
 }
+
+:host /deep/ .mat-expansion-indicator {
+    margin-right: 10px;
+}
+:host /deep/ .mat-expansion-panel-body {
+    padding-right: 0; 
+    padding-left: 10px;
+}
+mat-expansion-panel-header {
+    padding-right: 0;
+}
 :host /deep/ .mat-list-item-content{
     padding-left: 0 !important;
 }`
