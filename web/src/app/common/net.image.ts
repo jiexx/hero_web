@@ -110,4 +110,7 @@ export class ImageUrl {
         this.assets = new AssetUrl(config, sanitizer);
         this.media = new MediaUrl(config, sanitizer);
     }
+    safeHtml(html: string){
+        return this.sanitizer.bypassSecurityTrustHtml(html);
+    }
 }

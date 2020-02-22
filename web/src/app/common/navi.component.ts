@@ -42,7 +42,12 @@ import { Location } from "@angular/common";
     styles:[
 `.mat-toolbar-row{
     height: 40px;
-}`
+}
+.mat-toolbar-multiple-rows {
+    min-height: auto; 
+}
+`
+
     ]
 })
 

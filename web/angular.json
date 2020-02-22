@@ -11,6 +11,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
+            "aot": true,
             "outputPath": "dist",
             "index": "src/index.html",
             "main": "src/main.ts",
@@ -18,15 +19,15 @@
             "polyfills": "src/polyfills.ts",
             "assets": [
               "src/assets",
-              "src/assets/favicon.ico"
+              "src/assets/favicon.ico",
+              "src/manifest.webmanifest"
             ],
             "styles": [
               "node_modules/perfect-scrollbar/css/perfect-scrollbar.css",
               "src/assets/css/demo.css"
             ],
             "scripts": [
-              "node_modules/popper.js/dist/umd/popper.js",
-              "node_modules/perfect-scrollbar/dist/perfect-scrollbar.min.js"
+              "node_modules/popper.js/dist/umd/popper.js"
             ]
           },
           "configurations": {
@@ -46,7 +47,9 @@
                   "replace": "src/environments/environment.ts",
                   "with": "src/environments/environment.prod.ts"
                 }
-              ]
+              ],
+              "serviceWorker": true,
+              "ngswConfigPath": "ngsw-config.json"
             }
           }
         },
@@ -77,7 +80,7 @@
             "scripts": [
               "node_modules/jquery/dist/jquery.js",
               "node_modules/popper.js/dist/umd/popper.js",
-              "node_modules/perfect-scrollbar/dist/perfect-scrollbar.min.js",
+              "node_modules/perfect-scrollbar/dist/perfect-scrollbar.min.js"
             ],
             "styles": [
               "node_modules/perfect-scrollbar/css/perfect-scrollbar.css",
@@ -85,7 +88,8 @@
             ],
             "assets": [
               "src/assets",
-              "src/favicon.ico"
+              "src/favicon.ico",
+              "src/manifest.webmanifest"
             ]
           }
         },

@@ -16,17 +16,17 @@ import { User } from "./net.user";
             <mat-expansion-panel-header [collapsedHeight]="'auto'" [expandedHeight]="'auto'">
                 <mat-list-item>
                     <img mat-list-icon  src="{{ article && article.users_1 && imgUrl.media.imgLink(article.users_1.avatar,'media/img/marc.jpg') }}" (click)="sendMessage(article.users_1, panel)">
-                    <div mat-list-icon>
+                    <div mat-list-icon >
                         <mat-icon  color="warn" [style.visibility]="article.users_1.cars && article.users_1.cars.length>3? 'show': 'hidden'">person_pin</mat-icon>
                         <mat-icon  *ngIf="user.admin && article.users_1.permit == 0" color="warn" (click)="block(article)">block</mat-icon>
-                        <mat-icon   *ngIf="user.admin && article.users_1.permit != 0" color="warn" (click)="block(article)">check_circle_outline</mat-icon>
+                        <mat-icon  *ngIf="user.admin && article.users_1.permit != 0" color="warn" (click)="block(article)">check_circle_outline</mat-icon>
                     </div>
                     <h5 mat-line *ngIf="level==0"><button  mat-icon-button *ngIf="user.admin" color="warn"><mat-icon  (click)="remove(article, articles, i)">cancel</mat-icon></button>{{article.articles_0.title}}</h5>
-                    <h6 mat-line *ngIf="level!=0" class="wrap">{{article.articles_0.content}}</h6>
+                    <h6 mat-line *ngIf="level!=0" class="wrap" [innerHTML]="imgUrl.safeHtml(article.articles_0.content)"> </h6>
                     <h6 mat-line style="font-size: 0.4rem !important;">{{article && article.users_1 && article.users_1.name ? article.users_1.name : ''}}发表于{{article.articles_0.createtime}}</h6>
                 </mat-list-item>
             </mat-expansion-panel-header>
-            <h6 *ngIf="level==0" class="wrap">{{article.articles_0.content}}</h6>
+            <h6 *ngIf="level==0" class="wrap" [innerHTML]="imgUrl.safeHtml(article.articles_0.content)"></h6>
             <mat-form-field *ngIf="user.logined() && level <= 3">
                 <textarea matInput class="h6" placeholder="回复内容" [(ngModel)]="content"></textarea>
                 <button mat-icon-button class="small" matSuffix color="warn" (click)="comment(article)"><mat-icon>where_to_vote</mat-icon></button>
@@ -63,10 +63,14 @@ div.mat-list-icon *{
 }
 :host /deep/ .mat-expansion-panel-body {
     padding-right: 0; 
-    padding-left: 10px;
+    padding-left: 6px;
+}
+:host /deep/ .mat-expansion-panel-body > h6 {
+    padding: 0 12px;
 }
 mat-expansion-panel-header {
     padding-right: 0;
+    padding-left:0;
 }
 :host /deep/ .mat-list-item-content{
     padding-left: 0 !important;
@@ -79,7 +83,8 @@ export class PostComponent implements OnInit {
     content: '';
     profile;
 
-    constructor(public hr: HttpRequest, private user: User, private imgUrl: ImageUrl, private busService: BusService) {
+    constructor(public hr: HttpRequest, private user: User, public imgUrl: ImageUrl, private busService: BusService) {
+        
     }
     ngOnInit() {
         this.profile = this.user.profile;
@@ -89,7 +94,7 @@ export class PostComponent implements OnInit {
             }
 
             this.hr.post('article/list', { page: 0 }, result => {
-                console.log(result)
+                //console.log(result)
                 this.articles['list'] = result.data;
             });
             
@@ -127,11 +132,15 @@ export class PostComponent implements OnInit {
         if(!article.articles_0.id){
             return;
         }
-        this.hr.post('article/comment', { articleid: article.articles_0.id, content: this.content }, result => {
+        this.hr.post('article/comment', { articleid: article.articles_0.id, content: this.content.replace('\n','<br>') }, result => {
             if (!article['articles'] || !article['articles']['list']) {
                 article['articles'] = {list:[], pgNumber:0};
             }
-            this.busService.send(new DialogMessage(this, InfoDialogComponent, {title:'提示', content:`回复${article.users_1.name ? article.users_1.name: ''}成功`}));
+            this.busService.send(new DialogMessage(this, InfoDialogComponent, {title:'提示', content:`回复${article.users_1.name ? article.users_1.name: ''}成功`},
+                ()=>{
+                    this.content = '';
+                }, 
+            ));
             article['articles']['list'].unshift({ articles_0: { id: result.data, title: '', content: this.content, createtime: new Date().toLocaleString() }, users_1: { avatar: this.profile.avatar, name: this.profile.name } });
             article['articles']['pgNumber'] = article['articles']['pgNumber'] + 1;
         });
@@ -142,7 +151,7 @@ export class PostComponent implements OnInit {
             this.user.register();
             return;
         }
-        this.hr.post('article/post', {title:title, content: content}, result => {
+        this.hr.post('article/post', {title:title, content: content.replace('\n','<br>')}, result => {
             if (!this.articles|| !this.articles['list']) {
                 this.articles = {list:[], pgNumber:0};
             }
