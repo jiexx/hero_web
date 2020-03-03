@@ -107,17 +107,21 @@ export class Tickets extends HandlersContainer {
                 if(opt != -100){
                     tickets.addGroupBy('E')
                 }
+                if(!!q.eqe && q.eqe.length > 0) {
+                    tickets.andWhere("E IN ('"+q.eqe.join("','")+"') ");
+                }
             }else {
                 tickets.andWhere(" B NOT IN (" + q.note.map(e=>"'"+e+"'") + ")" );
                 if(opt != -100){
                     tickets.addGroupBy('B')
                 }
+                if(!!q.eqe && q.eqe.length > 0) {
+                    tickets.andWhere("B IN ('"+q.eqe.join("','")+"') ");
+                }
             }
         }
 
-        if(!!q.eqe && q.eqe.length > 0) {
-            tickets.andWhere("E IN ('"+q.eqe.join("','")+"') ");
-        }
+        
         
         switch(q.stops){ 
             case 'X':

@@ -41,8 +41,9 @@ export class Cache {
         }
         res.setHeader("Access-Control-Allow-Origin", "*");
         res.setHeader("Cache-Control", "public, max-age=0")
+        let ua = req.headers['user-agent'];
         let encoding = req.headers['accept-encoding'] || req.headers['Accept-Encoding'];
-        if(encoding && encoding.includes('gzip')){
+        if(encoding && encoding.includes('gzip') && !/Windows NT/.test(ua)){
             res.setHeader('Content-Encoding', 'gzip');
             file.pipe(res);
         }else{
